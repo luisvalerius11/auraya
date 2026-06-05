@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auraya Villas Uluwatu — 4 Freehold Ocean-View Villas</title>
+<meta name="description" content="Four ocean-view villas in Uluwatu, Bali, on freehold-equivalent HGB title via PT PMA. From ~USD 293K. Launch pricing held until 31 July 2026 — only 4 will ever exist.">
+<meta name="theme-color" content="#3E2D1E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Auraya Villas Uluwatu — 4 Ocean-View Villas, Freehold-Equivalent HGB">
+<meta property="og:description" content="Only four ocean-view villas in Uluwatu. Freehold-equivalent HGB via your own PT PMA. From ~USD 293K, launch pricing held until 31 July 2026.">
+<meta property="og:image" content="https://YOUR-DOMAIN.com/assets/og-image.jpg">
+<meta property="og:image:alt" content="Auraya villa with infinity pool and ocean view, Uluwatu Bali">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Auraya Villas Uluwatu — 4 Ocean-View Villas">
+<meta name="twitter:description" content="Freehold-equivalent HGB via PT PMA. From ~USD 293K. Only 4 will ever exist.">
+<meta name="twitter:image" content="https://YOUR-DOMAIN.com/assets/og-image.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preload" as="image" href="assets/hero.webp" fetchpriority="high">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Cinzel = headlines (brand). Jost = stand-in for "Open House" subheads/body until the real font file is added below. -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== BRAND: drop the real Open House font here, then change --font-body to 'Open House' =====
+  @font-face{
+    font-family:'Open House';
+    src:url('OpenHouse.woff2') format('woff2');
+    font-weight:300 600; font-display:swap;
+  }
+  ================================================================================================ */
+  :root{
+    /* Auraya palette */
+    --brown:#3E2D1E;        /* Dark Brown   */
+    --brown-gray:#4B4335;   /* Dark Gray Brown */
+    --stone:#8d8270;        /* Gray Orange  */
+    --cream:#f0ebd2;        /* Light Yellow */
+
+    --ink:var(--brown);
+    --ink-soft:#6f6450;
+    --paper:#faf7ec;        /* lifted cream for backgrounds */
+    --paper-2:#f0ebd2;
+    --stone-soft:#cfc7b3;
+    --gold:#a78b5f;
+    --line:rgba(62,45,30,.16);
+    --shadow:0 24px 60px -28px rgba(62,45,30,.45);
+    --maxw:1180px;
+
+    --font-head:'Cinzel',serif;          /* HEADLINES */
+    --font-body:'Jost',sans-serif;       /* SUBHEADS + BODY (swap to 'Open House') */
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font-body);color:var(--ink);background:var(--paper);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-weight:300}
+  h1,h2,h3,.display{font-family:var(--font-head);font-weight:500;line-height:1.16;letter-spacing:.01em}
+  .eyebrow{font-family:var(--font-body);text-transform:uppercase;letter-spacing:.34em;font-size:.72rem;font-weight:500;color:var(--gold)}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+  a{color:inherit}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:rgba(250,247,236,.85);backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .3s,box-shadow .3s}
+  nav.scrolled{border-color:var(--line);box-shadow:0 8px 30px -20px rgba(62,45,30,.4)}
+  .brand{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.18em;font-weight:600}
+  .brand small{display:block;font-family:var(--font-body);font-size:.56rem;letter-spacing:.36em;text-transform:uppercase;color:var(--ink-soft);margin-top:3px;font-weight:400}
+  .nav-cta{font-family:var(--font-body);font-size:.8rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;background:var(--brown);color:var(--cream);padding:12px 24px;border-radius:2px;text-decoration:none;transition:transform .25s,background .25s}
+  .nav-cta:hover{background:var(--brown-gray);transform:translateY(-2px)}
+
+  header.hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;padding:140px 0 64px;overflow:hidden}
+  .hero-photo{position:absolute;inset:0;background-image:url('assets/hero.webp');background-size:cover;background-position:center}
+  .hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(62,45,30,.12) 25%,rgba(62,45,30,.78))}
+  .hero-inner{position:relative;z-index:2;color:var(--cream)}
+  .hero-flag{display:inline-flex;align-items:center;gap:10px;background:rgba(240,235,210,.12);border:1px solid rgba(240,235,210,.32);backdrop-filter:blur(6px);padding:9px 18px;border-radius:2px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;margin-bottom:28px;animation:rise .8s ease both}
+  .hero-flag .dot{width:7px;height:7px;border-radius:50%;background:var(--stone);box-shadow:0 0 0 4px rgba(141,130,112,.3)}
+  header.hero h1{font-size:clamp(2.4rem,6vw,5rem);max-width:15ch;text-shadow:0 2px 30px rgba(0,0,0,.4);animation:rise .9s .08s ease both;letter-spacing:.02em}
+  header.hero h1 em{font-style:italic;color:#fff}
+  .hero-sub{margin-top:24px;max-width:46ch;font-size:1.1rem;font-weight:300;color:rgba(240,235,210,.95);text-shadow:0 1px 16px rgba(0,0,0,.45);animation:rise .9s .16s ease both}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:36px;animation:rise .9s .24s ease both}
+  .btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-body);font-weight:500;letter-spacing:.06em;text-transform:uppercase;font-size:.84rem;text-decoration:none;padding:17px 32px;border-radius:2px;transition:transform .25s,box-shadow .25s,background .25s}
+  .btn-primary{background:var(--cream);color:var(--brown)}
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 44px -16px rgba(0,0,0,.5)}
+  .btn-ghost{background:rgba(240,235,210,.1);color:var(--cream);border:1px solid rgba(240,235,210,.45)}
+  .btn-ghost:hover{background:rgba(240,235,210,.2);transform:translateY(-3px)}
+  .hero-stats{display:flex;flex-wrap:wrap;gap:40px;margin-top:54px;padding-top:30px;border-top:1px solid rgba(240,235,210,.24);animation:rise .9s .32s ease both}
+  .hero-stats div span{display:block;font-family:var(--font-head);font-size:1.8rem;line-height:1;letter-spacing:.02em}
+  .hero-stats div small{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;opacity:.85;margin-top:4px;display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+
+  .scarcity{background:var(--brown);color:var(--cream);text-align:center;padding:16px 28px;font-size:.92rem;letter-spacing:.02em;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
+  .scarcity strong{color:var(--stone-soft);font-weight:600}
+  .pips{display:inline-flex;gap:6px;vertical-align:middle}
+  .pip{width:26px;height:8px;border-radius:1px;background:rgba(240,235,210,.25)}
+  .pip.sold{background:var(--stone)}
+
+  section{padding:100px 0}
+  .section-head{max-width:60ch;margin-bottom:56px}
+  .section-head h2{font-size:clamp(1.9rem,4vw,2.9rem);margin-top:16px}
+  .section-head p{margin-top:18px;color:var(--ink-soft);font-size:1.06rem;font-weight:300}
+
+  .split{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+  .intro-photo{aspect-ratio:4/5;border-radius:3px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+  .intro-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .intro-copy h2{font-size:clamp(1.9rem,3.6vw,2.7rem);margin:16px 0 24px}
+  .intro-copy p{color:var(--ink-soft);font-size:1.05rem;margin-bottom:18px;font-weight:300}
+  .intro-copy .pull{font-family:var(--font-head);font-style:italic;font-size:1.25rem;color:var(--brown);line-height:1.5}
+
+  .specs{background:var(--paper-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .spec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .spec{background:var(--paper);padding:36px 28px}
+  .spec .num{font-family:var(--font-head);font-size:2.2rem;line-height:1;color:var(--brown-gray);letter-spacing:.01em}
+  .spec .lbl{margin-top:12px;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+  .price-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:18px;margin-top:48px}
+  .price-row .from{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft)}
+  .price-row .price{font-family:var(--font-head);font-size:2.8rem;color:var(--brown);letter-spacing:.01em}
+  .price-row .note{color:var(--ink-soft);font-size:.94rem}
+
+  .gallery{background:var(--paper)}
+  .gal-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+  .gal-col{display:grid;gap:14px}
+  .gal-item{position:relative;overflow:hidden;border-radius:3px;cursor:pointer}
+  .gal-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease}
+  .gal-item:hover img{transform:scale(1.05)}
+  .gal-big{aspect-ratio:4/3}
+  .gal-small{aspect-ratio:3/2}
+  .gal-cap{position:absolute;left:0;bottom:0;right:0;padding:24px 22px 16px;background:linear-gradient(transparent,rgba(62,45,30,.78));color:var(--cream);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;opacity:0;transition:opacity .3s}
+  .gal-item:hover .gal-cap{opacity:1}
+
+  .proof-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:840px;margin:0 auto}
+  .proof{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:32px 28px;transition:transform .3s,box-shadow .3s}
+  .proof:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+  .proof .ic{width:44px;height:44px;border-radius:3px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;color:var(--brown-gray);margin-bottom:20px;font-size:1.15rem}
+  .proof h3{font-size:1.2rem;margin-bottom:10px;letter-spacing:.02em}
+  .proof p{color:var(--ink-soft);font-size:.96rem;font-weight:300}
+
+  .roi{background:var(--brown-gray);color:var(--cream)}
+  .roi .section-head h2{color:var(--cream)}.roi .section-head p{color:rgba(240,235,210,.82)}
+  .roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:34px}
+  .roi-card{border:1px solid rgba(240,235,210,.2);border-radius:3px;padding:34px;background:rgba(240,235,210,.05)}
+  .roi-card .num{font-family:var(--font-head);font-size:2.4rem;color:var(--cream);line-height:1;letter-spacing:.01em}
+  .roi-card .lbl{margin-top:10px;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--stone-soft)}
+  .roi-card p{margin-top:16px;font-size:.94rem;font-weight:300;opacity:.9}
+  .roi-disclaimer{margin-top:36px;font-size:.78rem;opacity:.6;max-width:70ch}
+
+  .offer{background:var(--paper-2);border-top:1px solid var(--line)}
+  .offer-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+  .offer-copy h2{font-size:clamp(1.9rem,3.6vw,2.7rem);margin:16px 0 24px}
+  .offer-copy p{color:var(--ink-soft);font-size:1.04rem;margin-bottom:24px;font-weight:300}
+  .gives{list-style:none;margin-top:10px}
+  .gives li{display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line);font-size:1rem}
+  .gives li:last-child{border-bottom:none}
+  .gives .tick{flex:none;width:24px;height:24px;border-radius:50%;background:var(--brown);color:var(--cream);display:flex;align-items:center;justify-content:center;font-size:.75rem;margin-top:4px}
+
+  .card-form{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:40px 36px;box-shadow:var(--shadow)}
+  .card-form h3{font-size:1.5rem;margin-bottom:8px;letter-spacing:.02em}
+  .card-form .sub{color:var(--ink-soft);font-size:.94rem;margin-bottom:28px;font-weight:300}
+  .field{margin-bottom:18px}
+  .field label{display:block;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px}
+  .field input,.field select{width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:3px;font-family:var(--font-body);font-size:1rem;font-weight:300;color:var(--ink);background:#fff;transition:border-color .2s,box-shadow .2s}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--brown-gray);box-shadow:0 0 0 3px rgba(141,130,112,.22)}
+  .submit{width:100%;border:none;cursor:pointer;background:var(--brown);color:var(--cream);font-family:var(--font-body);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:.92rem;padding:18px;border-radius:2px;margin-top:8px;transition:background .25s,transform .25s}
+  .submit:hover{background:var(--brown-gray);transform:translateY(-2px)}
+  .reassure{display:flex;gap:9px;align-items:center;justify-content:center;margin-top:16px;font-size:.82rem;color:var(--ink-soft)}
+  .form-success{display:none;text-align:center;padding:40px 10px}
+  .form-success.show{display:block}
+  .form-success .check{width:64px;height:64px;border-radius:50%;background:var(--brown);color:var(--cream);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 20px}
+  .form-success h3{margin-bottom:10px;letter-spacing:.02em}.form-success p{color:var(--ink-soft);font-weight:300}
+  .form-success .wa-link{display:inline-block;margin-top:20px;color:var(--brown-gray);font-weight:600;text-decoration:none;border-bottom:2px solid var(--gold);padding-bottom:2px}
+
+  footer{background:var(--brown);color:rgba(240,235,210,.8);padding:74px 0 40px}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;margin-bottom:48px}
+  footer .brand{color:var(--cream)}
+  footer p{font-weight:300;font-size:.95rem;margin-top:16px;max-width:40ch;color:rgba(240,235,210,.68)}
+  .foot-col h4{font-family:var(--font-body);font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(240,235,210,.5);margin-bottom:18px}
+  .foot-col a{display:block;color:rgba(240,235,210,.82);text-decoration:none;margin-bottom:11px;font-size:.95rem;transition:color .2s}
+  .foot-col a:hover{color:#fff}
+  .foot-bottom{border-top:1px solid rgba(240,235,210,.16);padding-top:28px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.8rem;color:rgba(240,235,210,.5)}
+
+  .lb{position:fixed;inset:0;z-index:100;background:rgba(62,45,30,.94);display:none;align-items:center;justify-content:center;padding:30px;cursor:zoom-out}
+  .lb.show{display:flex}
+  .lb img{max-width:92vw;max-height:88vh;border-radius:3px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+
+  .mobile-cta{display:none}
+  @media(max-width:900px){
+    .split,.offer-grid{grid-template-columns:1fr;gap:40px}
+    .spec-grid{grid-template-columns:repeat(2,1fr)}
+    .proof-grid,.roi-grid{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr;gap:30px}
+    .gal-grid{grid-template-columns:1fr}
+    section{padding:74px 0}
+  }
+  @media(max-width:600px){
+    nav .nav-cta{display:none}
+    .hero-stats{gap:28px}.price-row .price{font-size:2.2rem}
+    .mobile-cta{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(250,247,236,.95);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+    .mobile-cta a{flex:1;text-align:center;justify-content:center;padding:15px;font-size:.8rem}
+    body{padding-bottom:76px}
+  }
+  .compare{background:var(--paper-2)}
+  .compare-table{width:100%;border-collapse:collapse;margin-top:8px;font-weight:300}
+  .compare-table th,.compare-table td{text-align:left;padding:20px 22px;border-bottom:1px solid var(--line);vertical-align:top;font-size:.98rem}
+  .compare-table thead th{font-family:var(--font-body);text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:600;color:var(--ink-soft);border-bottom:1px solid var(--brown-gray)}
+  .compare-table .row-lbl{font-weight:500;color:var(--ink);width:26%}
+  .compare-table .col-auraya{background:var(--paper);color:var(--ink);font-weight:400}
+  .compare-table thead .col-auraya{color:var(--brown);font-weight:700}
+  .compare-table tbody tr:last-child td{border-bottom:none}
+  .compare-foot{margin-top:18px;font-size:.84rem;color:var(--ink-soft);font-weight:300;font-style:italic}
+  @media(max-width:600px){
+    .compare-table,.compare-table tbody,.compare-table tr{display:block;width:100%}
+    .compare-table thead{display:none}
+    .compare-table tr{background:var(--paper);border:1px solid var(--line);border-radius:3px;margin-bottom:16px;padding:6px 16px}
+    .compare-table td{display:block;border-bottom:1px solid var(--line);padding:13px 0;font-size:.92rem}
+    .compare-table td:last-child{border-bottom:none}
+    .compare-table .row-lbl{width:auto;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);padding-bottom:4px;border-bottom:none}
+    .compare-table td.col-auraya{background:transparent;font-weight:500;color:var(--brown)}
+    .compare-table td:not(.row-lbl):not(.col-auraya)::before{content:'Typical leasehold — ';color:var(--ink-soft);font-size:.78rem}
+    .compare-table td.col-auraya::before{content:'Auraya — ';color:var(--gold);font-weight:600;font-size:.78rem}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="brand">AURAYA<small>Uluwatu · Bali</small></div>
+  <a href="#offer" class="nav-cta">Get the price list</a>
+</nav>
+
+<header class="hero">
+  <div class="hero-photo"></div>
+  <div class="wrap hero-inner">
+    <span class="hero-flag"><span class="dot"></span>Only 4 villas · Freehold-equivalent HGB title</span>
+    <h1>Own the <em>cliff</em>, not just the view.</h1>
+    <p class="hero-sub">Four ocean-view villas in Uluwatu, held on freehold-equivalent HGB title through your own PT&nbsp;PMA — the strongest long-term ownership structure available to foreign buyers. You see the notary's legal opinion before any money moves.</p>
+    <div class="hero-actions">
+      <a href="#offer" class="btn btn-primary">Get the investor pack →</a>
+      <a href="https://api.whatsapp.com/send?phone=6285899530004&text=Hi%20Auraya%2C%20I%27d%20like%20to%20book%20a%20title%20%26%20legal%20walkthrough" class="btn btn-ghost">Book a 15-min title walkthrough</a>
+    </div>
+    <div class="hero-stats">
+      <div><span>4</span><small>Villas, ever</small></div>
+      <div><span>HGB</span><small>Freehold-equivalent · via PT&nbsp;PMA · extendable</small></div>
+      <div><span>Ocean</span><small>Uninterrupted views</small></div>
+      <div><span>From $293K</span><small>Held until 31 Jul 2026</small></div>
+    </div>
+  </div>
+</header>
+
+<div class="scarcity">
+  <span class="pips"><span class="pip sold"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></span>
+  <span><strong>Villa 1 reserved.</strong> 3 of 4 remaining — pre-sale pricing held until 31 July 2026, then it rises.</span>
+</div>
+
+<section>
+  <div class="wrap split">
+    <div class="intro-photo"><img src="assets/pool-deck.webp" alt="Auraya villa pool deck with ocean view" width="1600" height="893" loading="lazy" decoding="async"></div>
+    <div class="intro-copy">
+      <span class="eyebrow">Introducing Auraya</span>
+      <h2>Freehold land, the right way — on the cliff, by the ocean.</h2>
+      <p>Most of Bali sells on short, non-extendable leases. Auraya is different: freehold-equivalent HGB title held through your own PT&nbsp;PMA — the strongest ownership structure available to foreign buyers — and fully extendable, so the land keeps working for you for the long term.</p>
+      <p>Each home is built for the way Uluwatu lives — open to the sea, private from the world, and finished to a standard that holds its value for decades.</p>
+      <p class="pull">"Once these four are gone, there are no more."</p>
+    </div>
+  </div>
+</section>
+
+<section class="compare">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">The difference, in one look</span>
+      <h2>Leasehold vs freehold-equivalent HGB</h2>
+      <p>Most Bali villas sell on a short lease — a clock that runs down to zero. Here's what you hold instead.</p>
+    </div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Typical leasehold</th>
+          <th class="col-auraya">Auraya — freehold-equivalent HGB</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-lbl">Ownership horizon</td>
+          <td>Fixed 25–30 year lease, counting down from day one</td>
+          <td class="col-auraya">Extendable title — renewable at term, not expiring</td>
+        </tr>
+        <tr>
+          <td class="row-lbl">What you hold at year 30</td>
+          <td>A lease near expiry, worth a fraction of what you paid</td>
+          <td class="col-auraya">An asset you still own and can extend, sell, or pass on</td>
+        </tr>
+        <tr>
+          <td class="row-lbl">Capital appreciation</td>
+          <td>The landlord captures the land's rise — not you</td>
+          <td class="col-auraya">You're positioned to capture land appreciation yourself</td>
+        </tr>
+        <tr>
+          <td class="row-lbl">Resale</td>
+          <td>You sell a shrinking lease that buyers discount</td>
+          <td class="col-auraya">You sell the villa and its title, not a countdown</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="compare-foot">The long-term advantage assumes the HGB title is extended at term — a routine but not automatic process. We explain exactly how it works, and how we manage it, in the investor pack.</p>
+  </div>
+</section>
+
+<section class="specs">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">The hard numbers</span>
+      <h2>What you're actually buying</h2>
+      <p>No mystery pricing. Here are the figures serious buyers ask for first.</p>
+    </div>
+    <div class="spec-grid">
+      <div class="spec"><div class="num">3</div><div class="lbl">Bedrooms / villa</div></div>
+      <div class="spec"><div class="num">220 m²</div><div class="lbl">Built area</div></div>
+      <div class="spec"><div class="num">300 m²</div><div class="lbl">Land per villa</div></div>
+      <div class="spec"><div class="num">Q4 2026</div><div class="lbl">Handover</div></div>
+    </div>
+    <div class="price-row">
+      <span class="from">Pre-sale from</span>
+      <span class="price">Rp 5.28 B</span>
+      <span class="note">≈ USD 293,000 at 18,000 · freehold-equivalent HGB via PT&nbsp;PMA · price held until 31 July 2026 · full price list in the investor pack</span>
+    </div>
+  </div>
+</section>
+
+<section class="gallery">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">The villas</span>
+      <h2>Inside Auraya</h2>
+      <p>Stone, warm walnut, and glass that opens to the green. Tap any image to enlarge.</p>
+    </div>
+    <div class="gal-grid">
+      <div class="gal-item gal-big" onclick="lb('assets/exterior-pool.webp')">
+        <img src="assets/exterior-pool.webp" alt="Auraya villa exterior with private pool" width="1400" height="781" loading="lazy" decoding="async">
+        <div class="gal-cap">Exterior &amp; private pool</div>
+      </div>
+      <div class="gal-col">
+        <div class="gal-item gal-small" onclick="lb('assets/living-kitchen.webp')">
+          <img src="assets/living-kitchen.webp" alt="Open-plan living and kitchen" width="1400" height="1045" loading="lazy" decoding="async">
+          <div class="gal-cap">Living &amp; kitchen</div>
+        </div>
+        <div class="gal-item gal-small" onclick="lb('assets/master-bedroom.webp')">
+          <img src="assets/master-bedroom.webp" alt="Master bedroom in walnut" width="1400" height="781" loading="lazy" decoding="async">
+          <div class="gal-cap">Master bedroom</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Buy with confidence</span>
+      <h2>Built to remove the risk of buying off-plan, from abroad</h2>
+      <p>Cross-border property should be the easy part. Here's exactly how Auraya is structured to protect your money before and during the build.</p>
+    </div>
+    <div class="proof-grid">
+      <div class="proof"><div class="ic">◈</div><h3>You see the legal opinion first — or you walk, no cost</h3><p>Before you pay any deposit, an independent notary verifies the freehold-equivalent HGB title held through your own PT&nbsp;PMA and issues a written legal opinion. Read it, take it to your own lawyer, and if the title doesn't check out, you owe nothing.</p></div>
+      <div class="proof"><div class="ic">◷</div><h3>Staged, milestone payments — never all upfront</h3><p>You pay against construction milestones on a fixed schedule, with escrow options and a handover date written into the contract. Your capital is released as the building goes up, not before.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="roi">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow" style="color:var(--stone-soft)">The investment case</span>
+      <h2>A home that pays its own way</h2>
+      <p>Uluwatu is one of Bali's strongest short-stay markets, so the villa earns while you hold it. And because the land is held on freehold-equivalent HGB — not a short lease — you're positioned to capture land appreciation a leasehold buyer never sees, provided the title is extended at term. Rental income now, capital gain later.</p>
+    </div>
+    <div class="roi-grid">
+      <div class="roi-card"><div class="num">8.8–11.9%</div><div class="lbl">Annual rental yield</div><p>Net cash yield on investment — 8.8% conservative, 10.3% expected, 11.9% accelerated. Modelled on Uluwatu day rates and occupancy.</p></div>
+      <div class="roi-card"><div class="num">~USD 1.25M</div><div class="lbl">Capital gain potential</div><p>The extendable HGB lets you hold land that compounds. At 10% p.a. land appreciation over a 30-year hold, projected net capital gain on top of rental income.</p></div>
+      <div class="roi-card"><div class="num">11.9%</div><div class="lbl">Projected IRR</div><p>Blended rental + capital-gain return over a 30-year hold in the favourable scenario. Total projected return ≈ USD 2.28M.</p></div>
+    </div>
+    <p class="roi-disclaimer">Figures are illustrative projections, not guarantees. Rental yields assume the modelled day rates and occupancy; capital-gain and IRR figures assume land appreciation and that the HGB title is extended at term — actual results will vary with the market, exchange rate, and title extension. Full assumptions and a unit-by-unit projection are in the investor pack. This is not financial or investment advice.</p>
+  </div>
+</section>
+
+<section class="offer" id="offer">
+  <div class="wrap offer-grid">
+    <div class="offer-copy">
+      <span class="eyebrow">Join the pre-sale</span>
+      <h2>Get the full investor pack — free.</h2>
+      <p>Tell us where to send it and you'll get everything you need to evaluate Auraya properly, today. Pre-sale pricing is held until <strong>31 July 2026</strong>:</p>
+      <ul class="gives">
+        <li><span class="tick">✓</span><span>Complete <strong>price list</strong> for all 4 villas + payment schedule</span></li>
+        <li><span class="tick">✓</span><span><strong>Floor plans &amp; renders</strong> for each villa</span></li>
+        <li><span class="tick">✓</span><span><strong>Title &amp; legal structure</strong> summary for foreign buyers</span></li>
+        <li><span class="tick">✓</span><span><strong>Rental yield projection</strong> with assumptions</span></li>
+      </ul>
+    </div>
+    <div class="card-form">
+      <div id="formView">
+        <h3>Send me the investor pack</h3>
+        <p class="sub">Takes 20 seconds. One villa specialist will follow up — no spam, no call centre.</p>
+        <form id="leadForm" novalidate>
+          <div class="field"><label for="name">Full name</label><input id="name" type="text" placeholder="Your name" required></div>
+          <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="you@email.com" required></div>
+          <div class="field"><label for="phone">WhatsApp number</label><input id="phone" type="tel" placeholder="+_ ___ ___ ____" required></div>
+          <div class="field"><label for="timeline">When are you looking to buy?</label>
+            <select id="timeline"><option value="">Select…</option><option>Ready now — actively buying</option><option>Next 3–6 months</option><option>Researching / 6–12 months</option><option>Just exploring</option></select>
+          </div>
+          <button type="submit" class="submit" id="submitBtn">Send me the investor pack →</button>
+          <div class="reassure"><span>🔒</span> No spam — just the pack and a single follow-up.</div>
+        </form>
+      </div>
+      <div class="form-success" id="successView">
+        <div class="check">✓</div><h3>On its way.</h3>
+        <p>Check your inbox for the Auraya investor pack. Want answers faster?</p>
+        <a class="wa-link" id="waHandoff" href="https://api.whatsapp.com/send?phone=6285899530004&text=Hi%20Auraya%2C%20I%20just%20requested%20the%20investor%20pack" target="_blank" rel="noopener">Message us on WhatsApp →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="brand">AURAYA<small style="color:rgba(240,235,210,.5)">Uluwatu · Bali</small></div>
+        <p>Four freehold cliffside villas with uninterrupted ocean views. Once these four are gone, there are no more.</p></div>
+      <div class="foot-col"><h4>Talk to us</h4>
+        <a href="https://api.whatsapp.com/send?phone=6285899530004">WhatsApp +62 858 9953 0004</a>
+        <a href="mailto:sales@auraya-villas.com">sales@auraya-villas.com</a>
+        <a href="https://www.instagram.com/auraya.villas/" target="_blank" rel="noopener">@auraya.villas</a></div>
+      <div class="foot-col"><h4>Visit</h4>
+        <a href="https://maps.google.com/?q=Belimbing+Sari+Street+Pecatu+Bali" target="_blank" rel="noopener">Belimbing Sari Street, Pecatu, Kuta Sel., Badung, Bali 80363</a></div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Auraya Villas. All rights reserved.</span>
+      <span>Renders are illustrative. Figures are indicative and not a guarantee of returns.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="mobile-cta">
+  <a href="#offer" class="btn btn-primary">Investor pack</a>
+  <a href="https://api.whatsapp.com/send?phone=6285899530004" class="btn" style="background:var(--brown);color:var(--cream)">WhatsApp</a>
+</div>
+
+<div class="lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged villa image" aria-hidden="true" onclick="lbClose()"><img id="lbImg" src="" alt=""></div>
+
+<script>
+  const nav=document.getElementById('nav');
+  addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>20));
+  function lb(src){const l=document.getElementById('lightbox');document.getElementById('lbImg').src=src;l.classList.add('show');l.setAttribute('aria-hidden','false');}
+  function lbClose(){const l=document.getElementById('lightbox');l.classList.remove('show');l.setAttribute('aria-hidden','true');document.getElementById('lbImg').src='';}
+  addEventListener('keydown',e=>{if(e.key==='Escape')lbClose();});
+
+  /* ======= LEAD CAPTURE -> GOOGLE SHEET =======
+     1. Open your Google Sheet > Extensions > Apps Script
+     2. Paste the Code.gs script (provided separately), Deploy > New deployment > Web app,
+        "Execute as: Me", "Who has access: Anyone". Copy the /exec URL.
+     3. Paste that URL between the quotes below.                                        */
+  const SHEET_ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+  const WA_NUMBER = "6285899530004";
+
+  const form=document.getElementById('leadForm');
+  const btn=document.getElementById('submitBtn');
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const name=document.getElementById('name').value.trim();
+    const email=document.getElementById('email').value.trim();
+    const phone=document.getElementById('phone').value.trim();
+    const timeline=document.getElementById('timeline').value;
+    if(!name||!email||!phone){alert('Please add your name, email and WhatsApp number.');return;}
+
+    btn.disabled=true; btn.textContent='Sending…';
+
+    const payload={name,email,phone,timeline,
+      source:'investor-pack-form',
+      page:location.href,
+      submitted_at:new Date().toISOString()};
+
+    try{
+      if(SHEET_ENDPOINT && !SHEET_ENDPOINT.startsWith('PASTE_')){
+        await fetch(SHEET_ENDPOINT,{
+          method:'POST',
+          mode:'no-cors',                       /* Apps Script needs no-cors from a browser */
+          headers:{'Content-Type':'text/plain;charset=utf-8'},
+          body:JSON.stringify(payload)
+        });
+      }
+    }catch(err){console.error('Lead post failed:',err);}
+
+    /* Personalise the follow-up WhatsApp link with their name */
+    const waText=encodeURIComponent("Hi Auraya, this is "+name+" — I just requested the investor pack.");
+    document.getElementById('waHandoff').href=
+      "https://api.whatsapp.com/send?phone="+WA_NUMBER+"&text="+waText;
+
+    document.getElementById('formView').style.display='none';
+    document.getElementById('successView').classList.add('show');
+  });
+</script>
+</body>
+</html>
