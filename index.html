@@ -399,6 +399,7 @@
         <h3>Send me the investor pack</h3>
         <p class="sub">Takes 20 seconds. One villa specialist will follow up — no spam, no call centre.</p>
         <form id="leadForm" novalidate>
+          <div class="field" aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden"><label for="company">Company</label><input id="company" name="company" type="text" tabindex="-1" autocomplete="off"></div>
           <div class="field"><label for="name">Full name</label><input id="name" type="text" placeholder="Your name" required></div>
           <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="you@email.com" required></div>
           <div class="field"><label for="phone">WhatsApp number</label><input id="phone" type="tel" placeholder="+_ ___ ___ ____" required></div>
@@ -451,12 +452,12 @@
   function lbClose(){const l=document.getElementById('lightbox');l.classList.remove('show');l.setAttribute('aria-hidden','true');document.getElementById('lbImg').src='';}
   addEventListener('keydown',e=>{if(e.key==='Escape')lbClose();});
 
-  /* ======= LEAD CAPTURE -> GOOGLE SHEET =======
-     1. Open your Google Sheet > Extensions > Apps Script
-     2. Paste the Code.gs script (provided separately), Deploy > New deployment > Web app,
-        "Execute as: Me", "Who has access: Anyone". Copy the /exec URL.
-     3. Paste that URL between the quotes below.                                        */
-  const SHEET_ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+  /* ======= LEAD CAPTURE -> n8n WEBHOOK =======
+     Posts to your n8n Cloud production webhook, which fans out to:
+       Google Sheet (append)  ·  Email notification  ·  WAHA WhatsApp first reply
+     IMPORTANT: the workflow must be toggled ACTIVE in n8n, and this must be the
+     production path (/webhook/...), NOT the test path (/webhook-test/...).        */
+  const LEAD_ENDPOINT = "https://valenira.app.n8n.cloud/webhook/164cb6af-80a3-4ea2-8b01-856597b9c2e2";
   const WA_NUMBER = "6285899530004";
 
   const form=document.getElementById('leadForm');
@@ -467,7 +468,15 @@
     const email=document.getElementById('email').value.trim();
     const phone=document.getElementById('phone').value.trim();
     const timeline=document.getElementById('timeline').value;
+    const company=document.getElementById('company').value; /* honeypot: must stay empty */
     if(!name||!email||!phone){alert('Please add your name, email and WhatsApp number.');return;}
+
+    /* Spam guard: if the hidden field is filled, a bot did it — fake success, send nothing. */
+    if(company){
+      document.getElementById('formView').style.display='none';
+      document.getElementById('successView').classList.add('show');
+      return;
+    }
 
     btn.disabled=true; btn.textContent='Sending…';
 
@@ -477,14 +486,11 @@
       submitted_at:new Date().toISOString()};
 
     try{
-      if(SHEET_ENDPOINT && !SHEET_ENDPOINT.startsWith('PASTE_')){
-        await fetch(SHEET_ENDPOINT,{
-          method:'POST',
-          mode:'no-cors',                       /* Apps Script needs no-cors from a browser */
-          headers:{'Content-Type':'text/plain;charset=utf-8'},
-          body:JSON.stringify(payload)
-        });
-      }
+      await fetch(LEAD_ENDPOINT,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
     }catch(err){console.error('Lead post failed:',err);}
 
     /* Personalise the follow-up WhatsApp link with their name */
