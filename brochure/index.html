@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Auraya Villas Uluwatu — Brochure</title>
+<meta name="description" content="The Auraya Villas brochure: four ocean-view villas in Uluwatu, Bali. Location, floor plans, price list and payment plan.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#211d18">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="img/01.jpg" fetchpriority="high">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Rozha+One&family=Barlow+Semi+Condensed:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&display=swap">
+<style>
+  img{ max-width:100%; } [hidden]{ display:none!important; }
+  /* ============================================================
+     AURAYA VILLAS — live brochure (Uluwatu draft design)
+     Served at /brochure. Deep-link a page with #p8 (page 8).
+     Walkthrough video: set VIDEO_URL at the top of the script; while it is empty the Film page is left out.
+     ============================================================ */
+  :root{
+    --cream:   #e9e4d6;   /* stone paper */
+    --cream-2: #ddd6c4;
+    --ink:     #16130e;   /* near-black headline serif */
+    --taupe:   #4a4238;   /* dark page ground */
+    --taupe-2: #37312a;
+    --bone:    #efe9d9;   /* cream type on photos */
+    --olive:   #b6c26a;   /* the draft's green link accent */
+    --faint:   #857f6e;
+    --surround:#211d18;
+    --serif:  'Playfair Display', Georgia, serif;
+    --fat:    'Rozha One', Georgia, serif;
+    --sans:   'Barlow Semi Condensed', 'Arial Narrow', sans-serif;
+  }
+  html, body { height:100%; }
+  body{
+    margin:0; background:var(--surround); color:var(--bone);
+    font-family:var(--sans); overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  .viewer{ height:100%; display:flex; flex-direction:column; padding:0 16px; box-sizing:border-box; }
+
+  .bar{ flex:none; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 4px 8px; }
+  .wordmark{ text-decoration:none; font-family:var(--serif); font-weight:500; font-size:15px; letter-spacing:.38em; text-transform:uppercase; color:var(--bone); }
+  .bar-right{ display:flex; align-items:center; gap:14px; }
+  .counter{ font-size:12px; letter-spacing:.14em; color:#a49c88; font-variant-numeric:tabular-nums; }
+  .fs-btn{ background:none; border:1px solid #4c453b; color:#cfc7b2; border-radius:4px;
+    font:500 11px var(--sans); letter-spacing:.12em; text-transform:uppercase; padding:6px 12px; cursor:pointer; }
+  .fs-btn:hover{ border-color:var(--bone); color:var(--bone); }
+  .fs-btn:focus-visible,.nav-arrow:focus-visible,.tick:focus-visible,.toc-item:focus-visible{ outline:2px solid var(--olive); outline-offset:2px; }
+
+  .stage{ flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; }
+  .sheet-box{ position:relative; }
+  .layer{
+    position:absolute; inset:0; display:flex; overflow:hidden; background:var(--cream);
+    box-shadow:0 26px 60px -14px rgba(0,0,0,.75), 0 4px 16px rgba(0,0,0,.5);
+    transition:transform .5s cubic-bezier(.22,.7,.3,1), opacity .5s ease;
+    transform-origin:left center;
+  }
+  .layer.enter-next{ transform:perspective(2400px) rotateY(12deg) translateX(3.5%); opacity:0; }
+  .layer.enter-prev{ transform:perspective(2400px) rotateY(-8deg) translateX(-3.5%); opacity:0; }
+  .layer.exit-next { transform:perspective(2400px) rotateY(-10deg) translateX(-4%); opacity:0; }
+  .layer.exit-prev { transform:perspective(2400px) rotateY(9deg) translateX(4%); opacity:0; }
+  .layer.settled{ transform:none; opacity:1; }
+  @media (prefers-reduced-motion:reduce){ .layer{ transition:none; } }
+
+  .nav-arrow{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:6;
+    width:40px; height:40px; border-radius:50%; border:1px solid #574f42;
+    background:rgba(22,18,13,.68); color:#e6dfc9; font-size:18px; line-height:1; cursor:pointer;
+  }
+  .nav-arrow:hover{ border-color:var(--bone); }
+  .nav-arrow[disabled]{ opacity:.22; cursor:default; }
+  .nav-prev{ left:-8px; } .nav-next{ right:-8px; }
+
+  .foot{ flex:none; display:flex; align-items:center; justify-content:center; gap:5px; padding:10px 0 12px; }
+  .tick{ width:14px; height:4px; border:0; padding:0; cursor:pointer; background:#4c453b; border-radius:2px; }
+  .tick.on{ background:var(--bone); }
+  .foot-label{ font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:#8d8471; margin-left:12px; }
+
+  /* ============ pages ============ */
+  .page{ flex:1; min-width:0; position:relative; box-sizing:border-box; overflow:hidden;
+         background:var(--cream); color:var(--ink); display:flex; flex-direction:column; }
+  .tex-cream{ background:
+      radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.28), rgba(0,0,0,0) 60%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .30 0 0 0 0 .27 0 0 0 0 .22 0 0 0 .10 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E"),
+      var(--cream); }
+  .tex-dark{ background:
+      radial-gradient(110% 100% at 50% 8%, rgba(255,255,255,.06), rgba(0,0,0,.28) 85%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .85 0 0 0 0 .80 0 0 0 0 .68 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E"),
+      var(--taupe); color:var(--bone); }
+  .photo-page{ background-size:cover; background-position:center; color:var(--bone); }
+  .shade{ position:absolute; inset:0; background:rgba(20,16,10,.34); }
+  .shade-grad{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(15,12,8,.28), rgba(15,12,8,.10) 40%, rgba(15,12,8,.45)); }
+  .page-inner{ position:relative; flex:1; display:flex; flex-direction:column; padding:3.2em 3.6em; min-height:0; }
+  .photo-page .page-inner{ z-index:1; }
+
+  .fat-title{ font-family:var(--fat); font-weight:400; line-height:.98; letter-spacing:.005em; margin:0; text-wrap:balance; }
+  .serif-title{ font-family:var(--serif); font-weight:500; letter-spacing:.10em; text-transform:uppercase; line-height:1.05; margin:0; text-wrap:balance; text-shadow:0 2px 22px rgba(0,0,0,.35); }
+  .caps-para{ font-size:.82em; font-weight:500; letter-spacing:.10em; text-transform:uppercase; line-height:1.75; }
+  .body-para{ font-size:.95em; font-weight:400; line-height:1.65; }
+  .justify{ text-align:justify; }
+  .kicker{ font-size:.72em; font-weight:600; letter-spacing:.30em; text-transform:uppercase; }
+  .pnum{ position:absolute; right:1.6em; bottom:1.2em; z-index:2; font-size:.68em; letter-spacing:.2em; color:inherit; opacity:.55; font-variant-numeric:tabular-nums; }
+
+  /* cover */
+  .cover .page-inner{ align-items:center; text-align:center; justify-content:center; gap:1.6em; }
+  .monogram{ font-family:var(--serif); font-size:1.5em; letter-spacing:.1em; border:1px solid rgba(239,233,217,.75); border-radius:50%; width:2.6em; height:2.6em; display:flex; align-items:center; justify-content:center; }
+  .cover-title{ font-size:5.2em; }
+  .cover .caps-para{ max-width:44em; text-shadow:0 1px 12px rgba(0,0,0,.5); }
+  .cover-foot{ position:absolute; bottom:2.4em; left:0; right:0; text-align:center; font-size:.78em; letter-spacing:.18em; z-index:1; }
+
+  /* contents */
+  .toc-title{ font-size:3.4em; text-align:center; margin-top:.4em; }
+  .toc-grid{ margin:auto; display:grid; grid-template-columns:1fr 1fr; gap:1.1em 3.5em; max-width:34em; width:100%; }
+  .toc-item{ display:flex; align-items:center; gap:1em; background:none; border:0; color:var(--bone); cursor:pointer; text-align:left; padding:0; font-family:var(--sans); }
+  .toc-item .no{ font-size:1.5em; font-weight:500; letter-spacing:.05em; border-left:2px solid rgba(239,233,217,.7); padding-left:.55em; font-variant-numeric:tabular-nums; min-width:1.8em; }
+  .toc-item .lb{ font-size:.8em; font-weight:600; letter-spacing:.16em; text-transform:uppercase; line-height:1.35; }
+  .toc-item:hover .lb{ color:#fff; text-decoration:underline; text-underline-offset:3px; }
+
+  /* introduction */
+  .intro .page-inner{ align-items:center; text-align:center; }
+  .intro-title{ font-size:4.2em; margin-top:.35em; }
+  .intro .caps-para{ max-width:52em; margin-top:1.6em; color:#3b362c; }
+  .intro-band{ margin-top:auto; width:72%; height:30%; background-size:cover; background-position:center 65%; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+
+  /* split pages */
+  .split{ flex:1; display:flex; min-height:0; }
+  .split > .half-text{ flex:1.05; display:flex; flex-direction:column; padding:3em 3.2em; min-width:0; box-sizing:border-box; }
+  .split > .half-photo{ flex:1; background-size:cover; background-position:center; min-height:0; }
+  .top5-title{ font-size:2.9em; }
+  .top5-title u{ text-decoration-thickness:.07em; text-underline-offset:.12em; }
+  .hl-head{ font-size:1.0em; font-weight:600; letter-spacing:.16em; text-transform:uppercase; margin:1.6em 0 .5em; }
+  .hl-list{ list-style:none; margin:0; padding:0; }
+  .hl-list li{ font-size:.8em; font-weight:400; letter-spacing:.08em; text-transform:uppercase; padding:.62em 0; border-bottom:1.5px solid #16130e; }
+  .hl-list b{ font-weight:600; }
+
+  /* location */
+  .loc .page-inner{ flex-direction:row; gap:2.5em; padding:2.8em 3em; }
+  .loc-text{ flex:0 0 34%; display:flex; flex-direction:column; min-width:0; }
+  .loc-title{ font-size:2.6em; }
+  .loc-text .body-para{ margin-top:1.2em; color:#ded7c3; }
+  .loc-hl{ font-size:.85em; line-height:1.6; color:#ded7c3; padding-left:1.1em; margin:.4em 0 0; }
+  .loc-hl li{ margin-bottom:.4em; }
+  .loc-link{ margin-top:auto; color:var(--bone); font-size:.85em; letter-spacing:.06em; }
+  .mapwrap{ flex:1; position:relative; min-width:0; }
+  .mapwrap img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; mix-blend-mode:screen; opacity:.96; }
+  .poi{ position:absolute; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; gap:.25em; z-index:2; }
+  .poi .d{ width:.55em; height:.55em; border-radius:50%; background:#5d564a; border:1px solid rgba(0,0,0,.2); }
+  .poi .t{ font-size:.62em; font-weight:600; letter-spacing:.06em; color:#3f3930; text-align:center; line-height:1.25; white-space:nowrap; }
+  .poi .t small{ display:block; font-weight:400; }
+  .poi-auraya .d{ width:1.05em; height:1.05em; background:var(--ink); box-shadow:0 0 0 .3em rgba(22,19,14,.18); }
+  .poi-auraya .t{ font-family:var(--serif); font-size:.78em; letter-spacing:.14em; }
+
+  /* lifestyle */
+  .life .page-inner{ align-items:center; text-align:center; padding:2.6em 3em 2.2em; }
+  .life-title{ font-size:3.1em; }
+  .life-sub{ max-width:40em; margin-top:.8em; font-size:.9em; line-height:1.6; color:#3b362c; }
+  .card-row{ display:flex; gap:1.2em; width:100%; margin-top:1.8em; flex:1; min-height:0; }
+  .card{ flex:1; background:#fdfcf9; border-radius:.5em; box-shadow:0 6px 20px rgba(0,0,0,.12); overflow:hidden; display:flex; flex-direction:column; text-align:left; min-width:0; }
+  .card .ph{ flex:1; min-height:0; background-size:cover; background-position:center; }
+  .card .nm{ font-size:.85em; font-weight:600; padding:.7em .8em .1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card .rt{ font-size:.7em; padding:0 1.15em .35em; color:#5f5a4e; }
+  .card .rt .stars{ color:#e8a12d; letter-spacing:.1em; }
+  .card .tp{ font-size:.66em; padding:0 1.25em 1em; color:#8a8474; }
+
+  /* film */
+  .film .page-inner{ align-items:center; text-align:center; padding:2.4em 3em; }
+  .film-title{ font-size:2.7em; }
+  .frame{ position:relative; margin-top:1.2em; width:min(78%, calc((100% - 0em))); aspect-ratio:16/9; max-height:62%; background:#000; box-shadow:0 16px 40px rgba(0,0,0,.55); }
+  .frame canvas,.frame video,.frame iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
+  .live-tag{ position:absolute; top:.9em; left:.9em; z-index:2; font-size:.6em; letter-spacing:.24em; padding:.55em 1em; background:rgba(0,0,0,.55); color:#efe6c8; }
+  .live-tag::before{ content:"●"; color:#dd4f3e; margin-right:.7em; animation:blink 1.6s infinite; }
+  @keyframes blink{ 50%{ opacity:.25; } }
+  @media (prefers-reduced-motion:reduce){ .live-tag::before{ animation:none; } }
+  .play-btn{ position:absolute; right:.9em; bottom:.9em; z-index:2; cursor:pointer; border:1px solid rgba(255,255,255,.45);
+    background:rgba(0,0,0,.45); color:#fff; font:500 .66em var(--sans); letter-spacing:.14em; text-transform:uppercase; padding:.7em 1.2em; }
+  .film-cap{ margin-top:1.1em; font-size:.78em; letter-spacing:.04em; color:#b3ab96; max-width:46em; line-height:1.6; }
+
+  /* ROI */
+  .roi .page-inner{ padding:2.6em 3.2em; }
+  .roi-head{ display:flex; gap:3em; align-items:flex-start; }
+  .roi-title{ font-size:2.5em; flex:0 0 44%; }
+  .roi-intro{ flex:1; }
+  .roi-intro .body-para{ font-size:.88em; color:#ded7c3; text-align:justify; }
+  .roi-link{ display:inline-block; margin-top:.7em; color:var(--olive); font-size:.85em; letter-spacing:.04em; }
+  table.roi-t{ width:100%; border-collapse:collapse; margin-top:1.8em; font-variant-numeric:tabular-nums; }
+  .roi-t th{ font-family:var(--sans); font-size:.95em; font-weight:600; text-align:right; padding:.5em .2em; }
+  .roi-t td{ font-size:.82em; padding:.42em .2em; text-align:right; color:#e6dfca; }
+  .roi-t td:first-child, .roi-t th:first-child{ text-align:left; font-weight:400; color:#cfc7ae; }
+  .roi-t tr.line td{ border-bottom:1px solid rgba(239,233,217,.55); }
+  .roi-t tr.strong td{ font-weight:600; color:#fff; }
+  .roi-t tr.gap td{ padding-top:1.1em; }
+
+  /* divider photo pages */
+  .divider .page-inner{ align-items:center; justify-content:center; text-align:center; }
+  .div-title{ font-size:4.2em; }
+  .div-sub{ margin-top:1em; font-size:.85em; letter-spacing:.12em; text-transform:uppercase; line-height:1.8; text-shadow:0 1px 10px rgba(0,0,0,.5); }
+
+  /* villa specs */
+  .spec-title{ font-size:3.4em; line-height:.95; }
+  .spec-title .thin{ display:block; font-size:.78em; }
+  .spec-list{ list-style:none; margin:1.6em 0 0; padding:0; }
+  .spec-list li{ font-size:.85em; letter-spacing:.05em; padding:.58em 0; border-bottom:1.5px solid #16130e; }
+  .spec-list b{ font-weight:600; }
+
+  /* section page */
+  .sectionpg{ background:#f4f2ec; }
+  .sectionpg .page-inner{ padding:2.2em 2.6em; }
+  .section-img{ flex:1; min-height:0; background-size:contain; background-repeat:no-repeat; background-position:center; }
+  .section-cap{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:1em; }
+  .section-cap .fat-title{ font-size:1.9em; }
+  .section-cap .k{ font-size:.72em; letter-spacing:.22em; text-transform:uppercase; color:#6d675a; }
+
+  /* floorplan */
+  .plan .page-inner{ align-items:center; padding:2.4em 3em; }
+  .plan-title{ font-size:3em; }
+  .plan-row{ display:flex; gap:2em; width:100%; flex:1; min-height:0; margin-top:1.4em; }
+  .plan-col{ flex:1; display:flex; flex-direction:column; align-items:center; min-width:0; }
+  .plan-col .im{ flex:1; width:100%; min-height:0; background-size:contain; background-repeat:no-repeat; background-position:center; mix-blend-mode:screen; }
+  .plan-col .lb{ font-size:.78em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; margin-top:.9em; }
+
+  /* room pages (exterior / interiors) */
+  .room .page-inner{ padding:2.4em 3em; }
+  .room-head{ display:flex; gap:3em; align-items:flex-start; margin-bottom:1.4em; }
+  .room-title{ font-size:2.9em; flex:0 0 auto; }
+  .room-head .caps-para{ flex:1; font-size:.66em; color:#3b362c; text-align:justify; margin-top:.5em; }
+  .room-grid{ flex:1; min-height:0; display:flex; gap:1.4em; }
+  .room-grid .im{ flex:1; background-size:cover; background-position:center; min-height:0; box-shadow:0 8px 24px rgba(0,0,0,.18); }
+
+  /* materials */
+  .mat .split > .half-photo{ background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#111; }
+  .mat-copy{ margin:auto 0; font-size:1.0em; line-height:1.7; text-align:center; font-weight:500; }
+  .mat-copy em{ display:block; margin-top:1.2em; font-weight:600; }
+
+  /* solar */
+  .solar-photo{ flex:1.15; background-size:cover; background-position:center; min-height:0; }
+  .solar-band{ flex:1; display:flex; gap:3em; padding:2.2em 3em; align-items:flex-start; box-sizing:border-box; min-height:0; overflow:hidden; }
+  .solar-title{ font-size:2.8em; flex:0 0 auto; }
+  .solar-copy{ flex:1; font-size:.8em; line-height:1.6; text-align:justify; }
+  .solar-copy b{ font-weight:600; }
+  .solar-note{ font-size:.72em; font-style:italic; margin-top:.9em; }
+
+  /* payment */
+  .price-t{ margin-top:2.4em; }
+.price-t td{ font-size:1em; padding:.85em .2em; }
+.price-t td:first-child{ font-family:var(--serif); font-size:1.25em; color:#fff; letter-spacing:.06em; }
+.price-t td:nth-child(4), .price-t td:nth-child(5){ font-weight:600; color:#fff; }
+.price-note{ margin-top:1.8em; font-size:.7em; letter-spacing:.06em; color:#cfc7ae; }
+body.narrow .price-t th:nth-child(3), body.narrow .price-t td:nth-child(3){ display:none; }
+body.narrow .price-t td{ font-size:.8em; }
+.pay .page-inner{ align-items:center; justify-content:center; padding:2.6em 3em; }
+  .pay-title{ font-size:3.4em; }
+  .timeline{ width:100%; margin-top:2.6em; position:relative; }
+  .tl-line{ position:absolute; left:0; right:0; top:50%; height:2px; background:rgba(239,233,217,.9); }
+  .tl-row{ display:flex; }
+  .tl-step{ flex:1; display:flex; flex-direction:column; align-items:center; gap:.9em; position:relative; }
+  .tl-step .pct{ font-family:var(--serif); font-style:italic; font-size:1.15em; height:1.3em; text-shadow:0 1px 8px rgba(0,0,0,.6); }
+  .tl-step .node{ width:2.2em; height:2.2em; border-radius:50%; background:var(--cream); color:var(--ink);
+    display:flex; align-items:center; justify-content:center; font-weight:600; font-size:.9em; z-index:1; }
+  .tl-step .lb{ font-size:.66em; font-weight:600; letter-spacing:.14em; text-transform:uppercase; text-align:center; line-height:1.4; text-shadow:0 1px 8px rgba(0,0,0,.6); }
+  .pay-note{ margin-top:2.4em; font-size:.72em; letter-spacing:.08em; text-shadow:0 1px 8px rgba(0,0,0,.6); }
+
+  /* thank you */
+  .thanks .page-inner{ align-items:center; justify-content:center; text-align:center; }
+  .thanks-title{ font-size:4.4em; }
+  .thanks-sub{ margin-top:1em; font-size:.85em; letter-spacing:.06em; line-height:1.8; max-width:36em; text-shadow:0 1px 10px rgba(0,0,0,.6); }
+  .contact{ list-style:none; padding:0; margin:1.6em 0 0; font-size:.85em; line-height:2; letter-spacing:.1em; text-transform:uppercase; text-shadow:0 1px 10px rgba(0,0,0,.6); }
+  .contact a{ color:inherit; text-decoration:none; border-bottom:1px solid rgba(239,233,217,.5); }
+  .legal{ position:absolute; bottom:1.6em; left:0; right:0; text-align:center; font-size:.6em; letter-spacing:.06em; color:rgba(239,233,217,.75); z-index:1; padding:0 4em; }
+
+  /* narrow (phone) adjustments */
+  body.narrow .split, body.narrow .roi-head, body.narrow .room-head, body.narrow .loc .page-inner{ flex-direction:column; }
+  body.narrow .loc .page-inner{ gap:1.2em; }
+  body.narrow .loc-text{ flex:0 0 auto; }
+  body.narrow .mapwrap{ flex:1; min-height:8em; }
+  body.narrow .split > .half-photo{ min-height:9em; }
+  body.narrow .card-row{ flex-wrap:wrap; overflow:hidden; }
+  body.narrow .card{ flex:1 1 30%; }
+  body.narrow .plan-row{ gap:.8em; }
+  body.narrow .room-grid{ flex-wrap:wrap; }
+  body.narrow .room-grid .im{ flex:1 1 40%; }
+  body.narrow .toc-grid{ grid-template-columns:1fr; gap:.8em; }
+  body.narrow .roi-title{ flex:0 0 auto; }
+  body.narrow .page-inner{ padding:2em 1.6em; }
+  body.narrow .cover-title{ font-size:3.1em; }
+</style>
+
+</head>
+<body>
+<div class="viewer" id="viewer">
+  <div class="bar">
+    <a class="wordmark" href="/" aria-label="Auraya Villas home">Auraya</a>
+    <div class="bar-right">
+      <span class="counter" id="counter">1 / 18</span>
+      <button class="fs-btn" id="fsBtn" type="button">Fullscreen</button>
+    </div>
+  </div>
+  <div class="stage" id="stage">
+    <div class="sheet-box" id="sheetBox">
+      <button class="nav-arrow nav-prev" id="prevBtn" type="button" aria-label="Previous page">‹</button>
+      <button class="nav-arrow nav-next" id="nextBtn" type="button" aria-label="Next page">›</button>
+    </div>
+  </div>
+  <div class="foot" id="foot"></div>
+</div>
+
+<div id="pageStore" hidden>
+
+  <!-- 1 · COVER -->
+  <section class="page photo-page cover" data-title="Cover" style="background-image:url(img/01.jpg)">
+    <div class="shade-grad"></div>
+    <div class="page-inner">
+      <div class="monogram">A</div>
+      <h1 class="serif-title cover-title">Auraya Villas</h1>
+      <p class="caps-para">Own one of four exclusive villas in Uluwatu, featuring panoramic ocean views, a private infinity pool, and a luxury rooftop jacuzzi.</p>
+    </div>
+    <div class="cover-foot">Developed by Nira Development</div>
+  </section>
+
+  <!-- 2 · CONTENTS -->
+  <section class="page photo-page" data-title="Contents" style="background-image:url(img/02.jpg)">
+    <div class="shade"></div>
+    <div class="page-inner">
+      <h2 class="serif-title toc-title">Table of Contents</h2>
+      <div class="toc-grid">
+        <button class="toc-item" data-goto="3"><span class="no">03</span><span class="lb">Project Introduction</span></button>
+        <button class="toc-item" data-goto="9"><span class="no">09</span><span class="lb">Villa Details</span></button>
+        <button class="toc-item" data-goto="5"><span class="no">05</span><span class="lb">Project Location</span></button>
+        <button class="toc-item" data-goto="12"><span class="no">12</span><span class="lb">Floorplan</span></button>
+        <button class="toc-item" data-goto="7"><span class="no">07</span><span class="lb">The Film</span></button>
+        <button class="toc-item" data-goto="16"><span class="no">16</span><span class="lb">Sustainability</span></button>
+        <button class="toc-item" data-goto="8"><span class="no">08</span><span class="lb">ROI Projection</span></button>
+        <button class="toc-item" data-goto="17"><span class="no">17</span><span class="lb">Price List &amp; Payment Plan</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · INTRODUCTION -->
+  <section class="page tex-cream intro" data-title="Introduction">
+    <div class="page-inner">
+      <h2 class="fat-title intro-title">Introduction</h2>
+      <p class="caps-para">Nestled in the heart of Bali's premier clifftop destination, Auraya features a private infinity pool and an exclusive rooftop jacuzzi — held on a secure long‑term lease registered in your own name.</p>
+      <div class="intro-band" style="background-image:url(img/03.jpg)"></div>
+    </div>
+    <span class="pnum">03</span>
+  </section>
+
+  <!-- 4 · TOP 5% -->
+  <section class="page" data-title="The Top 5%">
+    <div class="split">
+      <div class="half-text tex-cream">
+        <h2 class="fat-title top5-title">Designed to<br>be the <u>top 5%</u></h2>
+        <p class="body-para" style="margin-top:1.1em; color:#3b362c;">Auraya Villas Uluwatu is crafted to be the niche, top‑of‑mind choice for those who reject mass production in favor of a timeless, premium build.</p>
+        <div class="hl-head">Project Highlights</div>
+        <ul class="hl-list">
+          <li><b>Unit type:</b> 2‑bedroom premium build</li>
+          <li><b>Limited</b> to only 4 private villas</li>
+          <li><b>Prime seaview</b> with infinity pool</li>
+          <li><b>In‑house management</b> / concierge</li>
+          <li><b>Land size:</b> 110 – 147 sqm</li>
+          <li><b>Building size:</b> 145 sqm</li>
+          <li><b>Ownership:</b> long‑term leasehold, your own name</li>
+          <li><b>Zoning:</b> pink tourism zone</li>
+        </ul>
+      </div>
+      <div class="half-photo" style="background-image:url(img/04.jpg)"></div>
+    </div>
+    <span class="pnum" style="color:#3b362c;">04</span>
+  </section>
+
+  <!-- 5 · LOCATION -->
+  <section class="page tex-dark loc" data-title="Location">
+    <div class="page-inner">
+      <div class="loc-text">
+        <h2 class="serif-title loc-title">Perfectly Positioned</h2>
+        <p class="body-para justify">The Melasti region in southern Bali is a lush, premium area renowned for having the island's finest beaches. Because of its dramatic hilly terrain, ocean‑view plots are a rare find, with the most prestigious sites already occupied by world‑class luxury resorts.</p>
+        <div class="kicker" style="margin-top:.8em;">Highlights</div>
+        <ul class="loc-hl">
+          <li>Situated next to the famous Savaya club</li>
+          <li>The stunning Melasti Beach is a quick 10‑minute drive away</li>
+          <li>All major leisure and wellness activities within a 15‑minute drive</li>
+        </ul>
+        <a class="loc-link" href="https://maps.google.com/?q=Pecatu,+Uluwatu,+Bali" target="_blank" rel="noopener">Open in Google Maps →</a>
+      </div>
+      <div class="mapwrap">
+        <img src="img/05.jpg" alt="Map of the Bukit peninsula">
+        <div class="poi" style="left:56%; top:22%;"><span class="d"></span><span class="t">Dreamland<small>Beach</small></span></div>
+        <div class="poi" style="left:44%; top:46%;"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></div>
+        <div class="poi" style="left:30%; top:54%;"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></div>
+        <div class="poi" style="left:27%; top:70%;"><span class="d"></span><span class="t">Pura Luhur Uluwatu<small>Hindu Temple</small></span></div>
+        <div class="poi" style="left:38%; top:80%;"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></div>
+        <div class="poi" style="left:50%; top:86%;"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></div>
+        <div class="poi" style="left:61%; top:88%;"><span class="d"></span><span class="t">Savaya<small>Beach Club</small></span></div>
+        <div class="poi poi-auraya" style="left:70%; top:78%;"><span class="d"></span><span class="t">AURAYA<br>VILLAS</span></div>
+        <div class="poi" style="left:79%; top:88%;"><span class="d"></span><span class="t">Sundays<small>Beach Club</small></span></div>
+        <div class="poi" style="left:89%; top:90%;"><span class="d"></span><span class="t">Melasti<small>Beach</small></span></div>
+      </div>
+    </div>
+    <span class="pnum">05</span>
+  </section>
+
+  <!-- 6 · LIFESTYLE -->
+  <section class="page tex-cream life" data-title="Island Lifestyle">
+    <div class="page-inner">
+      <h2 class="fat-title life-title">Island Lifestyle</h2>
+      <p class="life-sub">Designed for those who live in sync with the island's rhythm, Auraya Villas puts you at the heart of Uluwatu's vibrant lifestyle.</p>
+      <div class="card-row">
+        <div class="card"><div class="ph" style="background-image:url(img/06.jpg)"></div><div class="nm">Savaya Bali</div><div class="rt">4.1 <span class="stars">★★★★☆</span> (4,945)</div><div class="tp">Disco club</div></div>
+        <div class="card"><div class="ph" style="background-image:url(img/07.jpg)"></div><div class="nm">Island Padel Uluwatu</div><div class="rt">4.7 <span class="stars">★★★★★</span> (337)</div><div class="tp">Sports club</div></div>
+        <div class="card"><div class="ph" style="background-image:url(img/08.jpg)"></div><div class="nm">Sundays Beach Club</div><div class="rt">4.5 <span class="stars">★★★★★</span> (5,208)</div><div class="tp">Restaurant</div></div>
+        <div class="card"><div class="ph" style="background-image:url(img/09.jpg)"></div><div class="nm">Melasti Beach</div><div class="rt">4.7 <span class="stars">★★★★★</span> (3,949)</div><div class="tp">Beach</div></div>
+        <div class="card"><div class="ph" style="background-image:url(img/10.jpg)"></div><div class="nm">Palmilla Bali Beach Club</div><div class="rt">4.4 <span class="stars">★★★★☆</span> (3,941)</div><div class="tp">Restaurant</div></div>
+      </div>
+    </div>
+    <span class="pnum" style="color:#3b362c;">06</span>
+  </section>
+
+  <!-- 7 · FILM -->
+  <section class="page tex-dark film" data-title="The Film">
+    <div class="page-inner">
+      <h2 class="serif-title film-title">The Film</h2>
+      <div class="frame" id="filmFrame">
+        <canvas id="filmCanvas"></canvas>
+        <span class="live-tag">Live · plays in‑page</span>
+        <button class="play-btn" id="playBtn" type="button">Pause</button>
+      </div>
+      <p class="film-cap">Unlike a printed PDF, this brochure plays real media on the page — walkthrough films, drone footage and animation. This frame is running a live sample; the villa walkthrough drops straight into it.</p>
+    </div>
+    <span class="pnum">07</span>
+  </section>
+
+  <!-- 8 · ROI -->
+  <section class="page tex-dark roi" data-title="ROI Projection">
+    <div class="page-inner">
+      <div class="roi-head">
+        <h2 class="serif-title roi-title">Return of Investment (ROI)</h2>
+        <div class="roi-intro">
+          <p class="body-para">Maximize your investment potential with our transparent ROI Projection. By focusing on a niche, limited‑edition build, we ensure your returns are driven by both consistent cash flow and long‑term capital appreciation.</p>
+          <a class="roi-link" href="mailto:sales@auraya-villas.com?subject=Auraya%20Villas%20—%20Full%20ROI%20calculation">Link to Full ROI Calculation and Market Benchmark</a>
+        </div>
+      </div>
+      <table class="roi-t">
+        <tr><th></th><th>Conservative</th><th>Expected</th><th>Accelerated</th></tr>
+        <tr><td>Average Day Rate</td><td>$160</td><td>$175</td><td>$190</td></tr>
+        <tr class="line"><td>Average Occupancy Rate</td><td>75%</td><td>80%</td><td>85%</td></tr>
+        <tr class="strong"><td>Gross Rental Income</td><td>$43,800</td><td>$51,100</td><td>$58,948</td></tr>
+        <tr class="gap"><td>Villa Management (18% of Revenue)</td><td>$7,884</td><td>$9,198</td><td>$10,611</td></tr>
+        <tr class="line"><td>Operating Expense (15% of Revenue)</td><td>$6,570</td><td>$7,665</td><td>$8,842</td></tr>
+        <tr class="strong"><td>Total Expense</td><td>$14,454</td><td>$16,863</td><td>$19,453</td></tr>
+        <tr class="gap"><td>Investment (Villa A4)</td><td>$298,105</td><td>$298,105</td><td>$298,105</td></tr>
+        <tr class="line"><td>Net Income</td><td>$29,346</td><td>$34,237</td><td>$39,495</td></tr>
+        <tr class="strong"><td>% Annual ROI</td><td>10%</td><td>11%</td><td>13%</td></tr>
+      </table>
+    </div>
+    <span class="pnum">08</span>
+  </section>
+
+  <!-- 9 · VILLA DETAILS divider -->
+  <section class="page photo-page divider" data-title="Villa Details" style="background-image:url(img/11.jpg)">
+    <div class="shade"></div>
+    <div class="page-inner">
+      <h2 class="serif-title div-title">Villa Details</h2>
+      <p class="div-sub">Take a look inside Auraya Villas to see all the amazing features<br>and cozy spaces waiting for you.</p>
+    </div>
+    <span class="pnum">09</span>
+  </section>
+
+  <!-- 10 · THE VILLA -->
+  <section class="page" data-title="The Villa">
+    <div class="split">
+      <div class="half-text tex-cream">
+        <div class="kicker">By Nira Development</div>
+        <h2 class="fat-title spec-title" style="margin-top:.5em;">Auraya<span class="thin">Villa</span></h2>
+        <ul class="spec-list">
+          <li>Land Size <b>110 – 147 sqm</b></li>
+          <li>Building Size <b>145 sqm</b></li>
+          <li>Roof Terrace</li>
+          <li>Optional Rooftop Jacuzzi</li>
+          <li>2 Bedroom</li>
+          <li>2.5 Bathroom</li>
+          <li>2 Bike Parking</li>
+          <li><b>Long‑term leasehold — your own name</b></li>
+        </ul>
+      </div>
+      <div class="half-photo" style="background-image:url(img/12.jpg)"></div>
+    </div>
+    <span class="pnum" style="color:#3b362c;">10</span>
+  </section>
+
+  <!-- 11 · IN SECTION -->
+  <section class="page sectionpg" data-title="In Section">
+    <div class="page-inner">
+      <div class="section-cap">
+        <h2 class="fat-title">The villa, in section</h2>
+        <span class="k">Pool · Jacuzzi · Rooftop · Two floors</span>
+      </div>
+      <div class="section-img" style="background-image:url(img/13.jpg)"></div>
+    </div>
+    <span class="pnum" style="color:#3b362c;">11</span>
+  </section>
+
+  <!-- 12 · FLOORPLAN -->
+  <section class="page tex-dark plan" data-title="Floorplan">
+    <div class="page-inner">
+      <h2 class="serif-title plan-title">Floorplan</h2>
+      <div class="plan-row">
+        <div class="plan-col"><div class="im" style="background-image:url(img/14.jpg)"></div><div class="lb">Ground Floor</div></div>
+        <div class="plan-col"><div class="im" style="background-image:url(img/15.jpg)"></div><div class="lb">Second Floor</div></div>
+        <div class="plan-col"><div class="im" style="background-image:url(img/16.jpg)"></div><div class="lb">Rooftop</div></div>
+      </div>
+    </div>
+    <span class="pnum">12</span>
+  </section>
+
+  <!-- 13 · EXTERIOR -->
+  <section class="page tex-cream room" data-title="Exterior">
+    <div class="page-inner">
+      <div class="room-head">
+        <h2 class="fat-title room-title">Exterior</h2>
+        <p class="caps-para">This timeless villa blends natural stone walls with lush tropical greenery, featuring a stunning infinity pool that merges with the endless ocean views.</p>
+      </div>
+      <div class="room-grid">
+        <div class="im" style="background-image:url(img/03.jpg)"></div>
+        <div class="im" style="background-image:url(img/12.jpg)"></div>
+      </div>
+    </div>
+    <span class="pnum" style="color:#3b362c;">13</span>
+  </section>
+
+  <!-- 14 · INTERIORS -->
+  <section class="page tex-cream room" data-title="Interiors">
+    <div class="page-inner">
+      <div class="room-head">
+        <h2 class="fat-title room-title">Interiors</h2>
+        <p class="caps-para">Open‑plan living with a rustic kitchen heart, two serene en‑suite bedrooms with direct ocean views, and travertine bathrooms — classic style with total comfort and privacy.</p>
+      </div>
+      <div class="room-grid">
+        <div class="im" style="background-image:url(img/17.jpg)"></div>
+        <div class="im" style="background-image:url(img/18.jpg)"></div>
+        <div class="im" style="background-image:url(img/19.jpg)"></div>
+        <div class="im" style="background-image:url(img/20.jpg)"></div>
+      </div>
+    </div>
+    <span class="pnum" style="color:#3b362c;">14</span>
+  </section>
+
+  <!-- 15 · MATERIALS -->
+  <section class="page mat" data-title="Materials">
+    <div class="split">
+      <div class="half-photo" style="background-image:url(img/21.jpg)"></div>
+      <div class="half-text tex-cream">
+        <p class="mat-copy">We prioritize durability and design by selecting only the finest natural materials, including lime plaster, textured paint, natural stone, and Ulin wood. This commitment to premium craftsmanship ensures a home that is both raw and refined.<em>A timeless build designed to last forever.</em></p>
+      </div>
+    </div>
+    <span class="pnum" style="color:#3b362c;">15</span>
+  </section>
+
+  <!-- 16 · SOLAR -->
+  <section class="page" data-title="Sustainability">
+    <div class="solar-photo" style="background-image:url(img/22.jpg)"></div>
+    <div class="solar-band tex-cream">
+      <h2 class="fat-title solar-title">Solar Panel</h2>
+      <div>
+        <p class="solar-copy">We offer sustainable power solutions, starting with high‑efficiency <b>Nusa Power</b> panels that deliver a robust up to <b>1.200 kWh/kWp</b> daily yield to cover your entire estate's climate control and lighting. Our seamless integration includes smart battery storage, providing a <b>15 kWh</b> backup capacity to ensure your home remains fully powered long after the sun sets or if there's any blackout.</p>
+        <p class="solar-note">Additional Price Rp 200.000.000 | Projected Bill Offset <b>up to 60% of Monthly Electricity Bill</b></p>
+      </div>
+    </div>
+    <span class="pnum" style="color:#3b362c;">16</span>
+  </section>
+
+  <!-- 17 · PRICE LIST -->
+  <section class="page tex-dark roi prices" data-title="Price List">
+    <div class="page-inner">
+      <div class="roi-head">
+        <h2 class="serif-title roi-title">Price List</h2>
+        <div class="roi-intro">
+          <p class="body-para">Four villas, each on its own plot. Every villa shares the same 145 sqm two bedroom design with private pool and roof terrace; the price follows the size of the land.</p>
+        </div>
+      </div>
+      <table class="roi-t price-t">
+        <tr><th>Villa</th><th>Land Size</th><th>Building Size</th><th>Price (IDR)</th><th>Price (USD)</th></tr>
+        <tr class="line"><td>A1</td><td>147 sqm</td><td>145 sqm</td><td>5.689.672.000</td><td>$319,644</td></tr>
+        <tr class="line"><td>A2</td><td>121 sqm</td><td>145 sqm</td><td>5.430.472.000</td><td>$305,083</td></tr>
+        <tr class="line"><td>A3</td><td>114 sqm</td><td>145 sqm</td><td>5.342.272.000</td><td>$300,128</td></tr>
+        <tr class="line"><td>A4</td><td>110 sqm</td><td>145 sqm</td><td>5.306.272.000</td><td>$298,105</td></tr>
+      </table>
+      <p class="price-note">Prices as of 17 November 2026 · USD figures indicative at IDR 17.800 per USD · long‑term leasehold in the buyer's own name</p>
+    </div>
+    <span class="pnum">17</span>
+  </section>
+
+  <!-- 18 · PAYMENT -->
+  <section class="page photo-page pay" data-title="Payment Timeline" style="background-image:url(img/23.jpg)">
+    <div class="shade"></div>
+    <div class="page-inner">
+      <h2 class="serif-title pay-title">Payment Timeline</h2>
+      <div class="timeline">
+        <div class="tl-line"></div>
+        <div class="tl-row">
+          <div class="tl-step"><span class="pct">10%</span><span class="node">1</span><span class="lb">Reservation<br>Fee</span></div>
+          <div class="tl-step"><span class="pct">30%</span><span class="node">2</span><span class="lb">Notarial<br>Signing</span></div>
+          <div class="tl-step"><span class="pct"></span><span class="node">3</span><span class="lb">Start<br>Construction</span></div>
+          <div class="tl-step"><span class="pct">10%</span><span class="node">4</span><span class="lb">Progress<br>25%</span></div>
+          <div class="tl-step"><span class="pct">20%</span><span class="node">5</span><span class="lb">Progress<br>55%</span></div>
+          <div class="tl-step"><span class="pct">20%</span><span class="node">6</span><span class="lb">Progress<br>85%</span></div>
+          <div class="tl-step"><span class="pct">10%</span><span class="node">7</span><span class="lb">Project<br>Finished</span></div>
+        </div>
+      </div>
+      <p class="pay-note">Payments follow construction milestones · handover 2027</p>
+    </div>
+    <span class="pnum">18</span>
+  </section>
+
+  <!-- 19 · THANK YOU -->
+  <section class="page photo-page thanks" data-title="Enquiries" style="background-image:url(img/24.jpg)">
+    <div class="shade"></div>
+    <div class="page-inner">
+      <h2 class="serif-title thanks-title">Thank You</h2>
+      <p class="thanks-sub">Auraya Villas is not for everyone. With limited units available,<br>ensure you are among the few.</p>
+      <ul class="contact">
+        <li><a href="mailto:sales@auraya-villas.com">sales@auraya-villas.com</a></li>
+        <li><a href="https://api.whatsapp.com/send?phone=6285899530004&text=Hi%20Auraya%2C%20I%27ve%20read%20the%20brochure" target="_blank" rel="noopener">+62 858 9953 0004 · WhatsApp</a></li>
+        <li>Viewings by appointment</li>
+      </ul>
+    </div>
+    <p class="legal">Illustrative material, not an offer capable of acceptance. Tenure is a registered long‑term lease in the buyer's own name; terms per the notarial lease deed and building contract prepared for each buyer.</p>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= CONFIG =================
+     Real walkthrough video for "The Film" page, once hosted on
+     your own domain. Either:
+       VIDEO_URL = "media/walkthrough.mp4"                (self-hosted)
+       VIDEO_URL = "https://www.youtube.com/embed/XXXX"   (YouTube embed)
+     Leave "" for the built-in live sample animation.      */
+  var VIDEO_URL = "";
+  /* ========================================== */
+
+  var store   = document.getElementById('pageStore');
+  var pages   = Array.prototype.slice.call(store.querySelectorAll('.page'));
+
+  /* Contents entries point at page numbers; remember the actual pages so numbers can be redone below */
+  var tocItems = Array.prototype.slice.call(store.querySelectorAll('[data-goto]'));
+  var tocTargets = tocItems.map(function(b){ return pages[parseInt(b.dataset.goto,10)-1]; });
+
+  /* No walkthrough video yet: leave the Film page out of the brochure */
+  var filmPage = store.querySelector('.film');
+  if (!VIDEO_URL && filmPage){
+    tocItems.forEach(function(b, k){ if (tocTargets[k] === filmPage) b.remove(); });
+    filmPage.remove();
+    pages = Array.prototype.slice.call(store.querySelectorAll('.page'));
+  }
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  pages.forEach(function(p, k){ var n = p.querySelector('.pnum'); if (n) n.textContent = pad(k+1); });
+  tocItems.forEach(function(b, k){
+    var idx = pages.indexOf(tocTargets[k]); if (idx < 0) return;
+    b.dataset.goto = idx+1; b.querySelector('.no').textContent = pad(idx+1);
+  });
+
+  /* Photos load when their page is shown, so fetch the next two pages' photos ahead of time */
+  var pageImgs = pages.map(function(p){ return (p.outerHTML.match(/img\/\d+\.jpg/g) || []); });
+  function preload(i){ (pageImgs[i] || []).forEach(function(u){ var im = new Image(); im.src = u; }); }
+
+  var sheetBox= document.getElementById('sheetBox');
+  var stage   = document.getElementById('stage');
+  var counter = document.getElementById('counter');
+  var foot    = document.getElementById('foot');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+
+  var cur = 0, layer = null, busy = false, narrow = false;
+
+  function fit(){
+    narrow = stage.clientWidth < 700;
+    document.body.classList.toggle('narrow', narrow);
+    var ar = narrow ? 3/4.1 : 16/9;
+    var w = stage.clientWidth - 56, h = stage.clientHeight - 6;
+    var bw = Math.min(w, h*ar), bh = bw/ar;
+    sheetBox.style.width  = Math.max(bw, 240) + 'px';
+    sheetBox.style.height = Math.max(bh, 240/ar) + 'px';
+    sheetBox.style.fontSize = Math.max(bw * (narrow ? 0.026 : 0.0125), 7.2) + 'px';
+  }
+
+  function buildLayer(i){
+    var el = document.createElement('div');
+    el.className = 'layer';
+    el.appendChild(pages[i]);
+    return el;
+  }
+  function stash(el){
+    if (!el) return;
+    Array.prototype.slice.call(el.querySelectorAll('.page')).forEach(function(p){ store.appendChild(p); });
+    el.remove();
+  }
+  function render(i, dir){
+    cur = i;
+    var old = layer, fresh = buildLayer(i);
+    if (dir) fresh.classList.add(dir === 'next' ? 'enter-next' : 'enter-prev');
+    sheetBox.insertBefore(fresh, prevBtn);
+    layer = fresh;
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      fresh.classList.remove('enter-next','enter-prev');
+      fresh.classList.add('settled');
+      if (old){
+        old.classList.remove('settled');
+        old.classList.add(dir === 'prev' ? 'exit-prev' : 'exit-next');
+        setTimeout(function(){ stash(old); busy = false; }, 520);
+      } else busy = false;
+    });});
+    try{ history.replaceState(null, '', '#p' + (i+1)); }catch(e){}
+    preload(i+1); preload(i+2);
+    updateChrome();
+  }
+  function go(i, dir){
+    if (busy || i < 0 || i >= pages.length || i === cur) return;
+    busy = true;
+    render(i, dir || (i > cur ? 'next' : 'prev'));
+  }
+  function updateChrome(){
+    counter.textContent = (cur+1) + ' / ' + pages.length;
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === pages.length-1;
+    foot.innerHTML = '';
+    pages.forEach(function(p, i){
+      var t = document.createElement('button');
+      t.type = 'button';
+      t.className = 'tick' + (i === cur ? ' on' : '');
+      t.setAttribute('aria-label', 'Page ' + (i+1) + ' — ' + p.dataset.title);
+      t.addEventListener('click', function(){ go(i); });
+      foot.appendChild(t);
+    });
+    var lbl = document.createElement('span');
+    lbl.className = 'foot-label';
+    lbl.textContent = pages[cur].dataset.title;
+    foot.appendChild(lbl);
+  }
+
+  prevBtn.addEventListener('click', function(){ go(cur-1,'prev'); });
+  nextBtn.addEventListener('click', function(){ go(cur+1,'next'); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') go(cur+1,'next');
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   go(cur-1,'prev');
+  });
+  var tx = null;
+  stage.addEventListener('touchstart', function(e){ tx = e.changedTouches[0].clientX; }, {passive:true});
+  stage.addEventListener('touchend', function(e){
+    if (tx === null) return;
+    var dx = e.changedTouches[0].clientX - tx; tx = null;
+    if (dx < -40) go(cur+1,'next');
+    if (dx >  40) go(cur-1,'prev');
+  }, {passive:true});
+  document.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('[data-goto]') : null;
+    if (b) go(parseInt(b.dataset.goto,10)-1);
+  });
+
+  var fsBtn = document.getElementById('fsBtn');
+  fsBtn.addEventListener('click', function(){
+    var v = document.getElementById('viewer');
+    try{
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (v.requestFullscreen) v.requestFullscreen();
+      else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
+    }catch(err){}
+  });
+  document.addEventListener('fullscreenchange', function(){
+    fsBtn.textContent = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
+    fit();
+  });
+  window.addEventListener('resize', function(){ fit(); });
+
+  /* ---------- The Film: shown only when VIDEO_URL is set ---------- */
+  if (VIDEO_URL){
+    var frame = document.getElementById('filmFrame');
+    document.getElementById('filmCanvas').remove(); document.getElementById('playBtn').remove();
+    frame.querySelector('.live-tag').remove(); store.querySelector('.film-cap').remove();
+    if (/youtube|vimeo/.test(VIDEO_URL)){
+      var ifr = document.createElement('iframe');
+      ifr.src = VIDEO_URL; ifr.allow = 'autoplay; fullscreen; picture-in-picture';
+      ifr.setAttribute('allowfullscreen','');
+      frame.appendChild(ifr);
+    } else {
+      var vid = document.createElement('video');
+      vid.src = VIDEO_URL; vid.controls = true; vid.muted = true;
+      vid.autoplay = true; vid.loop = true; vid.playsInline = true;
+      frame.appendChild(vid);
+    }
+  }
+
+  /* boot */
+  fit();
+  var start = 0, hm = (location.hash||'').match(/^#p(\d+)$/);
+  if (hm){ var n = parseInt(hm[1],10); if (n >= 1 && n <= pages.length) start = n-1; }
+  render(start, null);
+})();
+</script>
+
+</body>
+</html>
