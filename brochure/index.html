@@ -248,6 +248,13 @@
   .roi-t tr.strong td{ font-weight:600; color:#fff; }
   .roi-t tr.gap td{ padding-top:1.1em; }
 
+  /* photos that come alive: a silent looping clip fades in over the still once it can play */
+  [data-video]{ position:relative; overflow:hidden; }
+  .clip{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:inherit; display:block;
+    opacity:0; transition:opacity .8s ease; pointer-events:none; z-index:0; }
+  .clip.on{ opacity:1; }
+  .intro-band .clip{ object-position:center 65%; }
+
   /* divider photo pages */
   .divider .page-inner{ align-items:center; justify-content:center; text-align:center; }
   .div-title{ font-size:4.2em; }
@@ -401,7 +408,7 @@ body.narrow .price-t td{ font-size:.8em; }
 <div id="pageStore" hidden>
 
   <!-- 1 · COVER -->
-  <section class="page photo-page cover" data-title="Cover" style="background-image:url(img/01.jpg)">
+  <section class="page photo-page cover" data-title="Cover" data-video="vid/facade.mp4" style="background-image:url(img/01.jpg)">
     <div class="shade-grad"></div>
     <div class="page-inner">
       <div class="monogram">A</div>
@@ -434,7 +441,7 @@ body.narrow .price-t td{ font-size:.8em; }
     <div class="page-inner">
       <h2 class="fat-title intro-title">Introduction</h2>
       <p class="caps-para">Nestled in the heart of Bali's premier clifftop destination, Auraya features a private infinity pool and an exclusive rooftop jacuzzi, held on a secure long‑term lease registered in your own name.</p>
-      <div class="intro-band" style="background-image:url(img/03.jpg)"></div>
+      <div class="intro-band" data-video="vid/complex.mp4" style="background-image:url(img/03.jpg)"></div>
     </div>
     <span class="pnum">03</span>
   </section>
@@ -457,7 +464,7 @@ body.narrow .price-t td{ font-size:.8em; }
           <li><b>Zoning:</b> pink tourism zone</li>
         </ul>
       </div>
-      <div class="half-photo" style="background-image:url(img/04.jpg)"></div>
+      <div class="half-photo" data-video="vid/rooftop.mp4" style="background-image:url(img/04.jpg)"></div>
     </div>
     <span class="pnum" style="color:#3b362c;">04</span>
   </section>
@@ -576,7 +583,7 @@ body.narrow .price-t td{ font-size:.8em; }
           <li><b>Long‑term leasehold in your own name</b></li>
         </ul>
       </div>
-      <div class="half-photo" style="background-image:url(img/12.jpg)"></div>
+      <div class="half-photo" data-video="vid/facade.mp4" style="background-image:url(img/12.jpg)"></div>
     </div>
     <span class="pnum" style="color:#3b362c;">10</span>
   </section>
@@ -614,8 +621,8 @@ body.narrow .price-t td{ font-size:.8em; }
         <p class="caps-para">This timeless villa blends natural stone walls with lush tropical greenery, featuring a stunning infinity pool that merges with the endless ocean views.</p>
       </div>
       <div class="room-grid">
-        <div class="im" style="background-image:url(img/03.jpg)"></div>
-        <div class="im" style="background-image:url(img/12.jpg)"></div>
+        <div class="im" data-video="vid/complex.mp4" style="background-image:url(img/03.jpg)"></div>
+        <div class="im" data-video="vid/facade.mp4" style="background-image:url(img/12.jpg)"></div>
       </div>
     </div>
     <span class="pnum" style="color:#3b362c;">13</span>
@@ -631,7 +638,7 @@ body.narrow .price-t td{ font-size:.8em; }
       <div class="room-grid">
         <div class="im" style="background-image:url(img/17.jpg)"></div>
         <div class="im" style="background-image:url(img/18.jpg)"></div>
-        <div class="im" style="background-image:url(img/19.jpg)"></div>
+        <div class="im" data-video="vid/bedroom.mp4" style="background-image:url(img/19.jpg)"></div>
         <div class="im" style="background-image:url(img/20.jpg)"></div>
       </div>
     </div>
@@ -817,6 +824,7 @@ body.narrow .price-t td{ font-size:.8em; }
     }
     void sheetBox.offsetWidth; sheetBox.classList.remove('no-anim');
     updateChrome();
+    syncClips();
   }
 
   /* ----- spread mode ----- */
@@ -896,11 +904,35 @@ body.narrow .price-t td{ font-size:.8em; }
     afterMove();
   }
 
+  /* ----- moving photos: only the pages on screen play; everything else stays a still ----- */
+  var clipHosts = Array.prototype.slice.call(store.querySelectorAll('[data-video]'));
+  function pageIndexOf(el){ return pages.indexOf(el.classList.contains('page') ? el : el.closest('.page')); }
+  function syncClips(){
+    if (still) return;
+    var shown = spread ? [2*state - 1, 2*state] : [cur];
+    clipHosts.forEach(function(host){
+      var on = shown.indexOf(pageIndexOf(host)) >= 0;
+      var v = host.querySelector(':scope > .clip');
+      if (on && !v){
+        v = document.createElement('video');
+        v.className = 'clip'; v.muted = true; v.loop = true; v.playsInline = true;
+        v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.setAttribute('aria-hidden','true');
+        v.preload = 'auto'; v.src = host.dataset.video;
+        v.addEventListener('playing', function(){ v.classList.add('on'); });
+        host.insertBefore(v, host.firstChild);
+      }
+      if (!v) return;
+      if (on){ var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); }
+      else v.pause();
+    });
+  }
+
   /* ----- shared ----- */
   function afterMove(){
     try{ history.replaceState(null, '', '#p' + (cur+1)); }catch(e){}
     preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4);
     updateChrome();
+    syncClips();
   }
   function go(i, dir){
     if (i < 0 || i >= N) return;
