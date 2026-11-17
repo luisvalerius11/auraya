@@ -6,7 +6,7 @@
 <title>Auraya Villas Uluwatu | Brochure</title>
 <meta name="description" content="The Auraya Villas brochure: four ocean-view villas in Uluwatu, Bali. Location, floor plans, price list and payment plan.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#211d18">
+<meta name="theme-color" content="#faf7ec">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
@@ -30,55 +30,81 @@
     --bone:    #efe9d9;   /* cream type on photos */
     --olive:   #b6c26a;   /* the draft's green link accent */
     --faint:   #857f6e;
-    --surround:#211d18;
+    --surround:#faf7ec;   /* page behind the book, same paper as the main site */
     --serif:  'Playfair Display', Georgia, serif;
     --fat:    'Rozha One', Georgia, serif;
     --sans:   'Barlow Semi Condensed', 'Arial Narrow', sans-serif;
   }
   html, body { height:100%; }
   body{
-    margin:0; background:var(--surround); color:var(--bone);
+    margin:0; background:var(--surround); color:var(--ink);
     font-family:var(--sans); overflow:hidden; -webkit-font-smoothing:antialiased;
   }
-  .viewer{ height:100%; display:flex; flex-direction:column; padding:0 16px; box-sizing:border-box; }
+  .viewer{ height:100%; display:flex; flex-direction:column; padding:0 24px 24px; box-sizing:border-box; background:var(--surround); }
 
-  .bar{ flex:none; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 4px 8px; }
-  .wordmark{ text-decoration:none; font-family:var(--serif); font-weight:500; font-size:15px; letter-spacing:.38em; text-transform:uppercase; color:var(--bone); }
-  .bar-right{ display:flex; align-items:center; gap:14px; }
-  .counter{ font-size:12px; letter-spacing:.14em; color:#a49c88; font-variant-numeric:tabular-nums; }
-  .fs-btn{ background:none; border:1px solid #4c453b; color:#cfc7b2; border-radius:4px;
-    font:500 11px var(--sans); letter-spacing:.12em; text-transform:uppercase; padding:6px 12px; cursor:pointer; }
-  .fs-btn:hover{ border-color:var(--bone); color:var(--bone); }
-  .fs-btn:focus-visible,.nav-arrow:focus-visible,.tick:focus-visible,.toc-item:focus-visible{ outline:2px solid var(--olive); outline-offset:2px; }
+  .bar{ flex:none; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 4px 16px; }
+  .wordmark{ text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
+  .bar-label{ font-size:11px; font-weight:500; letter-spacing:.26em; text-transform:uppercase; color:var(--faint); }
 
+  /* the white card the book sits on */
+  .desk{ flex:1; min-height:0; display:flex; flex-direction:column; background:#fff; border:1px solid #ece6d8; border-radius:18px; padding:22px 14px 16px; box-sizing:border-box; }
   .stage{ flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; }
-  .sheet-box{ position:relative; }
+
+  /* the book: one portrait page, turning on its left edge */
+  .sheet-box{ position:relative; perspective:2600px; }
+  .sheet-box::before{ content:""; position:absolute; inset:0; background:#f3efe4;
+    box-shadow: 2px 1px 0 #ebe6da, 3px 2px 0 #d9d3c5, 5px 3px 0 #ebe6da, 6px 4px 0 #d3cdbe, 0 18px 36px -16px rgba(40,30,15,.45); }
+  .leaves{ position:absolute; inset:0; transform-style:preserve-3d; }
   .layer{
-    position:absolute; inset:0; display:flex; overflow:hidden; background:var(--cream);
-    box-shadow:0 26px 60px -14px rgba(0,0,0,.75), 0 4px 16px rgba(0,0,0,.5);
-    transition:transform .5s cubic-bezier(.22,.7,.3,1), opacity .5s ease;
-    transform-origin:left center;
+    position:absolute; inset:0; display:flex;
+    transform-origin:left center; transform-style:preserve-3d;
+    transition:transform 1s cubic-bezier(.45,.05,.25,1), opacity .25s linear;
   }
-  .layer.enter-next{ transform:perspective(2400px) rotateY(12deg) translateX(3.5%); opacity:0; }
-  .layer.enter-prev{ transform:perspective(2400px) rotateY(-8deg) translateX(-3.5%); opacity:0; }
-  .layer.exit-next { transform:perspective(2400px) rotateY(-10deg) translateX(-4%); opacity:0; }
-  .layer.exit-prev { transform:perspective(2400px) rotateY(9deg) translateX(4%); opacity:0; }
-  .layer.settled{ transform:none; opacity:1; }
-  @media (prefers-reduced-motion:reduce){ .layer{ transition:none; } }
+  /* the blank reverse of the sheet, shown by the script once the page has turned past upright */
+  .layer > .leaf-back{ position:absolute; inset:0; display:none;
+    background:linear-gradient(90deg, #d9d3c4, #f1ede2 12%, #f4f0e6); }
+  .layer.flipped > .leaf-back{ display:block; }
+  .layer.flipped > .page{ visibility:hidden; }
+  /* soft shadow in the gutter, and the darkening that sweeps a page as it lifts */
+  .layer::before{ content:""; position:absolute; inset:0; z-index:8; pointer-events:none;
+    background:linear-gradient(90deg, rgba(20,14,6,.16), rgba(20,14,6,0) 5%); }
+  .layer::after{ content:""; position:absolute; inset:0; z-index:9; pointer-events:none; opacity:0;
+    background:linear-gradient(90deg, rgba(20,14,6,.30), rgba(20,14,6,.04) 70%); transition:opacity 1s ease; }
+  .layer.turned{ transform:rotateY(-180deg); opacity:0; transition-delay:0s,.75s; }
+  .layer.turned::after{ opacity:1; }
+  .layer.no-anim, .layer.no-anim::after{ transition:none; }
+  @media (prefers-reduced-motion:reduce){ .layer, .layer::after{ transition:none; } }
 
   .nav-arrow{
     position:absolute; top:50%; transform:translateY(-50%); z-index:6;
-    width:40px; height:40px; border-radius:50%; border:1px solid #574f42;
-    background:rgba(22,18,13,.68); color:#e6dfc9; font-size:18px; line-height:1; cursor:pointer;
+    width:48px; height:72px; border:0; background:none; color:#a59e8d; cursor:pointer; padding:0;
+    display:flex; align-items:center; justify-content:center; transition:color .2s;
   }
-  .nav-arrow:hover{ border-color:var(--bone); }
-  .nav-arrow[disabled]{ opacity:.22; cursor:default; }
-  .nav-prev{ left:-8px; } .nav-next{ right:-8px; }
+  .nav-arrow svg{ width:22px; height:40px; fill:none; stroke:currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+  .nav-arrow:hover{ color:var(--ink); }
+  .nav-arrow[disabled]{ opacity:0; pointer-events:none; }
+  .nav-prev{ left:14px; } .nav-next{ right:14px; }
 
-  .foot{ flex:none; display:flex; align-items:center; justify-content:center; gap:5px; padding:10px 0 12px; }
-  .tick{ width:14px; height:4px; border:0; padding:0; cursor:pointer; background:#4c453b; border-radius:2px; }
-  .tick.on{ background:var(--bone); }
-  .foot-label{ font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:#8d8471; margin-left:12px; }
+  .tools{ flex:none; display:flex; justify-content:center; padding-top:16px; }
+  .toolbar{ display:flex; align-items:stretch; background:#fbfaf6; border:1px solid #e6e0d2; border-radius:8px;
+    box-shadow:0 2px 8px -3px rgba(40,30,15,.25); overflow:hidden; }
+  .tool{ width:44px; height:40px; border:0; background:none; color:#5d564a; cursor:pointer; padding:0;
+    display:flex; align-items:center; justify-content:center; transition:background .2s,color .2s; }
+  .tool svg{ width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+  .tool:hover{ background:#f1ede2; color:var(--ink); }
+  .tool[disabled]{ color:#cfc8b8; cursor:default; background:none; }
+  .tool-sep{ border-left:1px solid #e6e0d2; }
+  .counter{ display:flex; align-items:center; padding:0 14px; min-width:44px; justify-content:center; background:#f3efe5;
+    font-size:13px; letter-spacing:.06em; color:#5d564a; font-variant-numeric:tabular-nums; }
+  .nav-arrow:focus-visible,.tool:focus-visible,.toc-item:focus-visible,.wordmark:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
+
+  @media (max-width:700px){
+    .viewer{ padding:0 12px 12px; }
+    .bar{ padding:14px 4px 12px; }
+    .desk{ padding:14px 8px 12px; border-radius:14px; }
+    .nav-arrow{ display:none; }
+    .tools{ padding-top:12px; }
+  }
 
   /* ============ pages ============ */
   .page{ flex:1; min-width:0; position:relative; box-sizing:border-box; overflow:hidden;
@@ -286,6 +312,37 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .roi-title{ flex:0 0 auto; }
   body.narrow .page-inner{ padding:2em 1.6em; }
   body.narrow .cover-title{ font-size:3.1em; }
+
+  /* portrait book pages: stack what used to sit side by side, and let each page fill its sheet */
+  body.narrow .intro-band{ width:100%; height:52%; }
+  body.narrow .intro-title{ font-size:3.4em; }
+  body.narrow .roi .page-inner{ padding:2.6em 2em; }
+  body.narrow .roi-title{ font-size:2.3em; }
+  body.narrow .roi-t{ margin:auto 0; }
+  body.narrow .roi-t th{ font-size:.86em; }
+  body.narrow .roi-t td{ font-size:.86em; padding:.62em .2em; }
+  body.narrow .price-t td{ font-size:.9em; padding:1em .2em; }
+  body.narrow .price-t td:first-child{ font-size:1.2em; }
+  body.narrow .price-note{ margin-top:0; line-height:1.6; }
+  body.narrow .plan-row{ flex-direction:column; gap:1.2em; }
+  body.narrow .plan-col{ flex-direction:row; align-items:center; gap:1.2em; min-height:0; }
+  body.narrow .plan-col .im{ height:100%; }
+  body.narrow .plan-col .lb{ flex:0 0 6.5em; margin-top:0; line-height:1.5; }
+  body.narrow .solar-band{ flex-direction:column; gap:1.1em; padding:2.2em 2em; }
+  body.narrow .solar-title{ font-size:2.6em; }
+  body.narrow .solar-copy{ font-size:.86em; }
+  body.narrow .pay-title{ font-size:2.9em; text-align:center; }
+  body.narrow .timeline{ width:auto; margin-top:2.2em; }
+  body.narrow .tl-line{ left:.99em; right:auto; top:.9em; bottom:.9em; width:2px; height:auto; }
+  body.narrow .tl-row{ flex-direction:column; gap:1.25em; }
+  body.narrow .tl-step{ flex-direction:row; align-items:center; gap:1.1em; }
+  body.narrow .tl-step .node{ order:-1; flex:none; }
+  body.narrow .tl-step .pct{ flex:0 0 2.6em; height:auto; font-size:1.3em; }
+  body.narrow .tl-step .lb{ text-align:left; font-size:.74em; }
+  body.narrow .tl-step .lb br{ display:none; }
+  body.narrow .section-cap{ flex-direction:column; gap:.5em; }
+  body.narrow .thanks-title{ font-size:3.6em; }
+  body.narrow .div-title{ font-size:3.6em; }
 </style>
 
 </head>
@@ -293,18 +350,24 @@ body.narrow .price-t td{ font-size:.8em; }
 <div class="viewer" id="viewer">
   <div class="bar">
     <a class="wordmark" href="/" aria-label="Auraya Villas home">Auraya</a>
-    <div class="bar-right">
-      <span class="counter" id="counter">1 / 18</span>
-      <button class="fs-btn" id="fsBtn" type="button">Fullscreen</button>
+    <span class="bar-label">Brochure</span>
+  </div>
+  <div class="desk">
+    <div class="stage" id="stage">
+      <button class="nav-arrow nav-prev" id="prevBtn" type="button" aria-label="Previous page"><svg viewBox="0 0 22 40"><path d="M17 3 4 20l13 17"/></svg></button>
+      <div class="sheet-box" id="sheetBox"><div class="leaves" id="leaves"></div></div>
+      <button class="nav-arrow nav-next" id="nextBtn" type="button" aria-label="Next page"><svg viewBox="0 0 22 40"><path d="M5 3l13 17L5 37"/></svg></button>
+    </div>
+    <div class="tools">
+      <div class="toolbar" role="toolbar" aria-label="Brochure controls">
+        <button class="tool" id="prevTool" type="button" aria-label="Previous page"><svg viewBox="0 0 18 18"><path d="M11.5 3.5 6 9l5.5 5.5"/></svg></button>
+        <span class="counter" id="counter" aria-live="polite">1/18</span>
+        <button class="tool" id="nextTool" type="button" aria-label="Next page"><svg viewBox="0 0 18 18"><path d="M6.5 3.5 12 9l-5.5 5.5"/></svg></button>
+        <button class="tool tool-sep" id="tocTool" type="button" aria-label="Contents" title="Contents"><svg viewBox="0 0 18 18"><path d="M3 4.5h12M3 9h12M3 13.5h8"/></svg></button>
+        <button class="tool" id="fsBtn" type="button" aria-label="Fullscreen" title="Fullscreen"><svg viewBox="0 0 18 18"><path d="M3 7V3h4M15 7V3h-4M3 11v4h4M15 11v4h-4"/></svg></button>
+      </div>
     </div>
   </div>
-  <div class="stage" id="stage">
-    <div class="sheet-box" id="sheetBox">
-      <button class="nav-arrow nav-prev" id="prevBtn" type="button" aria-label="Previous page">‹</button>
-      <button class="nav-arrow nav-next" id="nextBtn" type="button" aria-label="Next page">›</button>
-    </div>
-  </div>
-  <div class="foot" id="foot"></div>
 </div>
 
 <div id="pageStore" hidden>
@@ -648,21 +711,24 @@ body.narrow .price-t td{ font-size:.8em; }
   var pages   = Array.prototype.slice.call(store.querySelectorAll('.page'));
 
   /* Contents entries point at page numbers; remember the actual pages so numbers can be redone below */
-  var tocItems = Array.prototype.slice.call(store.querySelectorAll('[data-goto]'));
-  var tocTargets = tocItems.map(function(b){ return pages[parseInt(b.dataset.goto,10)-1]; });
+  var toc = Array.prototype.slice.call(store.querySelectorAll('[data-goto]'))
+    .map(function(b){ return { btn:b, target:pages[parseInt(b.dataset.goto,10)-1] }; });
 
   /* No walkthrough video yet: leave the Film page out of the brochure */
   var filmPage = store.querySelector('.film');
   if (!VIDEO_URL && filmPage){
-    tocItems.forEach(function(b, k){ if (tocTargets[k] === filmPage) b.remove(); });
+    toc = toc.filter(function(t){ if (t.target === filmPage){ t.btn.remove(); return false; } return true; });
     filmPage.remove();
     pages = Array.prototype.slice.call(store.querySelectorAll('.page'));
   }
   function pad(n){ return (n < 10 ? '0' : '') + n; }
   pages.forEach(function(p, k){ var n = p.querySelector('.pnum'); if (n) n.textContent = pad(k+1); });
-  tocItems.forEach(function(b, k){
-    var idx = pages.indexOf(tocTargets[k]); if (idx < 0) return;
-    b.dataset.goto = idx+1; b.querySelector('.no').textContent = pad(idx+1);
+  /* renumber the contents and list it in page order */
+  toc.sort(function(a, b){ return pages.indexOf(a.target) - pages.indexOf(b.target); });
+  toc.forEach(function(t){
+    var n = pages.indexOf(t.target) + 1;
+    t.btn.dataset.goto = n; t.btn.querySelector('.no').textContent = pad(n);
+    t.btn.parentNode.appendChild(t.btn);
   });
 
   /* Photos load when their page is shown, so fetch the next two pages' photos ahead of time */
@@ -670,29 +736,33 @@ body.narrow .price-t td{ font-size:.8em; }
   function preload(i){ (pageImgs[i] || []).forEach(function(u){ var im = new Image(); im.src = u; }); }
 
   var sheetBox= document.getElementById('sheetBox');
+  var leaves  = document.getElementById('leaves');
   var stage   = document.getElementById('stage');
   var counter = document.getElementById('counter');
-  var foot    = document.getElementById('foot');
-  var prevBtn = document.getElementById('prevBtn');
-  var nextBtn = document.getElementById('nextBtn');
+  var prevBtn = document.getElementById('prevBtn'), nextBtn = document.getElementById('nextBtn');
+  var prevTool= document.getElementById('prevTool'), nextTool= document.getElementById('nextTool');
+  var TURN_MS = 1000;
+  var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var cur = 0, layer = null, busy = false, narrow = false;
+  var cur = 0, layer = null, busy = false;
 
+  /* Every page is one portrait sheet, like a printed booklet, on any screen size */
+  document.body.classList.add('narrow');
   function fit(){
-    narrow = stage.clientWidth < 700;
-    document.body.classList.toggle('narrow', narrow);
-    var ar = narrow ? 3/4.1 : 16/9;
-    var w = stage.clientWidth - 56, h = stage.clientHeight - 6;
-    var bw = Math.min(w, h*ar), bh = bw/ar;
-    sheetBox.style.width  = Math.max(bw, 240) + 'px';
-    sheetBox.style.height = Math.max(bh, 240/ar) + 'px';
-    sheetBox.style.fontSize = Math.max(bw * (narrow ? 0.026 : 0.0125), 7.2) + 'px';
+    var ar = 3/4.1;
+    var arrows = getComputedStyle(prevBtn).display !== 'none';
+    var w = stage.clientWidth - (arrows ? 150 : 14), h = stage.clientHeight - 14;
+    var bw = Math.max(Math.min(w, h*ar), 200), bh = bw/ar;
+    sheetBox.style.width  = bw + 'px';
+    sheetBox.style.height = bh + 'px';
+    sheetBox.style.fontSize = Math.max(bw * 0.026, 6.4) + 'px';
   }
 
   function buildLayer(i){
     var el = document.createElement('div');
     el.className = 'layer';
     el.appendChild(pages[i]);
+    var back = document.createElement('div'); back.className = 'leaf-back'; el.appendChild(back);
     return el;
   }
   function stash(el){
@@ -700,21 +770,33 @@ body.narrow .price-t td{ font-size:.8em; }
     Array.prototype.slice.call(el.querySelectorAll('.page')).forEach(function(p){ store.appendChild(p); });
     el.remove();
   }
+  /* While a sheet turns, show its blank reverse whenever it is facing away from the reader */
+  function watchFlip(el){
+    var t0 = Date.now();
+    (function tick(){
+      var m = getComputedStyle(el).transform.match(/matrix3d\(([-\d.e]+)/);
+      el.classList.toggle('flipped', !!m && parseFloat(m[1]) < 0);
+      if (Date.now() - t0 < TURN_MS && el.parentNode) requestAnimationFrame(tick);
+    })();
+  }
   function render(i, dir){
     cur = i;
     var old = layer, fresh = buildLayer(i);
-    if (dir) fresh.classList.add(dir === 'next' ? 'enter-next' : 'enter-prev');
-    sheetBox.insertBefore(fresh, prevBtn);
     layer = fresh;
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){
-      fresh.classList.remove('enter-next','enter-prev');
-      fresh.classList.add('settled');
-      if (old){
-        old.classList.remove('settled');
-        old.classList.add(dir === 'prev' ? 'exit-prev' : 'exit-next');
-        setTimeout(function(){ stash(old); busy = false; }, 520);
-      } else busy = false;
-    });});
+    if (!old || !dir || still){
+      leaves.appendChild(fresh); stash(old); busy = false;
+    } else if (dir === 'next'){
+      /* new page lies underneath; the current page lifts and turns away over the spine */
+      leaves.insertBefore(fresh, old);
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ old.classList.add('turned'); watchFlip(old); }); });
+      setTimeout(function(){ stash(old); busy = false; }, TURN_MS + 40);
+    } else {
+      /* previous page turns back in from the spine and lands on top */
+      fresh.classList.add('no-anim','turned','flipped');
+      leaves.appendChild(fresh);
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ fresh.classList.remove('no-anim','turned'); watchFlip(fresh); }); });
+      setTimeout(function(){ stash(old); busy = false; }, TURN_MS + 40);
+    }
     try{ history.replaceState(null, '', '#p' + (i+1)); }catch(e){}
     preload(i+1); preload(i+2);
     updateChrome();
@@ -725,26 +807,14 @@ body.narrow .price-t td{ font-size:.8em; }
     render(i, dir || (i > cur ? 'next' : 'prev'));
   }
   function updateChrome(){
-    counter.textContent = (cur+1) + ' / ' + pages.length;
-    prevBtn.disabled = cur === 0;
-    nextBtn.disabled = cur === pages.length-1;
-    foot.innerHTML = '';
-    pages.forEach(function(p, i){
-      var t = document.createElement('button');
-      t.type = 'button';
-      t.className = 'tick' + (i === cur ? ' on' : '');
-      t.setAttribute('aria-label', 'Page ' + (i+1) + ': ' + p.dataset.title);
-      t.addEventListener('click', function(){ go(i); });
-      foot.appendChild(t);
-    });
-    var lbl = document.createElement('span');
-    lbl.className = 'foot-label';
-    lbl.textContent = pages[cur].dataset.title;
-    foot.appendChild(lbl);
+    counter.textContent = (cur+1) + '/' + pages.length;
+    prevBtn.disabled = prevTool.disabled = cur === 0;
+    nextBtn.disabled = nextTool.disabled = cur === pages.length-1;
   }
 
-  prevBtn.addEventListener('click', function(){ go(cur-1,'prev'); });
-  nextBtn.addEventListener('click', function(){ go(cur+1,'next'); });
+  [prevBtn, prevTool].forEach(function(b){ b.addEventListener('click', function(){ go(cur-1,'prev'); }); });
+  [nextBtn, nextTool].forEach(function(b){ b.addEventListener('click', function(){ go(cur+1,'next'); }); });
+  document.getElementById('tocTool').addEventListener('click', function(){ go(1); });
   document.addEventListener('keydown', function(e){
     if (e.key === 'ArrowRight' || e.key === 'PageDown') go(cur+1,'next');
     if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   go(cur-1,'prev');
@@ -772,7 +842,6 @@ body.narrow .price-t td{ font-size:.8em; }
     }catch(err){}
   });
   document.addEventListener('fullscreenchange', function(){
-    fsBtn.textContent = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
     fit();
   });
   window.addEventListener('resize', function(){ fit(); });
