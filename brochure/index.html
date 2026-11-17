@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="image" href="img/01.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="img/logo-cream.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&display=swap">
 <style>
   img{ max-width:100%; } [hidden]{ display:none!important; }
@@ -44,6 +45,8 @@
 
   .bar{ flex:none; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 4px 16px; }
   .wordmark{ text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
+  .wordmark{ display:inline-flex; align-items:center; gap:12px; }
+  .wordmark img{ width:30px; height:auto; display:block; }
   .bar-label{ font-size:11px; font-weight:500; letter-spacing:.26em; text-transform:uppercase; color:var(--faint); }
 
   /* the white card the book sits on */
@@ -161,7 +164,7 @@
 
   /* cover */
   .cover .page-inner{ align-items:center; text-align:center; justify-content:center; gap:1.6em; }
-  .monogram{ font-family:var(--serif); font-size:1.5em; letter-spacing:.1em; border:1px solid rgba(239,233,217,.75); border-radius:50%; width:2.6em; height:2.6em; display:flex; align-items:center; justify-content:center; }
+  .monogram{ display:block; width:6.2em; height:auto; filter:drop-shadow(0 2px 14px rgba(0,0,0,.4)); }
   .cover-title{ font-size:5.2em; }
   .cover .caps-para{ max-width:44em; text-shadow:0 1px 12px rgba(0,0,0,.5); }
   .cover-foot{ position:absolute; bottom:2.4em; left:0; right:0; text-align:center; font-size:.78em; letter-spacing:.18em; z-index:1; }
@@ -384,7 +387,7 @@ body.narrow .price-t td{ font-size:.8em; }
 <body>
 <div class="viewer" id="viewer">
   <div class="bar">
-    <a class="wordmark" href="/" aria-label="Auraya Villas home">Auraya</a>
+    <a class="wordmark" href="/" aria-label="Auraya Villas home"><img src="img/logo-ink.png" alt="" width="520" height="516">Auraya</a>
     <span class="bar-label">Brochure</span>
   </div>
   <div class="desk">
@@ -411,7 +414,7 @@ body.narrow .price-t td{ font-size:.8em; }
   <section class="page photo-page cover" data-title="Cover" data-video="vid/facade.mp4" style="background-image:url(img/01.jpg)">
     <div class="shade-grad"></div>
     <div class="page-inner">
-      <div class="monogram">A</div>
+      <img class="monogram" src="img/logo-cream.png" alt="Auraya Villas logo" width="520" height="516">
       <h1 class="serif-title cover-title">Auraya Villas</h1>
       <p class="caps-para">Own one of four exclusive villas in Uluwatu, featuring panoramic ocean views, a private infinity pool, and a luxury rooftop jacuzzi.</p>
     </div>
