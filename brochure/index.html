@@ -40,7 +40,7 @@
     margin:0; background:var(--surround); color:var(--ink);
     font-family:var(--sans); overflow:hidden; -webkit-font-smoothing:antialiased;
   }
-  .viewer{ height:100%; display:flex; flex-direction:column; padding:0 24px 24px; box-sizing:border-box; background:var(--surround); }
+  .viewer{ height:100%; height:100dvh; display:flex; flex-direction:column; padding:0 max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); box-sizing:border-box; background:var(--surround); }
 
   .bar{ flex:none; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 4px 16px; }
   .wordmark{ text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
@@ -51,10 +51,10 @@
   .stage{ flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; }
 
   /* the book: one portrait page, turning on its left edge */
-  .sheet-box{ position:relative; perspective:2600px; }
+  .sheet-box{ position:relative; transition:transform 1s cubic-bezier(.45,.05,.25,1); }
   .sheet-box::before{ content:""; position:absolute; inset:0; background:#f3efe4;
     box-shadow: 2px 1px 0 #ebe6da, 3px 2px 0 #d9d3c5, 5px 3px 0 #ebe6da, 6px 4px 0 #d3cdbe, 0 18px 36px -16px rgba(40,30,15,.45); }
-  .leaves{ position:absolute; inset:0; transform-style:preserve-3d; }
+  .leaves{ position:absolute; inset:0; perspective:2800px; }
   .layer{
     position:absolute; inset:0; display:flex;
     transform-origin:left center; transform-style:preserve-3d;
@@ -74,6 +74,24 @@
   .layer.turned::after{ opacity:1; }
   .layer.no-anim, .layer.no-anim::after{ transition:none; }
   @media (prefers-reduced-motion:reduce){ .layer, .layer::after{ transition:none; } }
+
+  /* ---- two-page spread (laptops, tablets): every sheet has a front and a back, and turns over the spine ---- */
+  body.spread .sheet-box::before{ display:none; }
+  body.spread .sheet-box[data-pos="start"]{ transform:translateX(-25%); }   /* closed: cover centred */
+  body.spread .sheet-box[data-pos="end"]{ transform:translateX(25%); }      /* closed on the back cover */
+  .leaf{ position:absolute; left:50%; top:0; width:50%; height:100%; transform-origin:left center;
+    transition:transform 1s cubic-bezier(.45,.05,.25,1); }
+  .leaf.turned{ transform:rotateY(-180deg); }
+  .leaf.far{ display:none; }
+  .leaf.no-anim, .no-anim{ transition:none !important; }
+  .face{ position:absolute; inset:0; display:flex; overflow:hidden; background:var(--cream);
+    box-shadow:0 1px 3px rgba(40,30,15,.16), 0 20px 38px -20px rgba(40,30,15,.5); }
+  .face.back{ transform:scaleX(-1); visibility:hidden; }          /* un-mirrors itself once the sheet has turned */
+  .leaf.flipped > .face.back{ visibility:visible; }
+  .leaf.flipped > .face.front{ visibility:hidden; }
+  .face::after{ content:""; position:absolute; inset:0; z-index:8; pointer-events:none;     /* shadow in the gutter */
+    background:linear-gradient(90deg, rgba(20,14,6,.26), rgba(20,14,6,.07) 3.5%, rgba(20,14,6,0) 11%); }
+  @media (prefers-reduced-motion:reduce){ .leaf, .sheet-box{ transition:none; } }
 
   .nav-arrow{
     position:absolute; top:50%; transform:translateY(-50%); z-index:6;
@@ -98,8 +116,16 @@
     font-size:13px; letter-spacing:.06em; color:#5d564a; font-variant-numeric:tabular-nums; }
   .nav-arrow:focus-visible,.tool:focus-visible,.toc-item:focus-visible,.wordmark:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
 
+  /* short screens (phones held sideways, small laptops): give the book the height */
+  @media (max-height:560px){
+    .bar{ padding:8px 4px 8px; }
+    .wordmark{ font-size:13px; }
+    .desk{ padding:10px 10px 8px; border-radius:12px; }
+    .tools{ padding-top:8px; }
+    .tool{ height:32px; }
+  }
   @media (max-width:700px){
-    .viewer{ padding:0 12px 12px; }
+    .viewer{ padding:0 12px max(12px, env(safe-area-inset-bottom)); }
     .bar{ padding:14px 4px 12px; }
     .desk{ padding:14px 8px 12px; border-radius:14px; }
     .nav-arrow{ display:none; }
@@ -331,7 +357,7 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .solar-band{ flex-direction:column; gap:1.1em; padding:2.2em 2em; }
   body.narrow .solar-title{ font-size:2.6em; }
   body.narrow .solar-copy{ font-size:.86em; }
-  body.narrow .pay-title{ font-size:2.9em; text-align:center; }
+  body.narrow .pay-title{ font-size:2.5em; text-align:center; }
   body.narrow .timeline{ width:auto; margin-top:2.2em; }
   body.narrow .tl-line{ left:.99em; right:auto; top:.9em; bottom:.9em; width:2px; height:auto; }
   body.narrow .tl-row{ flex-direction:column; gap:1.25em; }
@@ -380,7 +406,7 @@ body.narrow .price-t td{ font-size:.8em; }
       <h1 class="serif-title cover-title">Auraya Villas</h1>
       <p class="caps-para">Own one of four exclusive villas in Uluwatu, featuring panoramic ocean views, a private infinity pool, and a luxury rooftop jacuzzi.</p>
     </div>
-    <div class="cover-foot">Developed by Nira Development</div>
+    <div class="cover-foot">Developed by Nira Group</div>
   </section>
 
   <!-- 2 · CONTENTS -->
@@ -535,7 +561,7 @@ body.narrow .price-t td{ font-size:.8em; }
   <section class="page" data-title="The Villa">
     <div class="split">
       <div class="half-text tex-cream">
-        <div class="kicker">By Nira Development</div>
+        <div class="kicker">By Nira Group</div>
         <h2 class="fat-title spec-title" style="margin-top:.5em;">Auraya<span class="thin">Villa</span></h2>
         <ul class="spec-list">
           <li>Land Size <b>110 – 147 sqm</b></li>
@@ -745,19 +771,95 @@ body.narrow .price-t td{ font-size:.8em; }
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var cur = 0, layer = null, busy = false;
+  var spread = null, leafEls = [], state = 0;      /* spread: number of sheets turned to the left */
+  var N = pages.length, MAXSTATE = Math.floor(N/2);
 
   /* Every page is one portrait sheet, like a printed booklet, on any screen size */
   document.body.classList.add('narrow');
+
+  /* Size the book to the screen. Wide screens get an open two-page spread, narrow ones a single page. */
   function fit(){
     var ar = 3/4.1;
     var arrows = getComputedStyle(prevBtn).display !== 'none';
     var w = stage.clientWidth - (arrows ? 150 : 14), h = stage.clientHeight - 14;
-    var bw = Math.max(Math.min(w, h*ar), 200), bh = bw/ar;
-    sheetBox.style.width  = bw + 'px';
-    sheetBox.style.height = bh + 'px';
-    sheetBox.style.fontSize = Math.max(bw * 0.026, 6.4) + 'px';
+    var one = Math.min(w, h*ar), two = Math.min(w/2, h*ar);
+    var wantSpread = two >= one*0.62;
+    var pw = Math.max(wantSpread ? two : one, 120);
+    sheetBox.style.width  = (wantSpread ? 2*pw : pw) + 'px';
+    sheetBox.style.height = (pw/ar) + 'px';
+    sheetBox.style.fontSize = (pw * 0.026) + 'px';
+    if (wantSpread !== spread){ spread = wantSpread; rebuild(); }
   }
 
+  function clearBook(){
+    pages.forEach(function(p){ store.appendChild(p); });
+    leaves.innerHTML = ''; leafEls = []; layer = null; busy = false;
+  }
+  function rebuild(){
+    clearBook();
+    document.body.classList.toggle('spread', spread);
+    sheetBox.classList.add('no-anim');
+    if (spread){
+      for (var k = 0; 2*k < N; k++){
+        var leaf = document.createElement('div'); leaf.className = 'leaf';
+        var f = document.createElement('div'); f.className = 'face front'; f.appendChild(pages[2*k]);
+        var b = document.createElement('div'); b.className = 'face back'; if (pages[2*k+1]) b.appendChild(pages[2*k+1]);
+        leaf.appendChild(f); leaf.appendChild(b); leaves.appendChild(leaf); leafEls.push(leaf);
+      }
+      state = Math.floor((cur+1)/2);
+      settle();
+    } else {
+      sheetBox.removeAttribute('data-pos');
+      render(cur, null);
+    }
+    void sheetBox.offsetWidth; sheetBox.classList.remove('no-anim');
+    updateChrome();
+  }
+
+  /* ----- spread mode ----- */
+  function near(k, lo, hi){ return k >= lo - 2 && k <= hi + 1; }
+  function settle(){
+    leafEls.forEach(function(el, k){
+      var t = k < state;
+      el.classList.toggle('turned', t); el.classList.toggle('flipped', t);
+      el.style.zIndex = t ? k + 1 : leafEls.length - k;
+      el.classList.toggle('far', !near(k, state, state));
+    });
+    sheetBox.setAttribute('data-pos', state === 0 ? 'start' : (state === leafEls.length ? 'end' : 'mid'));
+  }
+  function turnTo(target){
+    target = Math.max(0, Math.min(MAXSTATE, target));
+    if (busy || target === state) return;
+    var from = state, fwd = target > from;
+    state = target;
+    cur = Math.max(0, 2*state - 1);
+    if (Math.abs(target - from) !== 1 || still){
+      leafEls.forEach(function(el){ el.classList.add('no-anim'); });
+      settle(); void leaves.offsetWidth;
+      leafEls.forEach(function(el){ el.classList.remove('no-anim'); });
+    } else {
+      busy = true;
+      var el = leafEls[fwd ? from : target];
+      leafEls.forEach(function(l, k){ l.classList.toggle('far', !near(k, Math.min(from, target), Math.max(from, target))); });
+      el.style.zIndex = 100;
+      sheetBox.setAttribute('data-pos', state === 0 ? 'start' : (state === leafEls.length ? 'end' : 'mid'));
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.toggle('turned', fwd); watchFlip(el); }); });
+      setTimeout(function(){ settle(); busy = false; }, TURN_MS + 40);
+    }
+    afterMove();
+  }
+
+  /* While a sheet turns, show whichever side is facing the reader */
+  function watchFlip(el){
+    var t0 = Date.now();
+    (function tick(){
+      var m = getComputedStyle(el).transform.match(/matrix3d\(([-\d.e]+)/);
+      if (m) el.classList.toggle('flipped', parseFloat(m[1]) < 0);
+      if (Date.now() - t0 < TURN_MS && el.parentNode) requestAnimationFrame(tick);
+    })();
+  }
+
+  /* ----- single-page mode ----- */
   function buildLayer(i){
     var el = document.createElement('div');
     el.className = 'layer';
@@ -770,15 +872,6 @@ body.narrow .price-t td{ font-size:.8em; }
     Array.prototype.slice.call(el.querySelectorAll('.page')).forEach(function(p){ store.appendChild(p); });
     el.remove();
   }
-  /* While a sheet turns, show its blank reverse whenever it is facing away from the reader */
-  function watchFlip(el){
-    var t0 = Date.now();
-    (function tick(){
-      var m = getComputedStyle(el).transform.match(/matrix3d\(([-\d.e]+)/);
-      el.classList.toggle('flipped', !!m && parseFloat(m[1]) < 0);
-      if (Date.now() - t0 < TURN_MS && el.parentNode) requestAnimationFrame(tick);
-    })();
-  }
   function render(i, dir){
     cur = i;
     var old = layer, fresh = buildLayer(i);
@@ -789,43 +882,60 @@ body.narrow .price-t td{ font-size:.8em; }
       /* new page lies underneath; the current page lifts and turns away over the spine */
       leaves.insertBefore(fresh, old);
       requestAnimationFrame(function(){ requestAnimationFrame(function(){ old.classList.add('turned'); watchFlip(old); }); });
-      setTimeout(function(){ stash(old); busy = false; }, TURN_MS + 40);
+      setTimeout(function(){ if (layer === fresh){ stash(old); busy = false; } }, TURN_MS + 40);
     } else {
       /* previous page turns back in from the spine and lands on top */
       fresh.classList.add('no-anim','turned','flipped');
       leaves.appendChild(fresh);
       requestAnimationFrame(function(){ requestAnimationFrame(function(){ fresh.classList.remove('no-anim','turned'); watchFlip(fresh); }); });
-      setTimeout(function(){ stash(old); busy = false; }, TURN_MS + 40);
+      setTimeout(function(){ if (layer === fresh){ stash(old); busy = false; } }, TURN_MS + 40);
     }
-    try{ history.replaceState(null, '', '#p' + (i+1)); }catch(e){}
-    preload(i+1); preload(i+2);
+    afterMove();
+  }
+
+  /* ----- shared ----- */
+  function afterMove(){
+    try{ history.replaceState(null, '', '#p' + (cur+1)); }catch(e){}
+    preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4);
     updateChrome();
   }
   function go(i, dir){
-    if (busy || i < 0 || i >= pages.length || i === cur) return;
+    if (i < 0 || i >= N) return;
+    if (spread){ turnTo(Math.floor((i+1)/2)); return; }
+    if (busy || i === cur) return;
     busy = true;
     render(i, dir || (i > cur ? 'next' : 'prev'));
   }
+  function next(){ if (spread) turnTo(state+1); else go(cur+1, 'next'); }
+  function prev(){ if (spread) turnTo(state-1); else go(cur-1, 'prev'); }
   function updateChrome(){
-    counter.textContent = (cur+1) + '/' + pages.length;
-    prevBtn.disabled = prevTool.disabled = cur === 0;
-    nextBtn.disabled = nextTool.disabled = cur === pages.length-1;
+    var first, last;
+    if (spread){
+      var l = 2*state, r = 2*state + 1;
+      counter.textContent = (l >= 1 && r <= N ? l + ' · ' + r : (l >= 1 ? l : r)) + ' / ' + N;
+      first = state === 0; last = state === MAXSTATE;
+    } else {
+      counter.textContent = (cur+1) + ' / ' + N;
+      first = cur === 0; last = cur === N-1;
+    }
+    prevBtn.disabled = prevTool.disabled = first;
+    nextBtn.disabled = nextTool.disabled = last;
   }
 
-  [prevBtn, prevTool].forEach(function(b){ b.addEventListener('click', function(){ go(cur-1,'prev'); }); });
-  [nextBtn, nextTool].forEach(function(b){ b.addEventListener('click', function(){ go(cur+1,'next'); }); });
+  [prevBtn, prevTool].forEach(function(b){ b.addEventListener('click', prev); });
+  [nextBtn, nextTool].forEach(function(b){ b.addEventListener('click', next); });
   document.getElementById('tocTool').addEventListener('click', function(){ go(1); });
   document.addEventListener('keydown', function(e){
-    if (e.key === 'ArrowRight' || e.key === 'PageDown') go(cur+1,'next');
-    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   go(cur-1,'prev');
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') next();
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   prev();
   });
-  var tx = null;
-  stage.addEventListener('touchstart', function(e){ tx = e.changedTouches[0].clientX; }, {passive:true});
+  var tx = null, ty = null;
+  stage.addEventListener('touchstart', function(e){ tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY; }, {passive:true});
   stage.addEventListener('touchend', function(e){
     if (tx === null) return;
-    var dx = e.changedTouches[0].clientX - tx; tx = null;
-    if (dx < -40) go(cur+1,'next');
-    if (dx >  40) go(cur-1,'prev');
+    var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; tx = null;
+    if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return;
+    if (dx < 0) next(); else prev();
   }, {passive:true});
   document.addEventListener('click', function(e){
     var b = e.target.closest ? e.target.closest('[data-goto]') : null;
@@ -845,6 +955,7 @@ body.narrow .price-t td{ font-size:.8em; }
     fit();
   });
   window.addEventListener('resize', function(){ fit(); });
+  window.addEventListener('orientationchange', function(){ setTimeout(fit, 250); });
 
   /* ---------- The Film: shown only when VIDEO_URL is set ---------- */
   if (VIDEO_URL){
@@ -865,10 +976,10 @@ body.narrow .price-t td{ font-size:.8em; }
   }
 
   /* boot */
+  var hm = (location.hash||'').match(/^#p(\d+)$/);
+  if (hm){ var n = parseInt(hm[1],10); if (n >= 1 && n <= N) cur = n-1; }
   fit();
-  var start = 0, hm = (location.hash||'').match(/^#p(\d+)$/);
-  if (hm){ var n = parseInt(hm[1],10); if (n >= 1 && n <= pages.length) start = n-1; }
-  render(start, null);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
 })();
 </script>
 
