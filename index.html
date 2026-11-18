@@ -525,7 +525,7 @@
       v.className='hero-clip';v.muted=true;v.loop=true;v.playsInline=true;
       v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('aria-hidden','true');
       v.preload='auto';
-      v.src=innerWidth>900?'assets/facade-hero.mp4':'brochure/vid/facade.mp4';  /* smaller file on phones */
+      v.src=innerWidth>900?'assets/facade-hero.mp4?v=2':'brochure/vid/facade.mp4?v=2';  /* smaller file on phones */
       v.addEventListener('playing',()=>v.classList.add('on'));
       host.appendChild(v);
       const play=()=>{const p=v.play();if(p&&p.catch)p.catch(()=>{});};
