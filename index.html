@@ -93,7 +93,8 @@
 
   nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:rgba(250,247,236,.85);backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .3s,box-shadow .3s}
   nav.scrolled{border-color:var(--line);box-shadow:0 8px 30px -20px rgba(62,45,30,.4)}
-  .brand{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.18em;font-weight:600}
+  .brand{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.18em;font-weight:600;display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;line-height:1.2}
+  .brand img{width:42px;height:auto;display:block;flex:none}
   .brand small{display:block;font-family:var(--font-body);font-size:.56rem;letter-spacing:.36em;text-transform:uppercase;color:var(--ink-soft);margin-top:3px;font-weight:400}
   .nav-cta{font-family:var(--font-body);font-size:.8rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;background:var(--brown);color:var(--cream);padding:12px 24px;border-radius:2px;text-decoration:none;transition:transform .25s,background .25s}
   .nav-cta:hover{background:var(--brown-gray);transform:translateY(-2px)}
@@ -285,7 +286,7 @@
 <body>
 
 <nav id="nav">
-  <div class="brand">AURAYA<small>Uluwatu · Bali</small></div>
+  <a class="brand" href="#" aria-label="Auraya Villas, back to top"><img src="assets/logo-brown.png" alt="" width="240" height="238"><span>AURAYA<small>Uluwatu · Bali</small></span></a>
   <a href="#offer" class="nav-cta">Get the price list</a>
 </nav>
 
@@ -486,7 +487,7 @@
 <footer>
   <div class="wrap">
     <div class="foot-grid">
-      <div><div class="brand">AURAYA<small style="color:rgba(240,235,210,.5)">Uluwatu · Bali</small></div>
+      <div><div class="brand"><img src="assets/logo-cream.png" alt="" width="240" height="238" loading="lazy"><span>AURAYA<small style="color:rgba(240,235,210,.5)">Uluwatu · Bali</small></span></div>
         <p>Four cliffside villas with uninterrupted ocean views, leasehold or freehold. Once these four are gone, there are no more.</p></div>
       <div class="foot-col"><h4>Talk to us</h4>
         <a href="https://api.whatsapp.com/send?phone=6285899530004">WhatsApp +62 858 9953 0004</a>
