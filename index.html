@@ -203,6 +203,8 @@
   .form-success.show .check{animation:pop .6s var(--ease) .15s both}
   .form-success .check{width:64px;height:64px;border-radius:50%;background:var(--brown);color:var(--cream);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 20px}
   .form-success h3{margin-bottom:10px;letter-spacing:.02em}.form-success p{color:var(--ink-soft);font-weight:300}
+  .form-success .open-btn{display:block;margin-top:26px;background:var(--brown);color:var(--cream);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:.92rem;padding:18px;border-radius:2px;text-decoration:none;transition:background .25s,transform .25s}
+  .form-success .open-btn:hover{background:var(--brown-gray);transform:translateY(-2px)}
   .form-success .wa-link{display:inline-block;margin-top:20px;color:var(--brown-gray);font-weight:600;text-decoration:none;border-bottom:2px solid var(--gold);padding-bottom:2px}
 
   footer{background:var(--brown);color:rgba(240,235,210,.8);padding:74px 0 40px}
@@ -475,7 +477,8 @@
       </div>
       <div class="form-success" id="successView">
         <div class="check">✓</div><h3>On its way.</h3>
-        <p>Check your inbox for the Auraya investor pack. Want answers faster?</p>
+        <p>We're sending the brochure to your WhatsApp and your inbox now. You can also open it straight away.</p>
+        <a class="open-btn" id="openBrochure" href="brochure/" target="_blank" rel="noopener">Open the brochure →</a>
         <a class="wa-link" id="waHandoff" href="https://api.whatsapp.com/send?phone=6285899530004&text=Hi%20Auraya%2C%20I%20just%20requested%20the%20investor%20pack" target="_blank" rel="noopener">Message us on WhatsApp →</a>
       </div>
     </div>
@@ -542,6 +545,7 @@
   })();
 
   /* ======= CLICK TRACKING ======= */
+  document.getElementById('openBrochure').addEventListener('click',()=>track('view_item','ViewContent',{content_name:'brochure'}));
   document.querySelectorAll('a[href*="api.whatsapp.com"]').forEach(a=>a.addEventListener('click',()=>track('contact','Contact',{method:'whatsapp'})));
   function lb(src){const l=document.getElementById('lightbox');document.getElementById('lbImg').src=src;l.classList.add('show');l.setAttribute('aria-hidden','false');}
   function lbClose(){const l=document.getElementById('lightbox');l.classList.remove('show');l.setAttribute('aria-hidden','true');document.getElementById('lbImg').src='';}
@@ -579,6 +583,7 @@
     const payload={name,email,phone,timeline,
       source:'investor-pack-form',
       page:location.href,
+      brochure_url:new URL('brochure/',location.href).href,
       submitted_at:new Date().toISOString()};
 
     try{
