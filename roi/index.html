@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ROI Model | Auraya Villas Uluwatu</title>
+<meta name="description" content="The full Auraya Villas ROI calculation, line by line. Pick a villa and a scenario, adjust the assumptions and see the yearly return update.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#faf7ec">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png?v=3">
+<link rel="icon" href="/assets/favicon.ico?v=3" sizes="any">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap">
+<style>
+  /* ============================================================
+     AURAYA VILLAS — full ROI model, served at /roi/
+     Linked from the ROI page of the brochure ("See the full calculation").
+     Every figure is worked out in the script from the inputs below;
+     the defaults reproduce the brochure's table exactly.
+     ============================================================ */
+  :root{
+    --paper:#faf7ec; --cream:#f0ebd2; --cream-2:#e9e4d6;
+    --brown:#3E2D1E; --taupe:#4a4238; --taupe-2:#37312a;
+    --ink:#2b2218; --ink-soft:#6f6450; --stone:#8d8270; --stone-soft:#cfc7b3;
+    --gold:#a78b5f; --olive:#b6c26a; --bone:#efe9d9;
+    --line:rgba(62,45,30,.16); --line-dark:rgba(239,233,217,.22);
+    --serif:'Cinzel', Georgia, serif;
+    --sans:'Jost', 'Helvetica Neue', Arial, sans-serif;
+    --ease:cubic-bezier(.22,1,.36,1);
+  }
+  *{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); font-weight:300; line-height:1.65; -webkit-font-smoothing:antialiased; }
+  a{ color:inherit; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 28px; }
+  .num{ font-variant-numeric:tabular-nums; }
+  .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+  /* top bar */
+  .bar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 0; }
+  .wordmark{ display:inline-flex; align-items:center; gap:12px; text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
+  .wordmark img{ width:30px; height:auto; display:block; }
+  .back{ font-size:12px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft); text-decoration:none; padding:10px 0; }
+  .back:hover{ color:var(--ink); }
+
+  /* intro */
+  .hero{ padding:40px 0 34px; border-bottom:1px solid var(--line); }
+  .eyebrow{ font-size:.72rem; font-weight:500; letter-spacing:.34em; text-transform:uppercase; color:var(--gold); }
+  h1, h2{ font-family:var(--serif); font-weight:500; letter-spacing:.08em; text-transform:uppercase; line-height:1.12; margin:0; text-wrap:balance; }
+  h1{ font-size:clamp(2rem, 4.6vw, 3.2rem); margin-top:14px; }
+  h2{ font-size:clamp(1.2rem, 2.2vw, 1.55rem); }
+  .lead{ max-width:62ch; margin:18px 0 0; font-size:1.05rem; color:var(--ink-soft); }
+
+  /* layout */
+  .model{ display:grid; grid-template-columns:330px 1fr; gap:44px; padding:40px 0 20px; align-items:start; }
+  .model > *{ min-width:0; }
+  .panel{ position:sticky; top:20px; background:#fdfcf7; border:1px solid var(--line); border-radius:4px; padding:26px 24px; }
+  .panel h2{ font-size:1rem; letter-spacing:.16em; }
+  .field{ margin-top:22px; }
+  .field > .lb{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:.74rem; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); }
+  .field > .lb output{ font-size:1rem; letter-spacing:.02em; text-transform:none; color:var(--ink); font-weight:500; font-variant-numeric:tabular-nums; }
+  .seg{ display:grid; gap:6px; margin-top:10px; }
+  .seg.c4{ grid-template-columns:repeat(4,1fr); }
+  .seg.c3{ grid-template-columns:repeat(3,1fr); }
+  .seg button{ font:inherit; cursor:pointer; border:1px solid var(--line); background:var(--paper); color:var(--ink); border-radius:3px; padding:9px 4px 8px;
+    display:flex; flex-direction:column; align-items:center; gap:1px; transition:background .2s, border-color .2s, color .2s; min-height:44px; justify-content:center; }
+  .seg button b{ font-weight:500; font-size:.95rem; letter-spacing:.04em; }
+  .seg button small{ font-size:.68rem; color:var(--stone); font-variant-numeric:tabular-nums; }
+  .seg button:hover{ border-color:var(--stone); }
+  .seg button[aria-pressed="true"]{ background:var(--taupe); border-color:var(--taupe); color:var(--bone); }
+  .seg button[aria-pressed="true"] small{ color:var(--stone-soft); }
+  .seg.c3 button{ font-size:.8rem; letter-spacing:.04em; }
+  .tag{ font-size:.6rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); }
+  .seg button[aria-pressed="true"] .tag{ color:var(--olive); }
+  input[type=range]{ width:100%; margin:12px 0 0; accent-color:var(--taupe); height:28px; }
+  .range-ends{ display:flex; justify-content:space-between; font-size:.68rem; color:var(--stone); font-variant-numeric:tabular-nums; margin-top:-2px; }
+  .check{ display:flex; gap:10px; align-items:flex-start; margin-top:24px; font-size:.86rem; line-height:1.45; cursor:pointer; }
+  .check input{ width:18px; height:18px; margin:1px 0 0; accent-color:var(--taupe); flex:none; }
+  .check small{ display:block; color:var(--stone); font-size:.76rem; }
+  .reset{ margin-top:22px; width:100%; font:500 .72rem var(--sans); letter-spacing:.18em; text-transform:uppercase; cursor:pointer; padding:12px; border:1px solid var(--line); background:none; color:var(--ink-soft); border-radius:3px; }
+  .reset:hover{ color:var(--ink); border-color:var(--stone); }
+  .custom-note{ font-size:.74rem; color:var(--gold); margin-top:8px; min-height:1.2em; }
+  button:focus-visible, input:focus-visible, a:focus-visible, td:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
+
+  /* headline figures */
+  .result{ background:var(--taupe); color:var(--bone); border-radius:4px; padding:30px 30px 26px;
+    background-image:radial-gradient(110% 100% at 50% 0%, rgba(255,255,255,.06), rgba(0,0,0,.24) 90%); }
+  .result .eyebrow{ color:var(--stone-soft); }
+  .figs{ display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:24px; margin-top:16px; align-items:end; }
+  .fig .v{ font-family:var(--serif); font-size:2.1rem; line-height:1; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
+  .fig.big .v{ font-size:3.6rem; }
+  .fig .l{ margin-top:10px; font-size:.7rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--stone-soft); }
+  .result-sub{ margin:22px 0 0; padding-top:16px; border-top:1px solid var(--line-dark); font-size:.86rem; color:#d9d1bb; }
+
+  section.blk{ margin-top:46px; }
+  .blk-head{ display:flex; justify-content:space-between; align-items:baseline; gap:20px; flex-wrap:wrap; }
+  .blk-note{ font-size:.86rem; color:var(--ink-soft); margin:8px 0 0; max-width:64ch; }
+
+  /* the ledger: one line per step of the calculation */
+  .ledger{ margin-top:18px; border-top:1.5px solid var(--ink); }
+  .row{ display:grid; grid-template-columns:1fr auto; gap:4px 24px; padding:16px 0; border-bottom:1px solid var(--line); }
+  .row .name{ font-weight:500; font-size:1rem; color:var(--ink); }
+  .row .val{ font-size:1.05rem; font-weight:500; text-align:right; font-variant-numeric:tabular-nums; }
+  .row .what{ grid-column:1 / -1; font-size:.88rem; color:var(--ink-soft); max-width:70ch; }
+  .row .calc{ grid-column:1 / -1; font-size:.84rem; color:#7d6a43; font-variant-numeric:tabular-nums; }
+  .row.total{ border-bottom:1.5px solid var(--ink); }
+  .row.total .name, .row.total .val{ font-weight:600; }
+  .row.final{ background:var(--cream); padding:18px 16px; margin:0 -16px; border-bottom:0; }
+  .row.final .val{ font-family:var(--serif); font-size:1.5rem; }
+
+  /* tables */
+  .tbl-scroll{ overflow-x:auto; margin-top:18px; -webkit-overflow-scrolling:touch; }
+  table{ border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+  .scen th, .scen td{ padding:11px 10px; text-align:right; border-bottom:1px solid var(--line); font-size:.92rem; white-space:nowrap; }
+  .scen th{ font-weight:500; font-size:.74rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); }
+  .scen th:first-child, .scen td:first-child{ text-align:left; white-space:normal; }
+  .scen tr.strong td{ font-weight:600; }
+  .scen tr.final td{ font-weight:600; border-bottom:1.5px solid var(--ink); font-size:1rem; }
+  .scen .on{ background:var(--cream); }
+
+  /* sensitivity grid: one warm hue, light = lower ROI, dark = higher */
+  .sens{ table-layout:fixed; min-width:560px; }
+  .sens th{ font-size:.72rem; font-weight:500; letter-spacing:.1em; color:var(--ink-soft); padding:8px 4px; text-align:center; }
+  .sens th.rh{ text-align:right; padding-right:12px; width:84px; }
+  .sens td{ text-align:center; font-size:.84rem; padding:0; border:2px solid var(--paper); height:40px; cursor:pointer; position:relative; transition:filter .15s; }
+  .sens td:hover{ filter:brightness(1.08); }
+  .sens td.cur{ box-shadow:inset 0 0 0 2px var(--olive); font-weight:600; }
+  .sens caption{ caption-side:bottom; text-align:left; font-size:.78rem; color:var(--ink-soft); padding-top:10px; }
+  .axis-title{ font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); text-align:center; padding-bottom:4px; }
+  .legend{ display:flex; align-items:center; gap:10px; font-size:.74rem; color:var(--ink-soft); margin-top:12px; font-variant-numeric:tabular-nums; }
+  .legend .ramp{ width:160px; height:10px; border-radius:2px; }
+
+  /* assumptions */
+  .assume{ display:grid; grid-template-columns:1fr 1fr; gap:10px 40px; margin:18px 0 0; padding:0; list-style:none; }
+  .assume li{ font-size:.9rem; color:var(--ink-soft); padding:12px 0; border-bottom:1px solid var(--line); }
+  .assume b{ color:var(--ink); font-weight:500; }
+
+  /* closing */
+  .cta{ margin:56px 0 0; padding:40px 36px; background:var(--taupe); color:var(--bone); border-radius:4px; display:flex; justify-content:space-between; align-items:center; gap:28px; flex-wrap:wrap;
+    background-image:radial-gradient(110% 100% at 50% 0%, rgba(255,255,255,.06), rgba(0,0,0,.24) 90%); }
+  .cta h2{ color:#fff; }
+  .cta p{ margin:10px 0 0; color:#d9d1bb; max-width:48ch; }
+  .btns{ display:flex; gap:12px; flex-wrap:wrap; }
+  .btn{ display:inline-flex; align-items:center; min-height:46px; padding:0 22px; border:1px solid rgba(239,233,217,.6); border-radius:2px; text-decoration:none;
+    font-size:.74rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--bone); transition:background .2s, color .2s; }
+  .btn:hover{ background:var(--bone); color:var(--ink); }
+  .btn.solid{ background:var(--bone); color:var(--ink); }
+  .btn.solid:hover{ background:#fff; }
+  .disclaimer{ font-size:.76rem; color:var(--stone); margin:28px 0 0; max-width:90ch; }
+  footer{ padding:30px 0 40px; font-size:.74rem; color:var(--stone); }
+
+  @media (max-width:960px){
+    .model{ grid-template-columns:1fr; gap:30px; }
+    .panel{ position:static; }
+  }
+  @media (max-width:640px){
+    .wrap{ padding:0 16px; }
+    .bar{ padding:14px 0; }
+    .wordmark{ font-size:14px; letter-spacing:.3em; }
+    .back{ font-size:11px; letter-spacing:.14em; }
+    .hero{ padding:24px 0 26px; }
+    .panel{ padding:22px 16px; }
+    .result{ padding:24px 18px 20px; }
+    .figs{ grid-template-columns:1fr 1fr; gap:20px 16px; }
+    .fig.big{ grid-column:1 / -1; }
+    .fig.big .v{ font-size:3.2rem; }
+    .fig .v{ font-size:1.6rem; }
+    .row.final{ margin:0 -8px; padding:16px 8px; }
+    .assume{ grid-template-columns:1fr; gap:0; }
+    .cta{ padding:28px 20px; }
+    .scen th, .scen td{ padding:10px 4px; font-size:.8rem; }
+    .scen th{ font-size:.62rem; letter-spacing:.06em; }
+    .scen td:first-child{ font-size:.78rem; padding-left:0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap bar">
+  <a class="wordmark" href="/" aria-label="Auraya Villas home"><img src="/brochure/img/logo-ink.png" alt="" width="520" height="516">Auraya</a>
+  <a class="back" id="backLink" href="/brochure/#roi">← Back to brochure</a>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <span class="eyebrow">Auraya Villas · ROI model</span>
+    <h1>The full ROI calculation</h1>
+    <p class="lead">Every figure in the brochure's ROI table, worked out line by line. Choose a villa and a scenario, or move any assumption, and the numbers update as you go.</p>
+  </div>
+
+  <div class="model">
+    <!-- inputs -->
+    <aside class="panel" aria-label="Assumptions">
+      <h2>Assumptions</h2>
+
+      <div class="field">
+        <div class="lb">Villa</div>
+        <div class="seg c4" id="villaSeg"></div>
+      </div>
+
+      <div class="field">
+        <div class="lb">Scenario</div>
+        <div class="seg c3" id="scenSeg"></div>
+        <div class="custom-note" id="customNote" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <label class="lb" for="rate">Average day rate <output id="rateOut" for="rate"></output></label>
+        <input type="range" id="rate" min="100" max="300" step="5">
+        <div class="range-ends"><span>$100</span><span>$300</span></div>
+      </div>
+
+      <div class="field">
+        <label class="lb" for="occ">Occupancy <output id="occOut" for="occ"></output></label>
+        <input type="range" id="occ" min="40" max="95" step="1">
+        <div class="range-ends"><span>40%</span><span>95%</span></div>
+      </div>
+
+      <div class="field">
+        <label class="lb" for="mgmt">Management fee <output id="mgmtOut" for="mgmt"></output></label>
+        <input type="range" id="mgmt" min="10" max="30" step="1">
+        <div class="range-ends"><span>10%</span><span>30%</span></div>
+      </div>
+
+      <div class="field">
+        <label class="lb" for="opex">Operating expense <output id="opexOut" for="opex"></output></label>
+        <input type="range" id="opex" min="5" max="30" step="1">
+        <div class="range-ends"><span>5%</span><span>30%</span></div>
+      </div>
+
+      <label class="check"><input type="checkbox" id="bphtb"><span>Add 5% BPHTB to the investment<small>The land and building acquisition duty due on the freehold option</small></span></label>
+
+      <button class="reset" id="reset" type="button">Reset to the brochure figures</button>
+    </aside>
+
+    <!-- outputs -->
+    <div>
+      <div class="result" aria-live="polite">
+        <span class="eyebrow" id="resultLabel"></span>
+        <div class="figs">
+          <div class="fig big"><div class="v" id="fRoi"></div><div class="l">Annual ROI</div></div>
+          <div class="fig"><div class="v" id="fNet"></div><div class="l">Net income a year</div></div>
+          <div class="fig"><div class="v" id="fPay"></div><div class="l">Years to earn back the price</div></div>
+        </div>
+        <p class="result-sub" id="resultSub"></p>
+      </div>
+
+      <section class="blk" aria-labelledby="h-ledger">
+        <h2 id="h-ledger">Line by line</h2>
+        <p class="blk-note">What each line means, and the sum behind it, using the assumptions on the left.</p>
+        <div class="ledger" id="ledger"></div>
+      </section>
+
+      <section class="blk" aria-labelledby="h-scen">
+        <h2 id="h-scen">The three scenarios</h2>
+        <p class="blk-note" id="scenNote"></p>
+        <div class="tbl-scroll"><table class="scen" id="scenTable"></table></div>
+      </section>
+
+      <section class="blk" aria-labelledby="h-sens">
+        <h2 id="h-sens">How the ROI moves</h2>
+        <p class="blk-note">Annual ROI for each pairing of day rate and occupancy, with the villa, fees and BPHTB setting chosen on the left. The outlined cell is your current pick; tap any cell to use it.</p>
+        <div class="tbl-scroll">
+          <div class="axis-title" style="min-width:560px;padding-left:84px;">Occupancy</div>
+          <table class="sens" id="sensTable"></table>
+        </div>
+        <div class="legend"><span id="lgLo"></span><span class="ramp" id="lgRamp"></span><span id="lgHi"></span></div>
+      </section>
+
+      <section class="blk" aria-labelledby="h-assume">
+        <h2 id="h-assume">What the model assumes</h2>
+        <ul class="assume">
+          <li><b>365 rentable nights a year.</b> Occupancy is the share of those nights that are booked.</li>
+          <li><b>Costs are a share of revenue.</b> Management and operating expense rise and fall with rental income.</li>
+          <li><b>Prices in USD are indicative.</b> All transactions are in rupiah; USD figures use IDR 17.800 per USD, as in the price list of 17 November 2026.</li>
+          <li><b>A full year of rentals.</b> The figures describe a typical year once the villa is handed over (1 March 2028) and listed.</li>
+          <li><b>Not included:</b> income tax on rental earnings, financing costs and the optional solar package.</li>
+          <li><b>No capital growth.</b> The ROI is cash return only; any rise in the value of the villa or land would come on top.</li>
+        </ul>
+      </section>
+
+      <div class="cta">
+        <div>
+          <h2>Talk it through with us</h2>
+          <p>Ask us anything about these figures, or have us run them for a specific villa, ownership option and rental plan.</p>
+        </div>
+        <div class="btns">
+          <a class="btn solid" href="https://api.whatsapp.com/send?phone=6285899530004&text=Hi%20Auraya%2C%20I%27ve%20looked%20at%20the%20ROI%20model" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="btn" href="mailto:sales@auraya-villas.com?subject=Auraya%20Villas%3A%20ROI%20model">Email</a>
+        </div>
+      </div>
+
+      <p class="disclaimer">Illustrative projections, not guarantees or financial advice. Actual day rates, occupancy and costs will vary with the market, the season and how the villa is managed. Terms per the notarial deed and building contract prepared for each buyer.</p>
+    </div>
+  </div>
+</main>
+
+<footer class="wrap">© 2026 Auraya Villas · Developed by Nira Group</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= INPUTS =================
+     Villa prices from the brochure price list (17 November 2026), IDR, and the
+     USD equivalent at IDR 17.800. Scenario presets match the brochure's ROI table. */
+  var FX = 17800;
+  var VILLAS = [
+    { id:'A1', idr:5689672000, usd:319644 },
+    { id:'A2', idr:5430472000, usd:305083, reserved:true },
+    { id:'A3', idr:5342272000, usd:300128 },
+    { id:'A4', idr:5306272000, usd:298105 }
+  ];
+  var SCEN = [
+    { name:'Conservative', rate:160, occ:75 },
+    { name:'Expected',     rate:175, occ:80 },
+    { name:'Accelerated',  rate:190, occ:85 }
+  ];
+  var DEFAULTS = { villa:3, scen:1, mgmt:18, opex:15, bphtb:false };
+  var BPHTB = 0.05, NIGHTS = 365;
+  /* ========================================== */
+
+  var $ = function(id){ return document.getElementById(id); };
+  var st = {};
+
+  function usd(v){ return '$' + Math.round(v).toLocaleString('en-US'); }
+  function idr(v){ return 'Rp ' + Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  function pct(v, d){ return (v*100).toFixed(d == null ? 1 : d) + '%'; }
+
+  function calc(o){
+    var v = VILLAS[o.villa];
+    var inv = v.usd * (o.bphtb ? 1 + BPHTB : 1);
+    var nights = NIGHTS * o.occ/100;
+    var gross = o.rate * nights;
+    var mgmt = gross * o.mgmt/100, opex = gross * o.opex/100, exp = mgmt + opex;
+    var net = gross - exp;
+    return { v:v, inv:inv, nights:nights, gross:gross, mgmt:mgmt, opex:opex, exp:exp, net:net, roi: net/inv, pay: net > 0 ? inv/net : Infinity };
+  }
+
+  /* ----- controls ----- */
+  VILLAS.forEach(function(v, i){
+    var b = document.createElement('button'); b.type = 'button';
+    b.innerHTML = '<b>' + v.id + '</b><small>' + usd(v.usd) + '</small>' + (v.reserved ? '<span class="tag">Reserved</span>' : '');
+    b.setAttribute('aria-label', 'Villa ' + v.id + ', ' + usd(v.usd) + (v.reserved ? ', reserved' : ''));
+    b.addEventListener('click', function(){ st.villa = i; render(); });
+    $('villaSeg').appendChild(b);
+  });
+  SCEN.forEach(function(s, i){
+    var b = document.createElement('button'); b.type = 'button';
+    b.innerHTML = '<b>' + s.name + '</b><small>$' + s.rate + ' · ' + s.occ + '%</small>';
+    b.addEventListener('click', function(){ st.rate = s.rate; st.occ = s.occ; render(); });
+    $('scenSeg').appendChild(b);
+  });
+  ['rate','occ','mgmt','opex'].forEach(function(k){
+    $(k).addEventListener('input', function(){ st[k] = +this.value; render(); });
+  });
+  $('bphtb').addEventListener('change', function(){ st.bphtb = this.checked; render(); });
+  $('reset').addEventListener('click', function(){ reset(); render(); });
+
+  function reset(){
+    st = { villa:DEFAULTS.villa, rate:SCEN[DEFAULTS.scen].rate, occ:SCEN[DEFAULTS.scen].occ, mgmt:DEFAULTS.mgmt, opex:DEFAULTS.opex, bphtb:DEFAULTS.bphtb };
+  }
+  function scenIndex(){
+    for (var i = 0; i < SCEN.length; i++) if (SCEN[i].rate === st.rate && SCEN[i].occ === st.occ) return i;
+    return -1;
+  }
+
+  /* ----- output ----- */
+  function render(){
+    var r = calc(st), si = scenIndex(), v = r.v;
+
+    Array.prototype.forEach.call($('villaSeg').children, function(b, i){ b.setAttribute('aria-pressed', i === st.villa); });
+    Array.prototype.forEach.call($('scenSeg').children, function(b, i){ b.setAttribute('aria-pressed', i === si); });
+    $('customNote').textContent = si < 0 ? 'Custom: your own day rate and occupancy' : '';
+    $('rate').value = st.rate; $('occ').value = st.occ; $('mgmt').value = st.mgmt; $('opex').value = st.opex; $('bphtb').checked = st.bphtb;
+    $('rateOut').textContent = '$' + st.rate; $('occOut').textContent = st.occ + '%';
+    $('mgmtOut').textContent = st.mgmt + '%'; $('opexOut').textContent = st.opex + '%';
+
+    $('resultLabel').textContent = 'Villa ' + v.id + ' · ' + (si >= 0 ? SCEN[si].name + ' scenario' : 'Custom scenario');
+    $('fRoi').textContent = pct(r.roi);
+    $('fNet').textContent = usd(r.net);
+    $('fPay').textContent = isFinite(r.pay) ? r.pay.toFixed(1) : '–';
+    $('resultSub').textContent = 'About ' + usd(r.net/12) + ' a month after costs, on an investment of ' + usd(r.inv) + '.';
+
+    var rows = [
+      ['Average day rate', usd(st.rate),
+        'The average price per night a guest pays to rent the whole villa, across high and low season.',
+        usd(st.rate) + ' a night, averaged over the year'],
+      ['Occupancy', st.occ + '%',
+        'The share of the year’s 365 nights the villa is booked by guests.',
+        '365 nights × ' + st.occ + '% ≈ ' + Math.round(r.nights) + ' nights booked a year'],
+      ['Gross rental income', usd(r.gross),
+        'All the rent guests pay in a year, before any costs come off.',
+        usd(st.rate) + ' × 365 nights × ' + st.occ + '% = ' + usd(r.gross), 'total'],
+      ['Villa management', usd(r.mgmt),
+        'The management company’s fee for running the villa as a rental: listing and marketing it, taking bookings and looking after guests.',
+        st.mgmt + '% × ' + usd(r.gross) + ' = ' + usd(r.mgmt)],
+      ['Operating expense', usd(r.opex),
+        'The villa’s running costs, such as utilities, upkeep and guest supplies.',
+        st.opex + '% × ' + usd(r.gross) + ' = ' + usd(r.opex)],
+      ['Total expense', usd(r.exp),
+        'Management plus operating costs: ' + (st.mgmt + st.opex) + '% of gross rental income.',
+        usd(r.mgmt) + ' + ' + usd(r.opex) + ' = ' + usd(r.exp), 'total'],
+      ['Investment (Villa ' + v.id + ')', usd(r.inv),
+        'The purchase price of Villa ' + v.id + ', ' + idr(v.idr) + ', in USD at the indicative rate of IDR 17.800' + (st.bphtb ? ', plus 5% BPHTB for the freehold option.' : '. The 5% BPHTB due on freehold is not included; tick the box on the left to add it.'),
+        idr(v.idr) + ' ÷ 17.800 = ' + usd(v.usd) + (st.bphtb ? ' × 1.05 BPHTB = ' + usd(r.inv) : ''), 'total'],
+      ['Net income', usd(r.net),
+        'What the owner keeps each year once management and operating costs are paid.',
+        usd(r.gross) + ' − ' + usd(r.exp) + ' = ' + usd(r.net)],
+      ['Annual ROI', pct(r.roi),
+        'Net income as a share of the investment: the cash return the villa earns each year. It leaves out income tax and any rise in the villa’s value.',
+        usd(r.net) + ' ÷ ' + usd(r.inv) + ' = ' + pct(r.roi, 2), 'final'],
+      ['Years to earn back the price', isFinite(r.pay) ? r.pay.toFixed(1) + ' years' : '–',
+        'How long the net income takes to add up to the investment, if every year matched this one.',
+        usd(r.inv) + ' ÷ ' + usd(r.net) + ' = ' + (isFinite(r.pay) ? r.pay.toFixed(1) : '–') + ' years']
+    ];
+    $('ledger').innerHTML = '';
+    rows.forEach(function(x){
+      var d = document.createElement('div'); d.className = 'row' + (x[4] ? ' ' + x[4] : '');
+      d.innerHTML = '<div class="name"></div><div class="val"></div><div class="what"></div><div class="calc"></div>';
+      d.children[0].textContent = x[0]; d.children[1].textContent = x[1];
+      d.children[2].textContent = x[2]; d.children[3].textContent = x[3];
+      $('ledger').appendChild(d);
+    });
+
+    renderScenarios(si);
+    renderSensitivity();
+  }
+
+  function renderScenarios(si){
+    var res = SCEN.map(function(s){ return calc({ villa:st.villa, rate:s.rate, occ:s.occ, mgmt:st.mgmt, opex:st.opex, bphtb:st.bphtb }); });
+    var lines = [
+      ['Average day rate', function(r, s){ return '$' + s.rate; }],
+      ['Occupancy', function(r, s){ return s.occ + '%'; }],
+      ['Gross rental income', function(r){ return usd(r.gross); }, 'strong'],
+      ['Villa management (' + st.mgmt + '%)', function(r){ return usd(r.mgmt); }],
+      ['Operating expense (' + st.opex + '%)', function(r){ return usd(r.opex); }],
+      ['Total expense', function(r){ return usd(r.exp); }, 'strong'],
+      ['Investment (Villa ' + VILLAS[st.villa].id + ')', function(r){ return usd(r.inv); }],
+      ['Net income', function(r){ return usd(r.net); }, 'strong'],
+      ['Annual ROI', function(r){ return pct(r.roi); }, 'final']
+    ];
+    var h = '<thead><tr><th scope="col"><span class="sr">Line</span></th>' + SCEN.map(function(s, i){ return '<th scope="col"' + (i === si ? ' class="on"' : '') + '>' + s.name + '</th>'; }).join('') + '</tr></thead><tbody>';
+    lines.forEach(function(l){
+      h += '<tr' + (l[2] ? ' class="' + l[2] + '"' : '') + '><td>' + l[0] + '</td>' + SCEN.map(function(s, i){ return '<td' + (i === si ? ' class="on"' : '') + '>' + l[1](res[i], s) + '</td>'; }).join('') + '</tr>';
+    });
+    $('scenTable').innerHTML = h + '</tbody>';
+    var std = st.villa === DEFAULTS.villa && st.mgmt === DEFAULTS.mgmt && st.opex === DEFAULTS.opex && !st.bphtb;
+    $('scenNote').textContent = std
+      ? 'The brochure’s table, with the ROI to one decimal place (the brochure rounds to whole percent).'
+      : 'The brochure’s three scenarios, recalculated with the villa, fees and BPHTB setting chosen on the left.';
+  }
+
+  /* sensitivity: rows = day rate, columns = occupancy; one warm hue from cream (low) to dark taupe (high) */
+  var S_RATES = [130,140,150,160,170,180,190,200,210,220,230], S_OCC = [60,65,70,75,80,85,90];
+  var LO = [240,235,210], HI = [74,66,56];
+  function mix(t){ return 'rgb(' + LO.map(function(a, k){ return Math.round(a + (HI[k] - a) * t); }).join(',') + ')'; }
+  function renderSensitivity(){
+    var all = [], min = Infinity, max = -Infinity;
+    S_RATES.forEach(function(rt){ S_OCC.forEach(function(oc){
+      var x = calc({ villa:st.villa, rate:rt, occ:oc, mgmt:st.mgmt, opex:st.opex, bphtb:st.bphtb }).roi;
+      min = Math.min(min, x); max = Math.max(max, x);
+    }); });
+    var nr = S_RATES.reduce(function(a, b){ return Math.abs(b - st.rate) < Math.abs(a - st.rate) ? b : a; });
+    var no = S_OCC.reduce(function(a, b){ return Math.abs(b - st.occ) < Math.abs(a - st.occ) ? b : a; });
+    var h = '<caption>Rows: average day rate. Columns: occupancy.</caption><thead><tr><th class="rh" scope="col">Day rate</th>' + S_OCC.map(function(o){ return '<th scope="col">' + o + '%</th>'; }).join('') + '</tr></thead><tbody>';
+    S_RATES.forEach(function(rt){
+      h += '<tr><th class="rh" scope="row">$' + rt + '</th>';
+      S_OCC.forEach(function(oc){
+        var x = calc({ villa:st.villa, rate:rt, occ:oc, mgmt:st.mgmt, opex:st.opex, bphtb:st.bphtb }).roi;
+        var t = max > min ? (x - min) / (max - min) : .5;
+        var cur = rt === nr && oc === no;
+        h += '<td tabindex="0" data-r="' + rt + '" data-o="' + oc + '" class="' + (cur ? 'cur' : '') + '" style="background:' + mix(t) + ';color:' + (t > .5 ? '#f6f1e2' : '#2b2218') + '"'
+          + ' title="$' + rt + ' a night at ' + oc + '% occupancy: ' + pct(x) + ' ROI"'
+          + ' aria-label="$' + rt + ' a night at ' + oc + '% occupancy, ' + pct(x) + ' ROI">' + pct(x) + '</td>';
+      });
+      h += '</tr>';
+    });
+    $('sensTable').innerHTML = h + '</tbody>';
+    $('lgLo').textContent = pct(min); $('lgHi').textContent = pct(max);
+    $('lgRamp').style.background = 'linear-gradient(90deg,' + mix(0) + ',' + mix(1) + ')';
+  }
+  function pickCell(td){ st.rate = +td.dataset.r; st.occ = +td.dataset.o; render(); }
+  $('sensTable').addEventListener('click', function(e){ var td = e.target.closest('td[data-r]'); if (td) pickCell(td); });
+  $('sensTable').addEventListener('keydown', function(e){
+    var td = e.target.closest('td[data-r]');
+    if (td && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); pickCell(td); }
+  });
+
+  /* back to the brochure: return to the exact page the reader came from when possible */
+  $('backLink').addEventListener('click', function(e){
+    try{
+      if (document.referrer && new URL(document.referrer).pathname.indexOf('/brochure') === 0 && history.length > 1){ e.preventDefault(); history.back(); }
+    }catch(err){}
+  });
+
+  reset();
+  render();
+})();
+</script>
+</body>
+</html>
