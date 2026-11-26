@@ -133,6 +133,7 @@
     '.ck *{box-sizing:border-box;}',
     ".ck h2{margin:0 0 8px;font:500 13px/1.3 'Cinzel',Georgia,serif;letter-spacing:.16em;text-transform:uppercase;color:#fff;}",
     '.ck p{margin:0;color:#d9d1bb;}',
+    '.ck p a{color:#efe9d9;text-decoration:underline;text-underline-offset:3px;}',
     '.ck-btns{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}',
     '.ck-btn{flex:1 1 0;min-width:110px;min-height:44px;padding:0 14px;border-radius:3px;cursor:pointer;font-family:inherit;font-weight:500;font-size:11.5px;line-height:1;',
     'letter-spacing:.16em;text-transform:uppercase;border:1px solid rgba(239,233,217,.6);background:transparent;color:#efe9d9;transition:background .2s,color .2s;}',
@@ -163,7 +164,10 @@
     var cur = saved() || { analytics:false, marketing:false };
     box = el('section', 'ck'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Cookie choices');
     box.appendChild(el('h2', null, 'Cookies'));
-    box.appendChild(el('p', null, 'We would like to use cookies to see how visitors use this site and to measure our advertising. Nothing is tracked unless you agree.'));
+    var intro = el('p', null, 'We would like to use cookies to see how visitors use this site and to measure our advertising. Nothing is tracked unless you agree. ');
+    var pol = el('a', null, 'Privacy policy'); pol.href = '/privacy/#cookies';
+    intro.appendChild(pol);
+    box.appendChild(intro);
 
     var opts = el('div', 'ck-opts'); opts.hidden = !showOptions;
     function opt(label, desc, checked, fixed){
