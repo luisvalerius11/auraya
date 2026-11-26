@@ -383,7 +383,7 @@
     var gross = R(o.rate * nights);
     var ota = R(gross * o.ota/100), pb1 = R((gross - ota) * PB1), sell = ota + pb1;
     var mgmt = R((gross - ota) * o.mgmt/100), fixed = R(FIXED_MONTH * 12 / FX);
-    var pre = gross - sell - mgmt - fixed, ctax = pre > 0 ? R(pre * CTAX) : 0;
+    var pre = gross - sell - mgmt - fixed, ctax = R(gross * CTAX);   /* central tax: 0.5% of gross rental income */
     var exp = sell + mgmt + fixed + ctax, net = gross - exp;
     return { v:v, inv:inv, nights:nights, gross:gross, ota:ota, pb1:pb1, sell:sell, mgmt:mgmt, fixed:fixed, pre:pre, ctax:ctax, exp:exp, net:net,
       roi: net/inv, pay: net > 0 ? inv/net : Infinity };
@@ -473,8 +473,8 @@
         'Rental income less selling and operating cost.',
         usd(r.gross) + ' \u2212 ' + usd(r.sell) + ' \u2212 ' + usd(r.mgmt + r.fixed) + ' = ' + usd(r.pre)],
       ['Central tax', usd(r.ctax),
-        'Central government tax of 0.5%, charged on the profit before this tax.',
-        '0.5% \u00d7 ' + usd(Math.max(r.pre, 0)) + ' = ' + usd(r.ctax)],
+        'Central government tax of 0.5%, charged on gross rental income (turnover), whatever the profit.',
+        '0.5% \u00d7 ' + usd(r.gross) + ' = ' + usd(r.ctax)],
       ['Net income', usd(r.net),
         'What the owner keeps each year after every cost and tax above.',
         usd(r.pre) + ' \u2212 ' + usd(r.ctax) + ' = ' + usd(r.net), 'total'],
