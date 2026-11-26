@@ -1,15 +1,23 @@
 /* ============================================================
-   AURAYA VILLAS — analytics, shared by every page
+   AURAYA VILLAS — analytics and cookie consent, shared by every page
    (landing page, /brochure/ and /roi/ all load this one file).
 
    Paste your IDs between the quotes. While an ID is empty, that
-   tracker is not loaded at all and nothing is sent anywhere.
+   tracker is not loaded at all; with both empty, no cookie banner
+   is shown either, because nothing would be tracked.
      GA_ID    = Google Analytics 4 measurement ID, e.g. "G-XXXXXXXXXX"
      PIXEL_ID = Meta (Facebook) Pixel ID, e.g. "123456789012345"
 
-   What is tracked:
+   Consent: nothing is loaded and no cookie is set until the visitor
+   agrees in the banner. "Analytics" loads Google Analytics;
+   "Marketing" loads the Meta Pixel and lets Google use ad signals.
+   The choice is kept in this browser (localStorage "auraya_consent")
+   for 6 months; any element with data-cookie-settings reopens it.
+   Google Consent Mode v2 is set to "denied" until the visitor agrees.
+
+   What is tracked once allowed:
      - every page view, visitors, sessions, scrolling and outbound
-       clicks (GA4 does this by itself once GA_ID is set)
+       clicks (GA4 does this by itself)
      - contact:            WhatsApp and email links, on any page
      - section_view:       landing page sections scrolled into view
      - brochure_page_view: each brochure page shown, and how the reader got there
@@ -25,35 +33,87 @@
   var GA_ID = "";
   var PIXEL_ID = "";
 
+  var KEY = 'auraya_consent', VERSION = 1, MAX_AGE = 182 * 24 * 3600 * 1000;
+  var configured = !!(GA_ID || PIXEL_ID);
+
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
+  /* Consent Mode v2: everything denied until the visitor chooses */
+  gtag('consent', 'default', { analytics_storage:'denied', ad_storage:'denied', ad_user_data:'denied', ad_personalization:'denied' });
 
-  if (GA_ID){
+  var gaLoaded = false, pixelLoaded = false, consent = { analytics:false, marketing:false };
+  /* events from before the visitor chose: held in memory, sent only if they agree, dropped otherwise */
+  var decided = false, pending = [];
+
+  function loadGA(){
+    if (gaLoaded || !GA_ID) return;
+    gaLoaded = true;
     var g = document.createElement('script');
     g.async = true; g.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
     document.head.appendChild(g);
     gtag('js', new Date());
     gtag('config', GA_ID);
   }
-  if (PIXEL_ID){
+  function loadPixel(){
+    if (pixelLoaded || !PIXEL_ID) return;
+    pixelLoaded = true;
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
     n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
     n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
     t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
     document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('consent', 'grant');
     fbq('init', PIXEL_ID); fbq('track', 'PageView');
+  }
+  /* remove Google Analytics cookies after a visitor withdraws consent */
+  function clearGACookies(){
+    var host = location.hostname, parts = host.split('.'), domains = ['', host];
+    for (var i = 1; i < parts.length - 1; i++) domains.push('.' + parts.slice(i).join('.'));
+    document.cookie.split(';').forEach(function(c){
+      var name = c.split('=')[0].trim();
+      if (!/^_ga(_|$)|^_gid$|^_gat/.test(name)) return;
+      domains.forEach(function(d){ document.cookie = name + '=; Max-Age=0; path=/' + (d ? '; domain=' + d : ''); });
+    });
+  }
+
+  function apply(c){
+    consent = { analytics:!!c.analytics, marketing:!!c.marketing };
+    gtag('consent', 'update', {
+      analytics_storage: consent.analytics ? 'granted' : 'denied',
+      ad_storage:         consent.marketing ? 'granted' : 'denied',
+      ad_user_data:       consent.marketing ? 'granted' : 'denied',
+      ad_personalization: consent.marketing ? 'granted' : 'denied'
+    });
+    if (consent.analytics) loadGA(); else clearGACookies();
+    if (consent.marketing) loadPixel();
+    else if (pixelLoaded && window.fbq) fbq('consent', 'revoke');
+    decided = true;
+    var held = pending; pending = [];
+    held.forEach(function(e){ window.track(e[0], e[1], e[2]); });
+  }
+  function saved(){
+    try{
+      var c = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (c && c.v === VERSION && Date.now() - c.at < MAX_AGE) return c;
+    }catch(e){}
+    return null;
+  }
+  function save(c){
+    try{ localStorage.setItem(KEY, JSON.stringify({ v:VERSION, at:Date.now(), analytics:!!c.analytics, marketing:!!c.marketing })); }catch(e){}
+    apply(c);
   }
 
   /* Which part of the site this is: "landing", "brochure" or "roi" */
   var area = (location.pathname.match(/\/(brochure|roi)(\/|$)/) || [, 'landing'])[1];
 
-  /* track(gaEvent, pixelEvent, params): one call reports to both trackers.
-     pixelEvent may be null for events the Pixel does not need. Does nothing while no ID is set. */
+  /* track(gaEvent, pixelEvent, params): one call reports to whichever trackers the visitor allowed.
+     pixelEvent may be null for events the Pixel does not need. */
   window.track = function(gaEvent, pixelEvent, params){
     params = params || {};
     if (!('site_area' in params)) params.site_area = area;
-    if (GA_ID) gtag('event', gaEvent, params);
-    if (PIXEL_ID && pixelEvent && window.fbq) fbq('track', pixelEvent, params);
+    if (!decided && configured){ if (pending.length < 100) pending.push([gaEvent, pixelEvent, params]); return; }
+    if (GA_ID && consent.analytics) gtag('event', gaEvent, params);
+    if (PIXEL_ID && consent.marketing && pixelEvent && window.fbq) fbq('track', pixelEvent, params);
   };
 
   /* Contact links anywhere on the site */
@@ -64,4 +124,97 @@
     if (/api\.whatsapp\.com|wa\.me\//.test(h)) window.track('contact', 'Contact', { method:'whatsapp' });
     else if (/^mailto:/i.test(h)) window.track('contact', 'Contact', { method:'email' });
   }, true);
+
+  /* ---------------- cookie banner ---------------- */
+  var CSS = [
+    '.ck{position:fixed;z-index:2147483000;left:20px;bottom:20px;width:min(420px,calc(100vw - 40px));box-sizing:border-box;',
+    'background:#2f2820;color:#efe9d9;border-radius:6px;padding:22px 22px 18px;box-shadow:0 18px 50px -12px rgba(20,14,6,.55);',
+    "font:300 14px/1.55 'Jost','Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;}",
+    '.ck *{box-sizing:border-box;}',
+    ".ck h2{margin:0 0 8px;font:500 13px/1.3 'Cinzel',Georgia,serif;letter-spacing:.16em;text-transform:uppercase;color:#fff;}",
+    '.ck p{margin:0;color:#d9d1bb;}',
+    '.ck-btns{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}',
+    '.ck-btn{flex:1 1 0;min-width:110px;min-height:44px;padding:0 14px;border-radius:3px;cursor:pointer;font-family:inherit;font-weight:500;font-size:11.5px;line-height:1;',
+    'letter-spacing:.16em;text-transform:uppercase;border:1px solid rgba(239,233,217,.6);background:transparent;color:#efe9d9;transition:background .2s,color .2s;}',
+    '.ck-btn:hover{background:rgba(239,233,217,.12);}',
+    '.ck-btn.solid{background:#efe9d9;color:#2b2218;border-color:#efe9d9;}',
+    '.ck-btn.solid:hover{background:#fff;}',
+    '.ck-link{display:inline-block;margin-top:12px;padding:6px 0;background:none;border:0;cursor:pointer;color:#cfc7b3;font:inherit;font-size:13px;',
+    'text-decoration:underline;text-underline-offset:3px;}',
+    '.ck-link:hover{color:#fff;}',
+    '.ck-opts{margin-top:14px;border-top:1px solid rgba(239,233,217,.2);}',
+    '.ck-opt{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid rgba(239,233,217,.2);cursor:pointer;}',
+    '.ck-opt input{width:18px;height:18px;margin:2px 0 0;flex:none;accent-color:#b6c26a;}',
+    '.ck-opt b{display:block;font-weight:500;color:#fff;}',
+    '.ck-opt small{display:block;font-size:12.5px;color:#cfc7b3;}',
+    '.ck-opt.fixed{cursor:default;opacity:.8;}',
+    '.ck [hidden]{display:none!important;}',
+    '.ck button:focus-visible,.ck input:focus-visible{outline:2px solid #b6c26a;outline-offset:2px;}',
+    '@media (max-width:520px){.ck{left:12px;right:12px;bottom:12px;width:auto;padding:18px 16px 14px;}}'
+  ].join('');
+
+  var box = null;
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function close(){ if (box){ box.remove(); box = null; } }
+  function open(showOptions){
+    if (!configured) return;
+    close();
+    if (!document.getElementById('ck-css')){ var st = el('style'); st.id = 'ck-css'; st.textContent = CSS; document.head.appendChild(st); }
+    var cur = saved() || { analytics:false, marketing:false };
+    box = el('section', 'ck'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Cookie choices');
+    box.appendChild(el('h2', null, 'Cookies'));
+    box.appendChild(el('p', null, 'We would like to use cookies to see how visitors use this site and to measure our advertising. Nothing is tracked unless you agree.'));
+
+    var opts = el('div', 'ck-opts'); opts.hidden = !showOptions;
+    function opt(label, desc, checked, fixed){
+      var l = el('label', 'ck-opt' + (fixed ? ' fixed' : ''));
+      var i = el('input'); i.type = 'checkbox'; i.checked = checked; i.disabled = !!fixed;
+      var t = el('span'); t.appendChild(el('b', null, label)); t.appendChild(el('small', null, desc));
+      l.appendChild(i); l.appendChild(t); opts.appendChild(l);
+      return i;
+    }
+    opt('Essential', 'Remembers this choice. Always on.', true, true);
+    var an = GA_ID ? opt('Analytics', 'Google Analytics: visits, pages viewed and how the site is used.', cur.analytics) : null;
+    var mk = PIXEL_ID ? opt('Marketing', 'Meta Pixel and Google ad signals: measure and improve our ads.', cur.marketing) : null;
+    box.appendChild(opts);
+
+    var btns = el('div', 'ck-btns');
+    var reject = el('button', 'ck-btn', 'Reject all'); reject.type = 'button';
+    var accept = el('button', 'ck-btn solid', 'Accept all'); accept.type = 'button';
+    var saveBtn = el('button', 'ck-btn solid', 'Save choices'); saveBtn.type = 'button'; saveBtn.hidden = !showOptions;
+    if (showOptions) accept.hidden = true;
+    reject.addEventListener('click', function(){ save({ analytics:false, marketing:false }); close(); });
+    accept.addEventListener('click', function(){ save({ analytics:true, marketing:true }); close(); });
+    saveBtn.addEventListener('click', function(){ save({ analytics:an ? an.checked : false, marketing:mk ? mk.checked : false }); close(); });
+    btns.appendChild(reject); btns.appendChild(accept); btns.appendChild(saveBtn);
+    box.appendChild(btns);
+
+    if (!showOptions){
+      var choose = el('button', 'ck-link', 'Choose which cookies'); choose.type = 'button';
+      choose.addEventListener('click', function(){ opts.hidden = false; choose.remove(); accept.hidden = true; saveBtn.hidden = false; (an || mk || saveBtn).focus(); });
+      box.appendChild(choose);
+    }
+    document.body.appendChild(box);
+  }
+
+  /* any link or button marked data-cookie-settings reopens the choices */
+  document.addEventListener('click', function(e){
+    var t = e.target.closest ? e.target.closest('[data-cookie-settings]') : null;
+    if (!t) return;
+    e.preventDefault(); open(true);
+  });
+  window.aurayaConsent = { open:function(){ open(true); }, get:function(){ return { analytics:consent.analytics, marketing:consent.marketing }; } };
+
+  /* start: apply a saved choice, or ask */
+  var s = saved();
+  if (s) apply(s);
+  else if (configured){
+    if (document.body) open(false);
+    else document.addEventListener('DOMContentLoaded', function(){ open(false); });
+  }
+  /* the cookie-settings links only make sense when something can be tracked */
+  if (!configured){
+    var hide = function(){ document.querySelectorAll('[data-cookie-settings]').forEach(function(x){ x.style.display = 'none'; }); };
+    if (document.body) hide(); else document.addEventListener('DOMContentLoaded', hide);
+  }
 })();
