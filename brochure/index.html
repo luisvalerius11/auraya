@@ -299,7 +299,7 @@
   .roi-explain-t tr[data-k].on td:first-child span{ border-bottom-color:var(--olive); }
   .roi-explain-t tr[data-k] td.col-on{ background:rgba(239,233,217,.16); }
   .roi-explain-t tr[data-k]:focus-visible{ outline:2px solid var(--olive); outline-offset:-2px; }
-  .roi-explain{ margin-top:1.4em; min-height:6.4em; padding:.9em 1.1em; border-left:2px solid var(--olive);
+  .roi-explain{ margin-top:1em; min-height:5.6em; padding:.9em 1.1em; border-left:2px solid var(--olive);
     background:rgba(0,0,0,.16); font-size:.8em; line-height:1.55; color:#ded7c3; box-sizing:border-box; }
   .roi-explain p{ margin:0; }
   .roi-explain .rx-name{ font-size:.82em; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:#fff; margin-bottom:.35em; }
@@ -420,8 +420,12 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .roi .page-inner{ padding:2.6em 2em; }
   body.narrow .roi-title{ font-size:2.3em; }
   body.narrow .roi-t{ margin:auto 0; }
-  body.narrow .roi-main .roi-t{ margin:1.6em 0 0; }
-  body.narrow .roi-main .roi-t td{ padding:.5em .3em; }
+  body.narrow .roi-main .roi-t{ margin:1.3em 0 0; }
+  body.narrow .roi-main .roi-t th{ padding:.3em .3em; }
+  body.narrow .roi-main .roi-t td{ padding:.34em .3em; }
+  body.narrow .roi-main .roi-t tr.gap td{ padding-top:.34em; }
+  body.narrow .roi-main .roi-head .body-para{ margin:0; }
+  body.narrow .roi-main .roi-btn{ margin-top:.9em; }
   body.narrow .roi-explain{ margin-top:auto; }
   body.narrow .roi-t th{ font-size:.86em; }
   body.narrow .roi-t td{ font-size:.86em; padding:.62em .2em; }
@@ -611,12 +615,14 @@ body.narrow .price-t td{ font-size:.8em; }
         <tr data-k="rate" tabindex="0"><td>Average Day Rate</td><td>$160</td><td>$175</td><td>$190</td></tr>
         <tr data-k="occ" tabindex="0" class="line"><td>Average Occupancy Rate</td><td>75%</td><td>80%</td><td>85%</td></tr>
         <tr data-k="gross" tabindex="0" class="strong"><td>Gross Rental Income</td><td>$43,800</td><td>$51,100</td><td>$58,948</td></tr>
-        <tr data-k="mgmt" tabindex="0" class="gap"><td>Villa Management (18% of Revenue)</td><td>$7,884</td><td>$9,198</td><td>$10,611</td></tr>
-        <tr data-k="opex" tabindex="0" class="line"><td>Operating Expense (15% of Revenue)</td><td>$6,570</td><td>$7,665</td><td>$8,842</td></tr>
-        <tr data-k="exp" tabindex="0" class="strong"><td>Total Expense</td><td>$14,454</td><td>$16,863</td><td>$19,453</td></tr>
+        <tr data-k="sell" tabindex="0" class="gap"><td>Selling Cost (OTA 10% + PB1 Tax 10%)</td><td>$8,322</td><td>$9,709</td><td>$11,200</td></tr>
+        <tr data-k="mgmt" tabindex="0"><td>Management Fee (15%)</td><td>$5,913</td><td>$6,899</td><td>$7,958</td></tr>
+        <tr data-k="opex" tabindex="0"><td>Operating Cost (Staff, Utilities, Upkeep)</td><td>$8,134</td><td>$8,134</td><td>$8,134</td></tr>
+        <tr data-k="ctax" tabindex="0" class="line"><td>Central Tax (0.5%)</td><td>$107</td><td>$132</td><td>$158</td></tr>
+        <tr data-k="exp" tabindex="0" class="strong"><td>Total Expense</td><td>$22,476</td><td>$24,874</td><td>$27,450</td></tr>
         <tr data-k="inv" tabindex="0" class="gap"><td>Investment (Villa A4)</td><td>$298,105</td><td>$298,105</td><td>$298,105</td></tr>
-        <tr data-k="net" tabindex="0" class="line"><td>Net Income</td><td>$29,346</td><td>$34,237</td><td>$39,495</td></tr>
-        <tr data-k="roi" tabindex="0" class="strong"><td>% Annual ROI</td><td>10%</td><td>11%</td><td>13%</td></tr>
+        <tr data-k="net" tabindex="0" class="line"><td>Net Income</td><td>$21,324</td><td>$26,226</td><td>$31,498</td></tr>
+        <tr data-k="roi" tabindex="0" class="strong"><td>% Annual ROI</td><td>7%</td><td>9%</td><td>11%</td></tr>
       </table>
       <div class="roi-explain" id="roiExplain" aria-live="polite">
         <p class="rx-hint"><span class="rx-dot" aria-hidden="true">i</span>Hover over or tap any line to see what it means and how it is worked out.</p>
@@ -1244,31 +1250,42 @@ body.narrow .price-t td{ font-size:.8em; }
 
   /* ---------- ROI page: each line explains itself on hover (mouse) or tap (touch) ---------- */
   var SC = ['Conservative','Expected','Accelerated'];
-  var RATE = [160,175,190], OCC = [.75,.80,.85], PRICE = 298105, MGMT = .18, OPEX = .15;
+  /* Cost structure follows the managed-villa ROI projection: booking commission and PB1 tax on revenue,
+     a management fee on revenue after commission, fixed monthly running costs in rupiah, and 0.5% central tax. */
+  var RATE = [160,175,190], OCC = [.75,.80,.85], PRICE = 298105, FX = 17800;
+  var OTA = .10, PB1 = .10, MGMT = .15, CTAX = .005, FIXED_IDR_MONTH = 12065000;
   function usd(v){ return '$' + Math.round(v).toLocaleString('en-US'); }
+  /* each line is rounded to whole dollars before it is added up, so every column sums exactly as printed */
   function roiCalc(c){
-    var g = RATE[c]*365*OCC[c], m = g*MGMT, o = g*OPEX, e = m + o, n = g - e;
-    return { g:g, m:m, o:o, e:e, n:n, r:n/PRICE };
+    var R = Math.round;
+    var g = R(RATE[c]*365*OCC[c]), ota = R(g*OTA), pb1 = R((g - ota)*PB1), sell = ota + pb1;
+    var m = R((g - ota)*MGMT), o = R(FIXED_IDR_MONTH*12/FX), pre = g - sell - m - o, t = R(pre*CTAX);
+    var e = sell + m + o + t, n = g - e;
+    return { g:g, ota:ota, pb1:pb1, sell:sell, m:m, o:o, pre:pre, t:t, e:e, n:n, r:n/PRICE };
   }
   var ROI_NOTES = {
-    rate: ['Average Day Rate', 'The average price per night a guest pays to rent the whole villa, taken across high and low season.',
+    rate: ['Average Day Rate', 'The average nightly price for the whole villa across high, normal and low season, reviewed daily against occupancy.',
       function(c){ return usd(RATE[c]) + ' a night, averaged over the year'; }],
-    occ:  ['Average Occupancy Rate', 'The share of the year\u2019s 365 nights the villa is booked by guests.',
-      function(c){ return '365 nights \u00d7 ' + Math.round(OCC[c]*100) + '% \u2248 ' + Math.round(365*OCC[c]) + ' nights booked a year'; }],
+    occ:  ['Average Occupancy Rate', 'The share of the year’s 365 nights the villa is booked by guests.',
+      function(c){ return '365 nights × ' + Math.round(OCC[c]*100) + '% ≈ ' + Math.round(365*OCC[c]) + ' nights booked a year'; }],
     gross:['Gross Rental Income', 'All the rent guests pay in a year, before any costs come off.',
-      function(c){ return usd(RATE[c]) + ' \u00d7 365 nights \u00d7 ' + Math.round(OCC[c]*100) + '% = ' + usd(roiCalc(c).g); }],
-    mgmt: ['Villa Management', 'The management company\u2019s fee for running the villa as a rental: listing and marketing it, taking bookings and looking after guests. Charged as 18% of gross rental income.',
-      function(c){ var x = roiCalc(c); return '18% \u00d7 ' + usd(x.g) + ' = ' + usd(x.m); }],
-    opex: ['Operating Expense', 'The villa\u2019s running costs, such as utilities, upkeep and guest supplies. Budgeted at 15% of gross rental income.',
-      function(c){ var x = roiCalc(c); return '15% \u00d7 ' + usd(x.g) + ' = ' + usd(x.o); }],
-    exp:  ['Total Expense', 'Management plus operating costs: 33% of gross rental income in every scenario.',
-      function(c){ var x = roiCalc(c); return usd(x.m) + ' + ' + usd(x.o) + ' = ' + usd(x.e); }],
-    inv:  ['Investment (Villa A4)', 'The purchase price of Villa A4, Rp 5.306.272.000, shown in USD at the indicative rate of IDR 17.800. It is the same in every scenario; the 5% BPHTB due on freehold is not included.',
-      function(){ return 'Rp 5.306.272.000 \u00f7 17.800 = ' + usd(PRICE); }],
-    net:  ['Net Income', 'What the owner keeps each year once management and operating costs are paid.',
-      function(c){ var x = roiCalc(c); return usd(x.g) + ' \u2212 ' + usd(x.e) + ' = ' + usd(x.n); }],
-    roi:  ['% Annual ROI', 'Net income as a share of the purchase price: the cash return the villa earns each year. It leaves out income tax and any rise in the villa\u2019s value.',
-      function(c){ var x = roiCalc(c); return usd(x.n) + ' \u00f7 ' + usd(PRICE) + ' = ' + (x.r*100).toFixed(1) + '%, shown rounded as ' + Math.round(x.r*100) + '%'; }]
+      function(c){ return usd(RATE[c]) + ' × 365 nights × ' + Math.round(OCC[c]*100) + '% = ' + usd(roiCalc(c).g); }],
+    sell: ['Selling Cost', 'Booking platform commission (Airbnb, Booking.com, Agoda and others; 10% on average) plus the 10% local PB1 tax on room income after commission.',
+      function(c){ var x = roiCalc(c); return usd(x.ota) + ' commission + ' + usd(x.pb1) + ' PB1 (10% of ' + usd(x.g - x.ota) + ') = ' + usd(x.sell); }],
+    mgmt: ['Management Fee', 'The management company’s fee for reservations, marketing and reception: 15% of rental income after commission.',
+      function(c){ var x = roiCalc(c); return '15% × ' + usd(x.g - x.ota) + ' = ' + usd(x.m); }],
+    opex: ['Operating Cost', 'Fixed running costs, the same in every scenario: three staff, operations, utilities, internet, laundry, maintenance, insurance, guest supplies and the banjar.',
+      function(){ return 'Rp 12.065.000 a month × 12 ÷ 17.800 = ' + usd(FIXED_IDR_MONTH*12/FX); }],
+    ctax: ['Central Tax', 'Central government tax of 0.5%, charged on the profit before this tax.',
+      function(c){ var x = roiCalc(c); return '0.5% × ' + usd(x.pre) + ' = ' + usd(x.t); }],
+    exp:  ['Total Expense', 'Selling cost, management fee, operating cost and central tax together.',
+      function(c){ var x = roiCalc(c); return usd(x.sell) + ' + ' + usd(x.m) + ' + ' + usd(x.o) + ' + ' + usd(x.t) + ' = ' + usd(x.e); }],
+    inv:  ['Investment (Villa A4)', 'Villa A4\u2019s price in USD at IDR 17.800, the same in every scenario. The 5% BPHTB on freehold is not included.',
+      function(){ return 'Rp 5.306.272.000 ÷ 17.800 = ' + usd(PRICE); }],
+    net:  ['Net Income', 'What the owner keeps each year after every cost and tax above.',
+      function(c){ var x = roiCalc(c); return usd(x.g) + ' − ' + usd(x.e) + ' = ' + usd(x.n); }],
+    roi:  ['% Annual ROI', 'Net income as a share of the price: the yearly cash return. Any rise in the villa’s value comes on top.',
+      function(c){ var x = roiCalc(c); return usd(x.n) + ' ÷ ' + usd(PRICE) + ' = ' + (x.r*100).toFixed(1) + '%, shown rounded as ' + Math.round(x.r*100) + '%'; }]
   };
   Array.prototype.slice.call(store.querySelectorAll('.roi-explain-t tr[data-k] td:first-child')).forEach(function(td){
     td.innerHTML = '<span>' + td.innerHTML + '</span>';
