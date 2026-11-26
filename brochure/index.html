@@ -235,6 +235,10 @@
   .vid-badge{ position:absolute; left:.6em; bottom:.6em; z-index:1; font:500 .55em var(--sans); letter-spacing:.14em; text-transform:uppercase;
     color:#fff; background:rgba(20,16,10,.55); padding:.5em .8em; border-radius:2em; }
   .vid-badge::before{ content:"\25B6"; margin-right:.6em; font-size:.85em; }
+  /* AI-animated clips are labelled as such, on the card and when opened */
+  .clip-note{ position:absolute; right:.55em; bottom:.55em; z-index:1; font:500 .5em var(--sans); letter-spacing:.14em; text-transform:uppercase;
+    color:rgba(255,255,255,.92); background:rgba(20,16,10,.45); padding:.45em .8em; border-radius:2em; pointer-events:none; }
+  .spot-note{ font-size:.62em; letter-spacing:.06em; color:#857f6e; margin:0 0 1.1em; font-style:italic; }
   .place .nm{ font-size:.8em; font-weight:600; padding:.75em .9em .1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .rt{ font-size:.66em; padding:0 1.1em .3em; color:#5f5a4e; white-space:nowrap; }
   .rt .stars{ color:#e8a12d; letter-spacing:.08em; }
@@ -826,6 +830,8 @@ body.narrow .price-t td{ font-size:.8em; }
                which plays on the card while this page is open and large when
                the place is opened; or a YouTube / Vimeo embed link, which
                plays only when the place is opened
+       illustrative  self-hosted clips are labelled "Illustrative" (they are
+               animated from the photo); set illustrative:false for real footage
        blurb   optional: a line or two shown when the place is opened
        map     optional: Google Maps link
        quotes  optional: reviews shown when the place is opened, copied word
@@ -900,7 +906,10 @@ body.narrow .price-t td{ font-size:.8em; }
         var ph = el('div', 'ph');
         if (p.img) ph.style.backgroundImage = 'url(' + p.img + ')'; else { ph.classList.add('nophoto'); ph.appendChild(el('span', 'nophoto-t', p.cat)); }
         if (p.video && isEmbed(p.video)) ph.appendChild(el('span', 'vid-badge', 'Video'));
-        else if (p.video) ph.dataset.clip = p.video;
+        else if (p.video){
+          ph.dataset.clip = p.video;
+          if (p.illustrative !== false) ph.appendChild(el('span', 'clip-note', 'Illustrative'));
+        }
         card.appendChild(ph);
         card.appendChild(el('div', 'nm', p.name));
         card.appendChild(rating(p));
@@ -956,6 +965,8 @@ body.narrow .price-t td{ font-size:.8em; }
       x.addEventListener('click', close);
       media.appendChild(x);
       var body = el('div', 'spot-body');
+      if (p.video && !isEmbed(p.video) && p.illustrative !== false)
+        body.appendChild(el('p', 'spot-note', 'Illustrative: animated from a photo of the venue.'));
       body.appendChild(el('div', 'spot-kicker', p.cat));
       body.appendChild(el('h3', 'spot-name', p.name));
       body.appendChild(rating(p));
