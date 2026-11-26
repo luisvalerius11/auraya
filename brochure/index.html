@@ -211,17 +211,53 @@
   .poi-auraya .d{ width:1.05em; height:1.05em; background:var(--ink); box-shadow:0 0 0 .3em rgba(22,19,14,.18); }
   .poi-auraya .t{ font-family:var(--serif); font-size:.78em; letter-spacing:.14em; }
 
-  /* lifestyle */
+  /* lifestyle: category tabs, a scrolling grid of places, and a detail panel per place */
   .life .page-inner{ align-items:center; text-align:center; padding:2.6em 3em 2.2em; }
   .life-title{ font-size:3.1em; }
-  .life-sub{ max-width:40em; margin-top:.8em; font-size:.9em; line-height:1.6; color:#3b362c; }
-  .card-row{ display:flex; gap:1.2em; width:100%; margin-top:1.8em; flex:1; min-height:0; }
-  .card{ flex:1; background:#fdfcf9; border-radius:.5em; box-shadow:0 6px 20px rgba(0,0,0,.12); overflow:hidden; display:flex; flex-direction:column; text-align:left; min-width:0; }
-  .card .ph{ flex:1; min-height:0; background-size:cover; background-position:center; }
-  .card .nm{ font-size:.85em; font-weight:600; padding:.7em .8em .1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .card .rt{ font-size:.7em; padding:0 1.15em .35em; color:#5f5a4e; }
-  .card .rt .stars{ color:#e8a12d; letter-spacing:.1em; }
-  .card .tp{ font-size:.66em; padding:0 1.25em 1em; color:#8a8474; }
+  .life-sub{ max-width:40em; margin:.8em 0 0; font-size:.9em; line-height:1.6; color:#3b362c; }
+  .life-tabs{ display:flex; flex-wrap:wrap; justify-content:center; gap:.5em; margin-top:1.4em; }
+  .life-tab{ font:500 .7em var(--sans); letter-spacing:.12em; text-transform:uppercase; color:#4a4238; cursor:pointer;
+    background:transparent; border:1px solid rgba(74,66,56,.35); border-radius:2em; padding:.65em 1.2em; transition:background .2s, color .2s, border-color .2s; }
+  .life-tab .n{ opacity:.55; margin-left:.45em; }
+  .life-tab:hover{ border-color:#4a4238; }
+  .life-tab[aria-selected="true"]{ background:var(--ink); border-color:var(--ink); color:var(--bone); }
+  .life-tab:focus-visible, .place:focus-visible, .spot-x:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+  .life-grid{ position:relative; width:100%; flex:1; min-height:0; margin-top:1.2em; padding:.2em .2em 1.4em; box-sizing:border-box;
+    display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); grid-auto-rows:max-content; gap:1em;
+    overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:rgba(74,66,56,.35) transparent; }
+  .life-grid.more{ -webkit-mask-image:linear-gradient(180deg,#000 82%,transparent); mask-image:linear-gradient(180deg,#000 82%,transparent); }
+  .place{ all:unset; box-sizing:border-box; cursor:pointer; background:#fdfcf9; border-radius:.5em; overflow:hidden;
+    box-shadow:0 6px 20px rgba(0,0,0,.12); display:flex; flex-direction:column; text-align:left; min-width:0; transition:transform .25s, box-shadow .25s; }
+  .place:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(0,0,0,.16); }
+  .place .ph{ position:relative; aspect-ratio:4/4.2; background:#cfc8b6 center/cover no-repeat; overflow:hidden; }
+  .place .ph video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .5s; }
+  .place .ph video.on{ opacity:1; }
+  .vid-badge{ position:absolute; left:.6em; bottom:.6em; z-index:1; font:500 .55em var(--sans); letter-spacing:.14em; text-transform:uppercase;
+    color:#fff; background:rgba(20,16,10,.55); padding:.5em .8em; border-radius:2em; }
+  .vid-badge::before{ content:"\25B6"; margin-right:.6em; font-size:.85em; }
+  .place .nm{ font-size:.8em; font-weight:600; padding:.75em .9em .1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rt{ font-size:.66em; padding:0 1.1em .3em; color:#5f5a4e; white-space:nowrap; }
+  .rt .stars{ color:#e8a12d; letter-spacing:.08em; }
+  .place .tp{ font-size:.62em; padding:0 1.15em 1em; color:#8a8474; }
+  .life-hint{ margin-top:.4em; font-size:.62em; letter-spacing:.16em; text-transform:uppercase; color:#857f6e; }
+
+  /* one place, opened over the page */
+  .spot{ position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; background:var(--cream); text-align:left;
+    animation:spotIn .35s ease both; }
+  @keyframes spotIn{ from{ opacity:0; transform:translateY(1.2em); } }
+  @media (prefers-reduced-motion:reduce){ .spot{ animation:none; } .place{ transition:none; } }
+  .spot-media{ position:relative; flex:0 0 auto; aspect-ratio:4/3.3; max-height:62%; background:#1b1712 center/cover no-repeat; }
+  .spot-media video, .spot-media iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; object-fit:cover; display:block; background:#000; }
+  .spot-x{ position:absolute; top:.9em; right:.9em; z-index:2; width:2.4em; height:2.4em; border-radius:50%; cursor:pointer;
+    border:0; background:rgba(20,16,10,.6); color:#fff; font:400 1.1em/1 var(--sans); }
+  .spot-body{ flex:1; min-height:0; overflow-y:auto; padding:1.6em 2.4em 2.4em; }
+  .spot-kicker{ font-size:.62em; font-weight:600; letter-spacing:.28em; text-transform:uppercase; color:#857f6e; }
+  .spot-name{ font-family:var(--serif); font-weight:500; font-size:1.9em; letter-spacing:.04em; line-height:1.1; margin:.35em 0 .3em; }
+  .spot .rt{ padding:0; font-size:.8em; }
+  .spot-type{ font-size:.75em; color:#8a8474; margin-top:.3em; }
+  .spot-blurb{ font-size:.88em; line-height:1.65; color:#3b362c; margin:1em 0 0; max-width:40em; }
+  .spot-map{ display:inline-block; margin-top:1.2em; font-size:.75em; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink); text-decoration:none; border-bottom:1px solid currentColor; padding-bottom:.2em; }
 
   /* film */
   .film .page-inner{ align-items:center; text-align:center; padding:2.4em 3em; }
@@ -342,8 +378,6 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .loc-text{ flex:0 0 auto; }
   body.narrow .mapwrap{ flex:1; min-height:8em; }
   body.narrow .split > .half-photo{ min-height:9em; }
-  body.narrow .card-row{ flex-wrap:wrap; overflow:hidden; }
-  body.narrow .card{ flex:1 1 30%; }
   body.narrow .plan-row{ gap:.8em; }
   body.narrow .room-grid{ flex-wrap:wrap; }
   body.narrow .room-grid .im{ flex:1 1 40%; }
@@ -510,13 +544,9 @@ body.narrow .price-t td{ font-size:.8em; }
     <div class="page-inner">
       <h2 class="fat-title life-title">Island Lifestyle</h2>
       <p class="life-sub">Designed for those who live in sync with the island's rhythm, Auraya Villas puts you at the heart of Uluwatu's vibrant lifestyle.</p>
-      <div class="card-row">
-        <div class="card"><div class="ph" style="background-image:url(img/06.jpg)"></div><div class="nm">Savaya Bali</div><div class="rt">4.1 <span class="stars">★★★★☆</span> (4,945)</div><div class="tp">Disco club</div></div>
-        <div class="card"><div class="ph" style="background-image:url(img/07.jpg)"></div><div class="nm">Island Padel Uluwatu</div><div class="rt">4.7 <span class="stars">★★★★★</span> (337)</div><div class="tp">Sports club</div></div>
-        <div class="card"><div class="ph" style="background-image:url(img/08.jpg)"></div><div class="nm">Sundays Beach Club</div><div class="rt">4.5 <span class="stars">★★★★★</span> (5,208)</div><div class="tp">Restaurant</div></div>
-        <div class="card"><div class="ph" style="background-image:url(img/09.jpg)"></div><div class="nm">Melasti Beach</div><div class="rt">4.7 <span class="stars">★★★★★</span> (3,949)</div><div class="tp">Beach</div></div>
-        <div class="card"><div class="ph" style="background-image:url(img/10.jpg)"></div><div class="nm">Palmilla Bali Beach Club</div><div class="rt">4.4 <span class="stars">★★★★☆</span> (3,941)</div><div class="tp">Restaurant</div></div>
-      </div>
+      <div class="life-tabs" role="tablist" aria-label="Places by category"></div>
+      <div class="life-grid" role="tabpanel"></div>
+      <p class="life-hint">Tap a place to see more</p>
     </div>
     <span class="pnum" style="color:#3b362c;">06</span>
   </section>
@@ -748,6 +778,138 @@ body.narrow .price-t td{ font-size:.8em; }
   var VIDEO_URL = "";
   /* ========================================== */
 
+  /* ================= ISLAND LIFESTYLE =================
+     One entry per place. Tabs are made from the "cat" values, in the
+     order they first appear, plus an "All" tab in front.
+       img     photo shown on the card (and behind the video)
+       video   optional: "vid/savaya.mp4" (self-hosted, plays muted on the card
+               on hover and with sound controls when opened) or a YouTube /
+               Vimeo embed link (plays when the place is opened)
+       blurb   optional: a line or two shown when the place is opened
+       map     optional: Google Maps link                                  */
+  var PLACES = [
+    { name:"Sundays Beach Club",       cat:"Beach Clubs",      type:"Beach club & restaurant", rating:4.5, reviews:5208, img:"img/08.jpg" },
+    { name:"Palmilla Bali Beach Club", cat:"Beach Clubs",      type:"Beach club & restaurant", rating:4.4, reviews:3941, img:"img/10.jpg" },
+    { name:"Melasti Beach",            cat:"Beaches",          type:"Beach",                   rating:4.7, reviews:3949, img:"img/09.jpg" },
+    { name:"Savaya Bali",              cat:"Nightlife",        type:"Club",                    rating:4.1, reviews:4945, img:"img/06.jpg" },
+    { name:"Island Padel Uluwatu",     cat:"Wellness",         type:"Padel club",              rating:4.7, reviews:337,  img:"img/07.jpg" }
+  ];
+  /* ==================================================== */
+
+  (function lifestyle(){
+    var page = document.querySelector('#pageStore .life');
+    if (!page) return;
+    var tabsEl = page.querySelector('.life-tabs'), grid = page.querySelector('.life-grid'), inner = page.querySelector('.page-inner');
+    var hover = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+    var cats = [];
+    PLACES.forEach(function(p){ if (cats.indexOf(p.cat) < 0) cats.push(p.cat); });
+    var active = 'All';
+
+    function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+    function stars(r){ var f = Math.round(r); return '★★★★★'.slice(0, f) + '☆☆☆☆☆'.slice(0, 5 - f); }
+    function rating(p){
+      var d = el('div', 'rt');
+      if (p.rating){
+        d.appendChild(document.createTextNode(p.rating.toFixed(1) + ' '));
+        d.appendChild(el('span', 'stars', stars(p.rating)));
+        if (p.reviews) d.appendChild(document.createTextNode(' (' + p.reviews.toLocaleString('en-US') + ')'));
+      }
+      return d;
+    }
+    function isEmbed(u){ return /youtube\.com|youtu\.be|vimeo\.com/.test(u); }
+
+    function drawTabs(){
+      tabsEl.innerHTML = '';
+      ['All'].concat(cats).forEach(function(c){
+        var n = c === 'All' ? PLACES.length : PLACES.filter(function(p){ return p.cat === c; }).length;
+        var b = el('button', 'life-tab', c); b.type = 'button';
+        b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', c === active ? 'true' : 'false');
+        b.appendChild(el('span', 'n', n));
+        b.addEventListener('click', function(){ active = c; drawTabs(); drawGrid(); });
+        tabsEl.appendChild(b);
+      });
+    }
+
+    function drawGrid(){
+      grid.innerHTML = ''; grid.scrollTop = 0;
+      PLACES.forEach(function(p){
+        if (active !== 'All' && p.cat !== active) return;
+        var card = el('button', 'place'); card.type = 'button';
+        card.setAttribute('aria-label', p.name + ', ' + p.type);
+        var ph = el('div', 'ph'); ph.style.backgroundImage = 'url(' + p.img + ')';
+        if (p.video) ph.appendChild(el('span', 'vid-badge', 'Video'));
+        card.appendChild(ph);
+        card.appendChild(el('div', 'nm', p.name));
+        card.appendChild(rating(p));
+        card.appendChild(el('div', 'tp', p.type));
+        card.addEventListener('click', function(){ open(p); });
+        /* self-hosted clips preview silently on hover (desktop only) */
+        if (p.video && !isEmbed(p.video) && hover){
+          card.addEventListener('mouseenter', function(){
+            var v = ph.querySelector('video');
+            if (!v){
+              v = el('video'); v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto'; v.src = p.video;
+              v.setAttribute('aria-hidden', 'true');
+              v.addEventListener('playing', function(){ v.classList.add('on'); });
+              ph.insertBefore(v, ph.firstChild);
+            }
+            var pr = v.play(); if (pr && pr.catch) pr.catch(function(){});
+          });
+          card.addEventListener('mouseleave', function(){ var v = ph.querySelector('video'); if (v) v.pause(); });
+        }
+        grid.appendChild(card);
+      });
+      requestAnimationFrame(fade);
+    }
+    /* fade the bottom edge while there is more to scroll to */
+    function fade(){ grid.classList.toggle('more', grid.scrollHeight - grid.scrollTop - grid.clientHeight > 4); }
+    grid.addEventListener('scroll', fade, {passive:true});
+    window.addEventListener('resize', function(){ requestAnimationFrame(fade); });
+
+    var spot = null, lastCard = null;
+    function open(p){
+      close();
+      lastCard = document.activeElement;
+      spot = el('div', 'spot'); spot.setAttribute('role', 'dialog'); spot.setAttribute('aria-label', p.name);
+      var media = el('div', 'spot-media'); media.style.backgroundImage = 'url(' + p.img + ')';
+      if (p.video){
+        if (isEmbed(p.video)){
+          var f = el('iframe'); f.src = p.video; f.allow = 'autoplay; fullscreen; picture-in-picture'; f.setAttribute('allowfullscreen', '');
+          f.title = p.name + ' video'; media.appendChild(f);
+        } else {
+          var v = el('video'); v.src = p.video; v.controls = true; v.muted = true; v.autoplay = true; v.loop = true; v.playsInline = true;
+          v.setAttribute('playsinline', ''); media.appendChild(v);
+        }
+      }
+      var x = el('button', 'spot-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Close');
+      x.addEventListener('click', close);
+      media.appendChild(x);
+      var body = el('div', 'spot-body');
+      body.appendChild(el('div', 'spot-kicker', p.cat));
+      body.appendChild(el('h3', 'spot-name', p.name));
+      body.appendChild(rating(p));
+      body.appendChild(el('div', 'spot-type', p.type));
+      if (p.blurb) body.appendChild(el('p', 'spot-blurb', p.blurb));
+      var m = el('a', 'spot-map', 'Open in Google Maps →');
+      m.href = p.map || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.name + ' Uluwatu Bali'));
+      m.target = '_blank'; m.rel = 'noopener';
+      body.appendChild(m);
+      spot.appendChild(media); spot.appendChild(body);
+      inner.appendChild(spot);
+      x.focus({preventScroll:true});
+    }
+    function close(){
+      if (!spot) return;
+      spot.remove(); spot = null;
+      if (lastCard && lastCard.focus && page.contains(lastCard)) lastCard.focus({preventScroll:true});
+    }
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+    /* turning the page closes the place (see afterMove), so no video keeps playing off-screen */
+    page.closeSpot = close;
+
+    drawTabs(); drawGrid();
+  })();
+
   var store   = document.getElementById('pageStore');
   var pages   = Array.prototype.slice.call(store.querySelectorAll('.page'));
 
@@ -935,6 +1097,8 @@ body.narrow .price-t td{ font-size:.8em; }
 
   /* ----- shared ----- */
   function afterMove(){
+    var lp = document.querySelector('.life');
+    if (lp && lp.closeSpot) lp.closeSpot();
     try{ history.replaceState(null, '', '#p' + (cur+1)); }catch(e){}
     preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4);
     updateChrome();
