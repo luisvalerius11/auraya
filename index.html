@@ -15,36 +15,8 @@
 <meta name="twitter:title" content="Auraya Villas Uluwatu | 4 Ocean-View Villas">
 <meta name="twitter:description" content="Leasehold 30+20 or freehold-equivalent HGB. From ~USD 298K. Only 4 will ever exist.">
 <meta name="twitter:image" content="https://YOUR-DOMAIN.com/assets/og-image.jpg">
-<script>
-  /* ======= ANALYTICS =======
-     Paste your IDs between the quotes. While an ID is empty, that tracker is not loaded at all.
-       GA_ID    = Google Analytics 4 measurement ID, e.g. "G-XXXXXXXXXX"
-       PIXEL_ID = Meta (Facebook) Pixel ID, e.g. "123456789012345"                              */
-  const GA_ID = "";
-  const PIXEL_ID = "";
-
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  if (GA_ID) {
-    const g = document.createElement('script');
-    g.async = true; g.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-    document.head.appendChild(g);
-    gtag('js', new Date()); gtag('config', GA_ID);
-  }
-  if (PIXEL_ID) {
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-    document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', PIXEL_ID); fbq('track', 'PageView');
-  }
-  /* One call reports the same event to both trackers; does nothing if neither is set. */
-  function track(gaEvent, pixelEvent, params){
-    if (GA_ID) gtag('event', gaEvent, params || {});
-    if (PIXEL_ID && window.fbq) fbq('track', pixelEvent, params || {});
-  }
-</script>
+<!-- Analytics (GA4 and Meta Pixel): paste the IDs once in assets/analytics.js; it is shared with the brochure and the ROI model -->
+<script src="/assets/analytics.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preload" as="image" href="assets/hero.webp" fetchpriority="high">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=3">
@@ -340,7 +312,7 @@
   <span><strong>Villa 2 reserved.</strong> 3 of 4 remaining. Reserve by 31 December 2026 and your rooftop jacuzzi (worth Rp 250 M) is included free.</span>
 </div>
 
-<section>
+<section data-track="intro">
   <div class="wrap split">
     <div class="intro-photo"><img src="assets/pool-deck.webp" alt="Auraya villa pool deck with ocean view" width="1600" height="893" loading="lazy" decoding="async"></div>
     <div class="intro-copy">
@@ -473,7 +445,7 @@
   </div>
 </section>
 
-<section>
+<section data-track="trust">
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">Buy with confidence</span>
@@ -554,7 +526,7 @@
         <a href="https://maps.google.com/?q=Belimbing+Sari+Street+Pecatu+Bali" target="_blank" rel="noopener">Belimbing Sari Street, Pecatu, Kuta Sel., Badung, Bali 80363</a></div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 Auraya Villas. All rights reserved.</span>
+      <span>© 2026 Auraya Villas. All rights reserved. · <a href="#" data-cookie-settings style="color:inherit">Cookie settings</a></span>
       <span>Renders are illustrative. Figures are indicative and not a guarantee of returns.</span>
     </div>
   </div>
@@ -602,7 +574,23 @@
 
   /* ======= CLICK TRACKING ======= */
   document.getElementById('openBrochure').addEventListener('click',()=>track('view_item','ViewContent',{content_name:'brochure'}));
-  document.querySelectorAll('a[href*="api.whatsapp.com"]').forEach(a=>a.addEventListener('click',()=>track('contact','Contact',{method:'whatsapp'})));
+  /* WhatsApp and email clicks are tracked by assets/analytics.js on every page */
+  /* which sections people scroll to: one section_view per section per visit */
+  (function(){
+    if (!('IntersectionObserver' in window)) return;
+    var seen = {};
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        /* half of the section is on screen, or (for tall sections) it fills half the screen */
+        if (!en.isIntersecting || (en.intersectionRatio < .5 && en.intersectionRect.height < innerHeight * .5)) return;
+        var el = en.target, name = el.dataset.track || el.id || el.className.split(' ')[0] || el.tagName.toLowerCase();
+        if (seen[name]) return;
+        seen[name] = 1; io.unobserve(el);
+        track('section_view', null, { section:name });
+      });
+    }, { threshold:[0, .1, .2, .3, .4, .5] });
+    document.querySelectorAll('header.hero, main section, body > section, footer').forEach(function(el){ io.observe(el); });
+  })();
   function lb(src){const l=document.getElementById('lightbox');document.getElementById('lbImg').src=src;l.classList.add('show');l.setAttribute('aria-hidden','false');}
   function lbClose(){const l=document.getElementById('lightbox');l.classList.remove('show');l.setAttribute('aria-hidden','true');document.getElementById('lbImg').src='';}
   addEventListener('keydown',e=>{if(e.key==='Escape')lbClose();});

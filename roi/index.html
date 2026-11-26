@@ -10,6 +10,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png?v=3">
 <link rel="icon" href="/assets/favicon.ico?v=3" sizes="any">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=3">
+<!-- Analytics: IDs live in /assets/analytics.js, shared with the landing page and the brochure -->
+<script src="/assets/analytics.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap">
@@ -321,7 +323,7 @@
   </div>
 </main>
 
-<footer class="wrap">© 2026 Auraya Villas · Developed by Nira Group</footer>
+<footer class="wrap">© 2026 Auraya Villas · Developed by Nira Group · <a href="#" data-cookie-settings>Cookie settings</a></footer>
 
 <script>
 (function(){
@@ -395,20 +397,28 @@
     var b = document.createElement('button'); b.type = 'button';
     b.innerHTML = '<b>' + v.id + '</b><small>' + usd(v.usd) + '</small>' + (v.reserved ? '<span class="tag">Reserved</span>' : '');
     b.setAttribute('aria-label', 'Villa ' + v.id + ', ' + usd(v.usd) + (v.reserved ? ', reserved' : ''));
-    b.addEventListener('click', function(){ st.villa = i; render(); });
+    b.addEventListener('click', function(){ st.villa = i; render(); changed('villa', v.id); });
     $('villaSeg').appendChild(b);
   });
   SCEN.forEach(function(s, i){
     var b = document.createElement('button'); b.type = 'button';
     b.innerHTML = '<b>' + s.name + '</b><small>$' + s.rate + ' · ' + s.occ + '%</small>';
-    b.addEventListener('click', function(){ st.rate = s.rate; st.occ = s.occ; render(); });
+    b.addEventListener('click', function(){ st.rate = s.rate; st.occ = s.occ; render(); changed('scenario', s.name); });
     $('scenSeg').appendChild(b);
   });
   ['rate','occ','ota','mgmt'].forEach(function(k){
     $(k).addEventListener('input', function(){ st[k] = +this.value; render(); });
+    $(k).addEventListener('change', function(){ changed(k, this.value); });
   });
-  $('bphtb').addEventListener('change', function(){ st.bphtb = this.checked; render(); });
-  $('reset').addEventListener('click', function(){ reset(); render(); });
+  $('bphtb').addEventListener('change', function(){ st.bphtb = this.checked; render(); changed('bphtb', this.checked ? 'on' : 'off'); });
+  $('reset').addEventListener('click', function(){ reset(); render(); changed('reset', ''); });
+
+  /* analytics: does nothing until an ID is set in /assets/analytics.js */
+  function changed(control, value){
+    if (!window.track) return;
+    var r = calc(st);
+    window.track('roi_model_change', null, { control:control, value:String(value), villa:r.v.id, roi_pct:Math.round(r.roi * 1000) / 10 });
+  }
 
   function reset(){
     st = { villa:DEFAULTS.villa, rate:SCEN[DEFAULTS.scen].rate, occ:SCEN[DEFAULTS.scen].occ, ota:DEFAULTS.ota, mgmt:DEFAULTS.mgmt, bphtb:DEFAULTS.bphtb };
@@ -570,7 +580,7 @@
     $('lgLo').textContent = pct(min); $('lgHi').textContent = pct(max);
     $('lgRamp').style.background = 'linear-gradient(90deg,' + mix(0) + ',' + mix(1) + ')';
   }
-  function pickCell(td){ st.rate = +td.dataset.r; st.occ = +td.dataset.o; render(); }
+  function pickCell(td){ st.rate = +td.dataset.r; st.occ = +td.dataset.o; render(); changed('grid', '$' + td.dataset.r + ' at ' + td.dataset.o + '%'); }
   $('sensTable').addEventListener('click', function(e){ var td = e.target.closest('td[data-r]'); if (td) pickCell(td); });
   $('sensTable').addEventListener('keydown', function(e){
     var td = e.target.closest('td[data-r]');
@@ -579,6 +589,7 @@
 
   /* back to the brochure: return to the exact page the reader came from when possible */
   $('backLink').addEventListener('click', function(e){
+    if (window.track) window.track('roi_back_to_brochure', null, {});
     try{
       if (document.referrer && new URL(document.referrer).pathname.indexOf('/brochure') === 0 && history.length > 1){ e.preventDefault(); history.back(); }
     }catch(err){}

@@ -10,6 +10,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png?v=3">
 <link rel="icon" href="/assets/favicon.ico?v=3" sizes="any">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=3">
+<!-- Analytics: IDs live in /assets/analytics.js, shared with the landing page and the ROI model -->
+<script src="/assets/analytics.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="image" href="img/01.jpg" fetchpriority="high">
@@ -805,13 +807,15 @@ body.narrow .price-t td{ font-size:.8em; }
         <li>Viewings by appointment</li>
       </ul>
     </div>
-    <p class="legal">Illustrative material, not an offer capable of acceptance. Tenure is either a 30+20 year leasehold with the option to convert to freehold, or freehold‑equivalent HGB title held through the buyer's own PT PMA; terms per the notarial deed and building contract prepared for each buyer.</p>
+    <p class="legal">Illustrative material, not an offer capable of acceptance. Tenure is either a 30+20 year leasehold with the option to convert to freehold, or freehold‑equivalent HGB title held through the buyer's own PT PMA; terms per the notarial deed and building contract prepared for each buyer. · <a href="#" data-cookie-settings style="color:inherit">Cookie settings</a></p>
   </section>
 
 </div>
 
 <script>
 (function(){
+  /* analytics: does nothing until an ID is set in /assets/analytics.js */
+  function track(ev, params){ if (window.track) window.track(ev, null, params); }
   "use strict";
 
   /* ================= CONFIG =================
@@ -893,7 +897,7 @@ body.narrow .price-t td{ font-size:.8em; }
         var b = el('button', 'life-tab', c); b.type = 'button';
         b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', c === active ? 'true' : 'false');
         b.appendChild(el('span', 'n', n));
-        b.addEventListener('click', function(){ active = c; drawTabs(); drawGrid(); });
+        b.addEventListener('click', function(){ active = c; drawTabs(); drawGrid(); track('lifestyle_filter', { category:c }); });
         tabsEl.appendChild(b);
       });
     }
@@ -915,7 +919,7 @@ body.narrow .price-t td{ font-size:.8em; }
         card.appendChild(el('div', 'nm', p.name));
         card.appendChild(rating(p));
         card.appendChild(el('div', 'tp', p.type));
-        card.addEventListener('click', function(){ open(p); });
+        card.addEventListener('click', function(){ open(p); track('lifestyle_place_open', { place:p.name, category:p.cat }); });
         grid.appendChild(card);
       });
       requestAnimationFrame(fade);
@@ -988,6 +992,7 @@ body.narrow .price-t td{ font-size:.8em; }
       var m = el('a', 'spot-map', 'Open in Google Maps →');
       m.href = p.map || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.name + ' Uluwatu Bali'));
       m.target = '_blank'; m.rel = 'noopener';
+      m.addEventListener('click', function(){ track('lifestyle_map_open', { place:p.name }); });
       body.appendChild(m);
       spot.appendChild(media); spot.appendChild(body);
       inner.appendChild(spot);
@@ -1091,6 +1096,7 @@ body.narrow .price-t td{ font-size:.8em; }
     void sheetBox.offsetWidth; sheetBox.classList.remove('no-anim');
     updateChrome();
     syncClips();
+    reportPages();
   }
 
   /* ----- spread mode ----- */
@@ -1203,7 +1209,42 @@ body.narrow .price-t td{ font-size:.8em; }
     preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4);
     updateChrome();
     syncClips();
+    reportPages();
   }
+
+  /* ----- analytics: which pages are read, for how long, and how the reader got there ----- */
+  var navMethod = location.hash ? 'link' : 'open';   /* how the next page was reached */
+  var onScreen = {}, since = {}, seenLast = false;
+  function visiblePages(){
+    var v = spread ? [2*state - 1, 2*state] : [cur];
+    return v.filter(function(k){ return k >= 0 && k < N; });
+  }
+  function pageInfo(k){ return { page_number:k + 1, page_name:pages[k].dataset.title || ('Page ' + (k + 1)) }; }
+  function endTime(k){
+    if (!since[k]) return;
+    var secs = Math.round((Date.now() - since[k]) / 1000);
+    since[k] = 0;
+    if (secs >= 1){ var p = pageInfo(k); p.seconds = Math.min(secs, 1800); track('brochure_page_time', p); }
+  }
+  function reportPages(){
+    var now = visiblePages(), next = {};
+    now.forEach(function(k){ next[k] = 1; });
+    Object.keys(onScreen).forEach(function(k){ if (!next[k]) endTime(+k); });
+    now.forEach(function(k){
+      if (onScreen[k]) return;
+      var p = pageInfo(k); p.nav_method = navMethod; p.layout = spread ? 'spread' : 'single';
+      track('brochure_page_view', p);
+      since[k] = Date.now();
+      if (k === N - 1 && !seenLast){ seenLast = true; track('brochure_complete', { pages:N }); }
+    });
+    onScreen = next;
+  }
+  /* time stops while the tab is hidden, and is sent before the reader leaves */
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'hidden') Object.keys(onScreen).forEach(function(k){ endTime(+k); });
+    else Object.keys(onScreen).forEach(function(k){ since[k] = Date.now(); });
+  });
+  function via(method, fn){ return function(){ navMethod = method; fn(); }; }
   function go(i, dir){
     if (i < 0 || i >= N) return;
     if (spread){ turnTo(Math.floor((i+1)/2)); return; }
@@ -1227,12 +1268,12 @@ body.narrow .price-t td{ font-size:.8em; }
     nextBtn.disabled = nextTool.disabled = last;
   }
 
-  [prevBtn, prevTool].forEach(function(b){ b.addEventListener('click', prev); });
-  [nextBtn, nextTool].forEach(function(b){ b.addEventListener('click', next); });
-  document.getElementById('tocTool').addEventListener('click', function(){ go(1); });
+  prevBtn.addEventListener('click', via('arrow', prev)); nextBtn.addEventListener('click', via('arrow', next));
+  prevTool.addEventListener('click', via('toolbar', prev)); nextTool.addEventListener('click', via('toolbar', next));
+  document.getElementById('tocTool').addEventListener('click', via('contents_button', function(){ go(1); }));
   document.addEventListener('keydown', function(e){
-    if (e.key === 'ArrowRight' || e.key === 'PageDown') next();
-    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   prev();
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') via('keyboard', next)();
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   via('keyboard', prev)();
   });
   var tx = null, ty = null;
   stage.addEventListener('touchstart', function(e){ tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY; }, {passive:true});
@@ -1240,11 +1281,12 @@ body.narrow .price-t td{ font-size:.8em; }
     if (tx === null) return;
     var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; tx = null;
     if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return;
+    navMethod = 'swipe';
     if (dx < 0) next(); else prev();
   }, {passive:true});
   document.addEventListener('click', function(e){
     var b = e.target.closest ? e.target.closest('[data-goto]') : null;
-    if (b) go(parseInt(b.dataset.goto,10)-1);
+    if (b){ navMethod = 'contents'; go(parseInt(b.dataset.goto,10)-1); }
   });
 
   var fsBtn = document.getElementById('fsBtn');
@@ -1322,10 +1364,12 @@ body.narrow .price-t td{ font-size:.8em; }
   Array.prototype.slice.call(store.querySelectorAll('.roi-explain-t tr[data-k] td:first-child')).forEach(function(td){
     td.innerHTML = '<span>' + td.innerHTML + '</span>';
   });
+  var roiSeen = {};   /* report each line once per visit, not on every hover */
   function showRoiNote(tr, col){
     var page = tr.closest('.page'), box = page.querySelector('.roi-explain'), note = ROI_NOTES[tr.dataset.k];
     if (!box || !note) return;
     var c = col >= 0 ? col : 1;
+    if (!roiSeen[tr.dataset.k]){ roiSeen[tr.dataset.k] = 1; track('roi_line_explain', { line:note[0], scenario:SC[c] }); }
     Array.prototype.slice.call(page.querySelectorAll('.roi-explain-t tr[data-k]')).forEach(function(r){
       r.classList.toggle('on', r === tr);
       Array.prototype.slice.call(r.cells).forEach(function(td, k){ td.classList.toggle('col-on', r === tr && col >= 0 && k === col + 1); });
@@ -1339,6 +1383,7 @@ body.narrow .price-t td{ font-size:.8em; }
     var td = e.target.closest ? e.target.closest('.roi-explain-t tr[data-k] td') : null;
     if (td) showRoiNote(td.parentNode, td.cellIndex - 1);
   }
+  document.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('.roi-btn')) track('roi_model_open', { from:'brochure' }); });
   document.addEventListener('mouseover', roiTarget);
   document.addEventListener('click', roiTarget);
   document.addEventListener('focusin', function(e){
