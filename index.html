@@ -555,52 +555,101 @@
      Posts to your n8n Cloud production webhook, which fans out to:
        Google Sheet (append)  ·  Email notification  ·  WAHA WhatsApp first reply
      IMPORTANT: the workflow must be toggled ACTIVE in n8n, and this must be the
-     production path (/webhook/...), NOT the test path (/webhook-test/...).        */
+     production path (/webhook/...), NOT the test path (/webhook-test/...).
+
+     Fields sent (JSON body):
+       name, email, phone (as typed), timeline, source, page, brochure_url, submitted_at
+       phone_digits  country code + number, digits only, e.g. 6281234567890
+       wa_chat_id    ready for WAHA's chatId, e.g. 6281234567890@c.us
+       lead_id       unique per submission, so n8n can skip a duplicate              */
   const LEAD_ENDPOINT = "https://valenira.app.n8n.cloud/webhook/164cb6af-80a3-4ea2-8b01-856597b9c2e2";
   const WA_NUMBER = "6285899530004";
 
+  /* Turn whatever the visitor typed into the digits WhatsApp expects: country code, no +, no spaces.
+     "+62 812-3456-7890", "0812 3456 7890" and "0062 812 3456 7890" all become 6281234567890.
+     A number starting with a single 0 has no country code, so it is read as Indonesian. */
+  function waDigits(raw){
+    const t=raw.trim();
+    let d=t.replace(/\D/g,'');
+    if(!t.startsWith('+')){
+      if(d.startsWith('00')) d=d.slice(2);
+      else if(d.startsWith('0')) d='62'+d.slice(1);
+    }
+    if(d.startsWith('620')) d='62'+d.slice(3);   /* "+62 0812..." */
+    return d;
+  }
+
+  /* Returns 'ok', 'unconfirmed' (sent, but the browser can't read the reply) or 'failed'. */
+  async function sendLead(payload){
+    const ctl=new AbortController();
+    const timer=setTimeout(()=>ctl.abort(),12000);
+    try{
+      const r=await fetch(LEAD_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctl.signal});
+      if(!r.ok) console.error('Lead webhook answered',r.status,await r.text().catch(()=>''));
+      return r.ok?'ok':'failed';
+    }catch(err){
+      if(err.name==='AbortError'){console.error('Lead webhook timed out');return 'unconfirmed';}
+      /* Usually CORS: the browser blocked the JSON post before it left. Resend as a plain form post,
+         which needs no CORS check; n8n reads it into the same body fields. */
+      console.error('Lead post blocked, retrying as a form post:',err);
+      try{
+        await fetch(LEAD_ENDPOINT,{method:'POST',mode:'no-cors',body:new URLSearchParams(payload),keepalive:true});
+        return 'unconfirmed';
+      }catch(e){console.error('Lead post failed:',e);return 'failed';}
+    }finally{clearTimeout(timer);}
+  }
+
   const form=document.getElementById('leadForm');
   const btn=document.getElementById('submitBtn');
+  const BTN_LABEL=btn.textContent;
+  function showSuccess(){
+    document.getElementById('formView').style.display='none';
+    document.getElementById('successView').classList.add('show');
+  }
   form.addEventListener('submit',async e=>{
     e.preventDefault();
+    if(btn.disabled)return;
     const name=document.getElementById('name').value.trim();
     const email=document.getElementById('email').value.trim();
     const phone=document.getElementById('phone').value.trim();
     const timeline=document.getElementById('timeline').value;
     const company=document.getElementById('company').value; /* honeypot: must stay empty */
     if(!name||!email||!phone){alert('Please add your name, email and WhatsApp number.');return;}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Please check your email address.');return;}
+    const digits=waDigits(phone);
+    if(digits.length<9||digits.length>15){alert('Please enter your WhatsApp number with the country code, e.g. +44 7700 900123.');return;}
 
     /* Spam guard: if the hidden field is filled, a bot did it — fake success, send nothing. */
-    if(company){
-      document.getElementById('formView').style.display='none';
-      document.getElementById('successView').classList.add('show');
-      return;
-    }
+    if(company){showSuccess();return;}
 
     btn.disabled=true; btn.textContent='Sending…';
     track('generate_lead','Lead',{timeline:timeline||'not given'});
 
     const payload={name,email,phone,timeline,
+      phone_digits:digits,
+      wa_chat_id:digits+'@c.us',
+      lead_id:(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2)),
       source:'investor-pack-form',
       page:location.href,
       brochure_url:new URL('brochure/',location.href).href,
       submitted_at:new Date().toISOString()};
 
-    try{
-      await fetch(LEAD_ENDPOINT,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(payload)
-      });
-    }catch(err){console.error('Lead post failed:',err);}
+    const result=await sendLead(payload);
 
     /* Personalise the follow-up WhatsApp link with their name */
     const waText=encodeURIComponent("Hi Auraya, this is "+name+". I just requested the investor pack.");
-    document.getElementById('waHandoff').href=
-      "https://api.whatsapp.com/send?phone="+WA_NUMBER+"&text="+waText;
+    const wa=document.getElementById('waHandoff');
+    wa.href="https://api.whatsapp.com/send?phone="+WA_NUMBER+"&text="+waText;
 
-    document.getElementById('formView').style.display='none';
-    document.getElementById('successView').classList.add('show');
+    /* If the webhook clearly failed, don't promise a WhatsApp message that won't come:
+       still give them the brochure, and ask them to message us so the lead isn't lost. */
+    if(result==='failed'){
+      document.querySelector('#successView h3').textContent='Your brochure is ready.';
+      document.querySelector('#successView p').textContent="We couldn't confirm your details on our side, so please message us on WhatsApp and we'll send the full investor pack.";
+      wa.textContent='Message us on WhatsApp to get the pack →';
+    }
+    btn.disabled=false; btn.textContent=BTN_LABEL;
+    showSuccess();
   });
 </script>
 </body>
