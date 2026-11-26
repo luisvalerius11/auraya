@@ -110,6 +110,22 @@
   .row.final{ background:var(--cream); padding:18px 16px; margin:0 -16px; border-bottom:0; }
   .row.final .val{ font-family:var(--serif); font-size:1.5rem; }
 
+  .row.sec{ display:block; padding:26px 0 8px; border-bottom:1.5px solid var(--ink); }
+  .row.sec .name{ font-family:var(--serif); font-size:.92rem; letter-spacing:.14em; text-transform:uppercase; }
+  .row.sub{ padding:12px 0 12px 18px; }
+  .row.sub .name{ font-weight:400; }
+  .row.sub .val{ font-weight:400; font-size:.95rem; }
+  .row.sub .what{ font-size:.84rem; }
+  .row.item{ padding:8px 0 8px 18px; gap:0 24px; }
+  .row.item .name, .row.item .val{ font-size:.9rem; }
+  .row.item .what{ font-size:.78rem; line-height:1.5; }
+  .row.item .calc:empty{ display:none; }
+  .fixed-note{ font-size:.76rem; color:var(--stone); margin:18px 0 0; line-height:1.5; }
+  .staff th, .staff td{ padding:10px 8px; text-align:right; border-bottom:1px solid var(--line); font-size:.88rem; white-space:nowrap; }
+  .staff th{ font-weight:500; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); white-space:normal; vertical-align:bottom; }
+  .staff th:first-child, .staff td:first-child{ text-align:left; }
+  .staff tr.final td{ font-weight:600; border-bottom:1.5px solid var(--ink); }
+
   /* tables */
   .tbl-scroll{ overflow-x:auto; margin-top:18px; -webkit-overflow-scrolling:touch; }
   table{ border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
@@ -219,16 +235,18 @@
       </div>
 
       <div class="field">
-        <label class="lb" for="mgmt">Management fee <output id="mgmtOut" for="mgmt"></output></label>
-        <input type="range" id="mgmt" min="10" max="30" step="1">
-        <div class="range-ends"><span>10%</span><span>30%</span></div>
+        <label class="lb" for="ota">Booking commission <output id="otaOut" for="ota"></output></label>
+        <input type="range" id="ota" min="0" max="20" step="1">
+        <div class="range-ends"><span>0% (all direct)</span><span>20%</span></div>
       </div>
 
       <div class="field">
-        <label class="lb" for="opex">Operating expense <output id="opexOut" for="opex"></output></label>
-        <input type="range" id="opex" min="5" max="30" step="1">
-        <div class="range-ends"><span>5%</span><span>30%</span></div>
+        <label class="lb" for="mgmt">Management fee <output id="mgmtOut" for="mgmt"></output></label>
+        <input type="range" id="mgmt" min="10" max="25" step="1">
+        <div class="range-ends"><span>10%</span><span>25%</span></div>
       </div>
+
+      <p class="fixed-note">PB1 tax (10%), central tax (0.5%) and the monthly running costs are fixed; see the line by line below.</p>
 
       <label class="check"><input type="checkbox" id="bphtb"><span>Add 5% BPHTB to the investment<small>The land and building acquisition duty due on the freehold option</small></span></label>
 
@@ -253,6 +271,12 @@
         <div class="ledger" id="ledger"></div>
       </section>
 
+      <section class="blk" aria-labelledby="h-staff">
+        <h2 id="h-staff">Staff costs</h2>
+        <p class="blk-note">The three staff behind the salaries line, per month in rupiah. THR is the yearly religious‑holiday bonus, set aside monthly.</p>
+        <div class="tbl-scroll"><table class="staff" id="staffTable"></table></div>
+      </section>
+
       <section class="blk" aria-labelledby="h-scen">
         <h2 id="h-scen">The three scenarios</h2>
         <p class="blk-note" id="scenNote"></p>
@@ -273,10 +297,10 @@
         <h2 id="h-assume">What the model assumes</h2>
         <ul class="assume">
           <li><b>365 rentable nights a year.</b> Occupancy is the share of those nights that are booked.</li>
-          <li><b>Costs are a share of revenue.</b> Management and operating expense rise and fall with rental income.</li>
+          <li><b>Two kinds of cost.</b> Booking commission, PB1 tax, the management fee and central tax move with rental income; the running costs are a fixed Rp 12.065.000 a month, in today's prices.</li>
           <li><b>Prices in USD are indicative.</b> All transactions are in rupiah; USD figures use IDR 17.800 per USD, as in the price list of 17 November 2026.</li>
           <li><b>A full year of rentals.</b> The figures describe a typical year once the villa is handed over (1 March 2028) and listed.</li>
-          <li><b>Not included:</b> income tax on rental earnings, financing costs and the optional solar package.</li>
+          <li><b>Not included:</b> the owner's personal income tax, financing costs, and the optional solar package, which would lower the electricity bill.</li>
           <li><b>No capital growth.</b> The ROI is cash return only; any rise in the value of the villa or land would come on top.</li>
         </ul>
       </section>
@@ -318,8 +342,29 @@
     { name:'Expected',     rate:175, occ:80 },
     { name:'Accelerated',  rate:190, occ:85 }
   ];
-  var DEFAULTS = { villa:3, scen:1, mgmt:18, opex:15, bphtb:false };
-  var BPHTB = 0.05, NIGHTS = 365;
+  var DEFAULTS = { villa:3, scen:1, ota:10, mgmt:15, bphtb:false };
+  var BPHTB = 0.05, NIGHTS = 365, PB1 = 0.10, CTAX = 0.005;
+  /* Fixed running costs, IDR per month, from the managed two-bedroom villa cost schedule */
+  var FIXED = [
+    ['Salaries (incl. THR & insurance)', 3815000, 'Housekeeper, pool attendant and gardener, with health insurance, pension and THR. See the staff costs below.'],
+    ['Operations fee', 2000000, 'Fixed fee for running the villa day to day: staff, check‑in and check‑out, guest requests and keeping the villa in good condition.'],
+    ['Relief staff', 400000, 'Rp 100.000 a day for about four days a month, to cover staff days off.'],
+    ['Electricity', 2500000, 'Based on market and operating data, without the optional solar package.'],
+    ['Water', 650000, 'Includes reverse‑osmosis treatment and drinking water.'],
+    ['Internet', 300000, 'Standard rate.'],
+    ['Laundry', 700000, 'Linen, towels and the like.'],
+    ['Maintenance', 500000, 'Routine upkeep such as cleaning and refilling the air conditioning and servicing the pumps.'],
+    ['Building insurance', 250000, 'Covers the structure against fire, flood, earthquake, theft, vandalism and other damage.'],
+    ['Trash collection', 200000, 'Community trash collection.'],
+    ['Guest supplies', 600000, 'Welcome drinks, breakfast, toiletries, tissues, drinking water and the like.'],
+    ['Banjar contribution', 150000, 'Contribution to the local banjar, the village community.']
+  ];
+  var FIXED_MONTH = FIXED.reduce(function(a, f){ return a + f[1]; }, 0);   /* Rp 12.065.000 */
+  var STAFF = [   /* position, people, salary, health insurance, pension fund (IDR per month); THR is one month's salary a year, set aside monthly */
+    ['Housekeeper', 1, 2300000, 115000, 25000],
+    ['Pool attendant', 1, 500000, 25000, 25000],
+    ['Gardener', 1, 500000, 25000, 25000]
+  ].map(function(p){ return p.concat(p[2] / 12); });
   /* ========================================== */
 
   var $ = function(id){ return document.getElementById(id); };
@@ -329,15 +374,21 @@
   function idr(v){ return 'Rp ' + Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
   function pct(v, d){ return (v*100).toFixed(d == null ? 1 : d) + '%'; }
 
+  /* Each line is rounded to whole dollars before it is added up, so every total sums exactly as shown
+     (and the defaults match the brochure table cent for cent). */
   function calc(o){
-    var v = VILLAS[o.villa];
-    var inv = v.usd * (o.bphtb ? 1 + BPHTB : 1);
+    var R = Math.round, v = VILLAS[o.villa];
+    var inv = R(v.usd * (o.bphtb ? 1 + BPHTB : 1));
     var nights = NIGHTS * o.occ/100;
-    var gross = o.rate * nights;
-    var mgmt = gross * o.mgmt/100, opex = gross * o.opex/100, exp = mgmt + opex;
-    var net = gross - exp;
-    return { v:v, inv:inv, nights:nights, gross:gross, mgmt:mgmt, opex:opex, exp:exp, net:net, roi: net/inv, pay: net > 0 ? inv/net : Infinity };
+    var gross = R(o.rate * nights);
+    var ota = R(gross * o.ota/100), pb1 = R((gross - ota) * PB1), sell = ota + pb1;
+    var mgmt = R((gross - ota) * o.mgmt/100), fixed = R(FIXED_MONTH * 12 / FX);
+    var pre = gross - sell - mgmt - fixed, ctax = pre > 0 ? R(pre * CTAX) : 0;
+    var exp = sell + mgmt + fixed + ctax, net = gross - exp;
+    return { v:v, inv:inv, nights:nights, gross:gross, ota:ota, pb1:pb1, sell:sell, mgmt:mgmt, fixed:fixed, pre:pre, ctax:ctax, exp:exp, net:net,
+      roi: net/inv, pay: net > 0 ? inv/net : Infinity };
   }
+  function withSt(extra){ var o = { villa:st.villa, rate:st.rate, occ:st.occ, ota:st.ota, mgmt:st.mgmt, bphtb:st.bphtb }; for (var k in extra) o[k] = extra[k]; return o; }
 
   /* ----- controls ----- */
   VILLAS.forEach(function(v, i){
@@ -353,14 +404,14 @@
     b.addEventListener('click', function(){ st.rate = s.rate; st.occ = s.occ; render(); });
     $('scenSeg').appendChild(b);
   });
-  ['rate','occ','mgmt','opex'].forEach(function(k){
+  ['rate','occ','ota','mgmt'].forEach(function(k){
     $(k).addEventListener('input', function(){ st[k] = +this.value; render(); });
   });
   $('bphtb').addEventListener('change', function(){ st.bphtb = this.checked; render(); });
   $('reset').addEventListener('click', function(){ reset(); render(); });
 
   function reset(){
-    st = { villa:DEFAULTS.villa, rate:SCEN[DEFAULTS.scen].rate, occ:SCEN[DEFAULTS.scen].occ, mgmt:DEFAULTS.mgmt, opex:DEFAULTS.opex, bphtb:DEFAULTS.bphtb };
+    st = { villa:DEFAULTS.villa, rate:SCEN[DEFAULTS.scen].rate, occ:SCEN[DEFAULTS.scen].occ, ota:DEFAULTS.ota, mgmt:DEFAULTS.mgmt, bphtb:DEFAULTS.bphtb };
   }
   function scenIndex(){
     for (var i = 0; i < SCEN.length; i++) if (SCEN[i].rate === st.rate && SCEN[i].occ === st.occ) return i;
@@ -374,69 +425,106 @@
     Array.prototype.forEach.call($('villaSeg').children, function(b, i){ b.setAttribute('aria-pressed', i === st.villa); });
     Array.prototype.forEach.call($('scenSeg').children, function(b, i){ b.setAttribute('aria-pressed', i === si); });
     $('customNote').textContent = si < 0 ? 'Custom: your own day rate and occupancy' : '';
-    $('rate').value = st.rate; $('occ').value = st.occ; $('mgmt').value = st.mgmt; $('opex').value = st.opex; $('bphtb').checked = st.bphtb;
+    $('rate').value = st.rate; $('occ').value = st.occ; $('ota').value = st.ota; $('mgmt').value = st.mgmt; $('bphtb').checked = st.bphtb;
     $('rateOut').textContent = '$' + st.rate; $('occOut').textContent = st.occ + '%';
-    $('mgmtOut').textContent = st.mgmt + '%'; $('opexOut').textContent = st.opex + '%';
+    $('otaOut').textContent = st.ota + '%'; $('mgmtOut').textContent = st.mgmt + '%';
 
     $('resultLabel').textContent = 'Villa ' + v.id + ' · ' + (si >= 0 ? SCEN[si].name + ' scenario' : 'Custom scenario');
     $('fRoi').textContent = pct(r.roi);
     $('fNet').textContent = usd(r.net);
     $('fPay').textContent = isFinite(r.pay) ? r.pay.toFixed(1) : '–';
-    $('resultSub').textContent = 'About ' + usd(r.net/12) + ' a month after costs, on an investment of ' + usd(r.inv) + '.';
+    $('resultSub').textContent = 'About ' + usd(r.net/12) + ' a month after every cost and tax, on an investment of ' + usd(r.inv) + '.';
 
+    var after = r.gross - r.ota;
     var rows = [
+      ['I. Rental income', '', '', '', 'sec'],
       ['Average day rate', usd(st.rate),
-        'The average price per night a guest pays to rent the whole villa, across high and low season.',
+        'The average nightly price for the whole villa across high, normal and low season. Rates are reviewed daily and adjusted for occupancy and season.',
         usd(st.rate) + ' a night, averaged over the year'],
       ['Occupancy', st.occ + '%',
-        'The share of the year’s 365 nights the villa is booked by guests.',
-        '365 nights × ' + st.occ + '% ≈ ' + Math.round(r.nights) + ' nights booked a year'],
+        'The share of the year\u2019s 365 nights the villa is booked by guests.',
+        '365 nights \u00d7 ' + st.occ + '% \u2248 ' + Math.round(r.nights) + ' nights booked a year'],
       ['Gross rental income', usd(r.gross),
         'All the rent guests pay in a year, before any costs come off.',
-        usd(st.rate) + ' × 365 nights × ' + st.occ + '% = ' + usd(r.gross), 'total'],
-      ['Villa management', usd(r.mgmt),
-        'The management company’s fee for running the villa as a rental: listing and marketing it, taking bookings and looking after guests.',
-        st.mgmt + '% × ' + usd(r.gross) + ' = ' + usd(r.mgmt)],
-      ['Operating expense', usd(r.opex),
-        'The villa’s running costs, such as utilities, upkeep and guest supplies.',
-        st.opex + '% × ' + usd(r.gross) + ' = ' + usd(r.opex)],
-      ['Total expense', usd(r.exp),
-        'Management plus operating costs: ' + (st.mgmt + st.opex) + '% of gross rental income.',
-        usd(r.mgmt) + ' + ' + usd(r.opex) + ' = ' + usd(r.exp), 'total'],
+        usd(st.rate) + ' \u00d7 365 nights \u00d7 ' + st.occ + '% = ' + usd(r.gross), 'total'],
+      ['II. Selling cost', '', '', '', 'sec'],
+      ['Booking commission', usd(r.ota),
+        'The average commission paid on bookings, across platforms such as Airbnb, Booking.com, Agoda, Expedia and Traveloka and direct bookings.',
+        st.ota + '% \u00d7 ' + usd(r.gross) + ' = ' + usd(r.ota), 'sub'],
+      ['Government tax (PB1)', usd(r.pb1),
+        'The 10% local government tax on room rental income, charged on the rent after commission.',
+        '10% \u00d7 (' + usd(r.gross) + ' \u2212 ' + usd(r.ota) + ') = ' + usd(r.pb1), 'sub'],
+      ['Total selling cost', usd(r.sell), '', usd(r.ota) + ' + ' + usd(r.pb1) + ' = ' + usd(r.sell), 'total'],
+      ['III. Operating cost', '', '', '', 'sec'],
+      ['Management fee', usd(r.mgmt),
+        'The management company\u2019s fee for handling reservations and marketing, including reception. Charged on rental income after commission.',
+        st.mgmt + '% \u00d7 ' + usd(after) + ' = ' + usd(r.mgmt), 'sub']
+    ];
+    FIXED.forEach(function(f){
+      rows.push([f[0], idr(f[1]) + ' a month', f[2], '', 'sub item']);
+    });
+    rows.push(
+      ['Running costs', usd(r.fixed),
+        'The twelve fixed items above: ' + idr(FIXED_MONTH) + ' a month, the same whatever the occupancy.',
+        idr(FIXED_MONTH) + ' \u00d7 12 \u00f7 17.800 = ' + usd(r.fixed)],
+      ['Total operating cost', usd(r.mgmt + r.fixed), '', usd(r.mgmt) + ' + ' + usd(r.fixed) + ' = ' + usd(r.mgmt + r.fixed), 'total'],
+      ['IV. Result', '', '', '', 'sec'],
+      ['Profit before central tax', usd(r.pre),
+        'Rental income less selling and operating cost.',
+        usd(r.gross) + ' \u2212 ' + usd(r.sell) + ' \u2212 ' + usd(r.mgmt + r.fixed) + ' = ' + usd(r.pre)],
+      ['Central tax', usd(r.ctax),
+        'Central government tax of 0.5%, charged on the profit before this tax.',
+        '0.5% \u00d7 ' + usd(Math.max(r.pre, 0)) + ' = ' + usd(r.ctax)],
+      ['Net income', usd(r.net),
+        'What the owner keeps each year after every cost and tax above.',
+        usd(r.pre) + ' \u2212 ' + usd(r.ctax) + ' = ' + usd(r.net), 'total'],
       ['Investment (Villa ' + v.id + ')', usd(r.inv),
         'The purchase price of Villa ' + v.id + ', ' + idr(v.idr) + ', in USD at the indicative rate of IDR 17.800' + (st.bphtb ? ', plus 5% BPHTB for the freehold option.' : '. The 5% BPHTB due on freehold is not included; tick the box on the left to add it.'),
-        idr(v.idr) + ' ÷ 17.800 = ' + usd(v.usd) + (st.bphtb ? ' × 1.05 BPHTB = ' + usd(r.inv) : ''), 'total'],
-      ['Net income', usd(r.net),
-        'What the owner keeps each year once management and operating costs are paid.',
-        usd(r.gross) + ' − ' + usd(r.exp) + ' = ' + usd(r.net)],
+        idr(v.idr) + ' \u00f7 17.800 = ' + usd(v.usd) + (st.bphtb ? ' \u00d7 1.05 BPHTB = ' + usd(r.inv) : '')],
       ['Annual ROI', pct(r.roi),
-        'Net income as a share of the investment: the cash return the villa earns each year. It leaves out income tax and any rise in the villa’s value.',
-        usd(r.net) + ' ÷ ' + usd(r.inv) + ' = ' + pct(r.roi, 2), 'final'],
-      ['Years to earn back the price', isFinite(r.pay) ? r.pay.toFixed(1) + ' years' : '–',
+        'Net income as a share of the investment: the cash return the villa earns each year. Any rise in the villa\u2019s value comes on top.',
+        usd(r.net) + ' \u00f7 ' + usd(r.inv) + ' = ' + pct(r.roi, 2), 'final'],
+      ['Years to earn back the price', isFinite(r.pay) ? r.pay.toFixed(1) + ' years' : '\u2013',
         'How long the net income takes to add up to the investment, if every year matched this one.',
-        usd(r.inv) + ' ÷ ' + usd(r.net) + ' = ' + (isFinite(r.pay) ? r.pay.toFixed(1) : '–') + ' years']
-    ];
+        isFinite(r.pay) ? usd(r.inv) + ' \u00f7 ' + usd(r.net) + ' = ' + r.pay.toFixed(1) + ' years' : 'Not reached: net income is not above zero']
+    );
     $('ledger').innerHTML = '';
     rows.forEach(function(x){
       var d = document.createElement('div'); d.className = 'row' + (x[4] ? ' ' + x[4] : '');
-      d.innerHTML = '<div class="name"></div><div class="val"></div><div class="what"></div><div class="calc"></div>';
-      d.children[0].textContent = x[0]; d.children[1].textContent = x[1];
-      d.children[2].textContent = x[2]; d.children[3].textContent = x[3];
+      d.innerHTML = '<div class="name"></div>' + (x[4] === 'sec' ? '' : '<div class="val"></div>' + (x[2] ? '<div class="what"></div>' : '') + '<div class="calc"></div>');
+      d.querySelector('.name').textContent = x[0];
+      if (x[4] !== 'sec'){
+        d.querySelector('.val').textContent = x[1];
+        if (x[2]) d.querySelector('.what').textContent = x[2];
+        d.querySelector('.calc').textContent = x[3];
+      }
       $('ledger').appendChild(d);
     });
+
+    var sh = '<thead><tr><th scope="col">Position</th><th scope="col">People</th><th scope="col">Salary</th><th scope="col">Health insurance</th><th scope="col">Pension fund</th><th scope="col">THR</th><th scope="col">Total</th></tr></thead><tbody>';
+    var tot = [0,0,0,0,0,0];
+    STAFF.forEach(function(p){
+      var t = p[2] + p[3] + p[4] + p[5];
+      [p[1], p[2], p[3], p[4], p[5], t].forEach(function(x, k){ tot[k] += x; });
+      sh += '<tr><td>' + p[0] + '</td><td>' + p[1] + '</td><td>' + idr(p[2]) + '</td><td>' + idr(p[3]) + '</td><td>' + idr(p[4]) + '</td><td>' + idr(p[5]) + '</td><td>' + idr(t) + '</td></tr>';
+    });
+    sh += '<tr class="final"><td>Total</td><td>' + tot[0] + '</td>' + tot.slice(1).map(function(x){ return '<td>' + idr(x) + '</td>'; }).join('') + '</tr>';
+    $('staffTable').innerHTML = sh + '</tbody>';
 
     renderScenarios(si);
     renderSensitivity();
   }
 
   function renderScenarios(si){
-    var res = SCEN.map(function(s){ return calc({ villa:st.villa, rate:s.rate, occ:s.occ, mgmt:st.mgmt, opex:st.opex, bphtb:st.bphtb }); });
+    var res = SCEN.map(function(s){ return calc(withSt({ rate:s.rate, occ:s.occ })); });
     var lines = [
       ['Average day rate', function(r, s){ return '$' + s.rate; }],
       ['Occupancy', function(r, s){ return s.occ + '%'; }],
       ['Gross rental income', function(r){ return usd(r.gross); }, 'strong'],
-      ['Villa management (' + st.mgmt + '%)', function(r){ return usd(r.mgmt); }],
-      ['Operating expense (' + st.opex + '%)', function(r){ return usd(r.opex); }],
+      ['Selling cost (commission ' + st.ota + '% + PB1 10%)', function(r){ return usd(r.sell); }],
+      ['Management fee (' + st.mgmt + '%)', function(r){ return usd(r.mgmt); }],
+      ['Running costs', function(r){ return usd(r.fixed); }],
+      ['Central tax (0.5%)', function(r){ return usd(r.ctax); }],
       ['Total expense', function(r){ return usd(r.exp); }, 'strong'],
       ['Investment (Villa ' + VILLAS[st.villa].id + ')', function(r){ return usd(r.inv); }],
       ['Net income', function(r){ return usd(r.net); }, 'strong'],
@@ -447,10 +535,10 @@
       h += '<tr' + (l[2] ? ' class="' + l[2] + '"' : '') + '><td>' + l[0] + '</td>' + SCEN.map(function(s, i){ return '<td' + (i === si ? ' class="on"' : '') + '>' + l[1](res[i], s) + '</td>'; }).join('') + '</tr>';
     });
     $('scenTable').innerHTML = h + '</tbody>';
-    var std = st.villa === DEFAULTS.villa && st.mgmt === DEFAULTS.mgmt && st.opex === DEFAULTS.opex && !st.bphtb;
+    var std = st.villa === DEFAULTS.villa && st.ota === DEFAULTS.ota && st.mgmt === DEFAULTS.mgmt && !st.bphtb;
     $('scenNote').textContent = std
       ? 'The brochure’s table, with the ROI to one decimal place (the brochure rounds to whole percent).'
-      : 'The brochure’s three scenarios, recalculated with the villa, fees and BPHTB setting chosen on the left.';
+      : 'The brochure’s three scenarios, recalculated with the villa, commission, fee and BPHTB setting chosen on the left.';
   }
 
   /* sensitivity: rows = day rate, columns = occupancy; one warm hue from cream (low) to dark taupe (high) */
@@ -460,7 +548,7 @@
   function renderSensitivity(){
     var all = [], min = Infinity, max = -Infinity;
     S_RATES.forEach(function(rt){ S_OCC.forEach(function(oc){
-      var x = calc({ villa:st.villa, rate:rt, occ:oc, mgmt:st.mgmt, opex:st.opex, bphtb:st.bphtb }).roi;
+      var x = calc(withSt({ rate:rt, occ:oc })).roi;
       min = Math.min(min, x); max = Math.max(max, x);
     }); });
     var nr = S_RATES.reduce(function(a, b){ return Math.abs(b - st.rate) < Math.abs(a - st.rate) ? b : a; });
@@ -469,7 +557,7 @@
     S_RATES.forEach(function(rt){
       h += '<tr><th class="rh" scope="row">$' + rt + '</th>';
       S_OCC.forEach(function(oc){
-        var x = calc({ villa:st.villa, rate:rt, occ:oc, mgmt:st.mgmt, opex:st.opex, bphtb:st.bphtb }).roi;
+        var x = calc(withSt({ rate:rt, occ:oc })).roi;
         var t = max > min ? (x - min) / (max - min) : .5;
         var cur = rt === nr && oc === no;
         h += '<td tabindex="0" data-r="' + rt + '" data-o="' + oc + '" class="' + (cur ? 'cur' : '') + '" style="background:' + mix(t) + ';color:' + (t > .5 ? '#f6f1e2' : '#2b2218') + '"'
