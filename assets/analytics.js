@@ -10,6 +10,9 @@
                 (leave empty if Google Analytics runs inside the GTM container)
      PIXEL_ID = Meta (Facebook) Pixel ID, e.g. "123456789012345"
 
+   The banner is not shown on the brochure (/brochure/): there, only visitors who
+   already chose on another page are tracked, and the rest are not.
+
    Tag Manager loads once the visitor allows Analytics or Marketing. Their
    choice reaches it through Google Consent Mode, so tags in the container
    follow it. Every event below is also pushed to the dataLayer as
@@ -276,10 +279,13 @@
   });
   window.aurayaConsent = { open:function(){ open(true); }, get:function(){ return { analytics:consent.analytics, marketing:consent.marketing, followup:consent.followup }; } };
 
-  /* start: apply a saved choice, or ask */
+  /* start: apply a saved choice, or ask. The brochure never shows the banner by itself:
+     it tracks only visitors who already chose on another page; anyone else is not tracked
+     there, and can still choose through its "Cookie settings" link. */
+  var ASK_HERE = area !== 'brochure';
   var s = saved();
   if (s) apply(s);
-  else if (configured){
+  else if (configured && ASK_HERE){
     if (document.body) open(false);
     else document.addEventListener('DOMContentLoaded', function(){ open(false); });
   }
