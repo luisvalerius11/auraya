@@ -132,16 +132,6 @@ class Plan:
             img = rgb("#e2d9c6")[None, None, :] * (1 + 0.035 * t[..., None] + self.noise(3, 0.02)[..., None])
             img[((yy % tile) < 2) | ((xx % (tile * 2)) < 2)] *= 0.9
             return img
-        if name == "terrazzo":
-            img = rgb("#ebe5d5")[None, None, :] * (1 + self.noise(2, 0.015)[..., None])
-            spots = ndi.binary_dilation(self.rng.random((H, W)) > 0.996, iterations=1)
-            img[spots] *= 0.86
-            return img
-        if name == "water":
-            t = (yy / H)[..., None]
-            img = rgb("#86c9cc") * (1 - t) + rgb("#4a95a3") * t
-            caust = np.sin(xx * 0.045 + np.sin(yy * 0.03) * 3) * np.sin(yy * 0.05 + np.sin(xx * 0.02) * 2)
-            return img * (1 + 0.06 * caust[..., None] + self.noise(8, 0.04)[..., None])
         if name == "grass":
             return rgb("#98a67a")[None, None, :] * (1 + self.noise(2, 0.07)[..., None] + self.noise(12, 0.06)[..., None])
         if name == "concrete":
@@ -152,9 +142,58 @@ class Plan:
             img[band] = img[band] * 0.85 + 255 * 0.15
             return img
         if name == "rug":
-            return rgb("#e6dac1")[None, None, :] * (1 + self.noise(2, 0.03)[..., None])
+            return rgb("#efe8d8")[None, None, :] * (1 + self.noise(2, 0.03)[..., None])
         if name == "stair":
-            return rgb("#e8dcc6")[None, None, :] * (1 + self.noise(3, 0.01)[..., None])
+            return rgb("#cdc8bd")[None, None, :] * (1 + self.noise(3, 0.01)[..., None])
+        m = PT_PER_M * S  # pixels per metre at 1:100
+        if name in ("travertine", "travertine_out"):
+            # honed cream travertine, 60x120 cm (indoor) / 60x60 cm (outdoor), staggered joints
+            indoor = name == "travertine"
+            base = rgb("#e8dcc5") if indoor else rgb("#e2d4ba")
+            tw, th = (int(1.2 * m), int(0.6 * m)) if indoor else (int(0.6 * m), int(0.6 * m))
+            row = yy // th
+            xo = xx + (row % 2) * (tw // 2)
+            tid = (row * 7919 + (xo // tw) * 104729) % 23 / 23.0 - 0.5
+            vein = np.sin(xx * 0.012 + np.sin(yy * 0.02 + tid * 9) * 2.5) * 0.5 + 0.5
+            img = base[None, None, :] * (1 + 0.03 * tid[..., None] - 0.025 * (vein ** 6)[..., None]
+                                         + self.noise(2, 0.012)[..., None] + self.noise(9, 0.012)[..., None])
+            if not indoor:
+                pits = ndi.binary_dilation(self.rng.random((H, W)) > 0.9985, iterations=1)
+                img[pits] *= 0.93
+            joint = ((yy % th) < 2) | ((xo % tw) < 2)
+            img[joint] *= 0.92
+            return img
+        if name == "terrazzo":
+            img = rgb("#d8d1c3")[None, None, :] * (1 + self.noise(2, 0.012)[..., None])
+            for thr, col in ((0.9975, "#b7ab98"), (0.9985, "#8f8576"), (0.999, "#f1ece2")):
+                chips = ndi.binary_dilation(self.rng.random((H, W)) > thr, iterations=1)
+                img[chips] = rgb(col)
+            return img
+        if name == "water":
+            t = (yy / H)[..., None]
+            img = rgb("#b5dfd6") * (1 - t) + rgb("#79b9b2") * t
+            caust = np.sin(xx * 0.045 + np.sin(yy * 0.03) * 3) * np.sin(yy * 0.05 + np.sin(xx * 0.02) * 2)
+            return img * (1 + 0.05 * caust[..., None] + self.noise(8, 0.03)[..., None])
+        if name == "planting":
+            # dense tropical planting: layered leaf clusters, darker in the gaps
+            img = np.broadcast_to(rgb("#4f6338"), (H, W, 3)).astype(np.float32).copy()
+            for scale, thr, col in ((14, 0.0, "#63793f"), (8, 0.25, "#7a8f4a"), (5, 0.55, "#93a65a"), (3, 0.9, "#a9b96c")):
+                n = self.noise(scale, 1.0) + self.noise(scale // 2 + 1, 0.5)
+                img[n > thr] = rgb(col) * (1 + self.noise(2, 0.05)[n > thr][..., None])
+            return img
+        if name == "pavers":
+            # grey stone pavers, 30x15 cm stretcher bond
+            pw, ph = int(0.3 * m), int(0.15 * m)
+            row = yy // ph
+            xo = xx + (row % 2) * (pw // 2)
+            tid = (row * 31 + (xo // pw) * 17) % 13 / 13.0 - 0.5
+            img = rgb("#b3aea4")[None, None, :] * (1 + 0.05 * tid[..., None] + self.noise(2, 0.02)[..., None])
+            img[((yy % ph) < 2) | ((xo % pw) < 2)] *= 0.84
+            return img
+        if name in ("walnut", "teak"):
+            base = rgb("#5e4533") if name == "walnut" else rgb("#9b7250")
+            grain = np.sin(yy * 0.35 + np.sin(xx * 0.01) * 3) * 0.5 + self.noise(3, 0.3)
+            return base[None, None, :] * (1 + 0.05 * grain[..., None])
         return np.broadcast_to(rgb(PAL["paper"]), (H, W, 3)).astype(np.float32).copy()
 
     # ---------- render ----------
@@ -204,25 +243,33 @@ class Plan:
                 assign[i] = "furn"
         # 3) zones by centroid, first match wins
         for z in zones:
-            if len(z) == 3 or (len(z) > 5 and z[5] == "paint"):
+            if len(z) == 3 or (len(z) > 5 and z[5] == "paint") or z[0].startswith("furn:"):
                 continue
             edge_ok = len(z) > 5 and z[5] == "edge"
             for i in idx[1:]:
                 if not assign[i] and in_zone(i, z) and (edge_ok or i not in border):
                     assign[i] = z[0]
 
+        # 4) furniture finishes (walnut joinery, teak tables) by rectangle
+        for z in zones:
+            if len(z) == 5 and z[0].startswith("furn:"):
+                for i in idx[1:]:
+                    if assign[i] == "furn" and in_zone(i, z):
+                        assign[i] = z[0]
+
         canvas = np.broadcast_to(rgb(PAL["paper"]), (H, W, 3)).astype(np.float32).copy()
         floor = np.zeros((H, W), bool)
         furn = np.zeros((H, W), bool)
         cache = {}
-        for mat in set(assign[1:]) - {"", "furn", "paper", "-"}:
+        for mat in {m for m in set(assign[1:]) if m and not m.startswith("furn")} - {"paper", "-"}:
             msk = np.isin(lab, idx[assign == mat])
             msk = ndi.binary_dilation(msk, iterations=3) & ~walls
             if mat not in cache:
                 cache[mat] = self.material(mat)
             canvas[msk] = cache[mat][msk]
             floor |= msk
-        furn = ndi.binary_dilation(np.isin(lab, idx[assign == "furn"]), iterations=2) & ~walls
+        is_furn = np.array([bool(a) and a.startswith("furn") for a in assign])
+        furn = ndi.binary_dilation(np.isin(lab, idx[is_furn]), iterations=2) & ~walls
         # paint zones: recolour floor inside a wall-bounded rectangle (rooms joined by open doorways)
         for z in zones:
             if len(z) > 5 and z[5] == "paint":
@@ -243,6 +290,12 @@ class Plan:
         sh = np.clip(shadow(furn, 10, 12, 10, 0.26) + shadow(walls | m_struct, 14, 16, 14, 0.34), 0, 0.45)
         canvas *= (1 - (sh * floor)[..., None])
         canvas[furn] = rgb(PAL["furn"])
+        for fm in {a for a in assign if a and a.startswith("furn:")}:
+            mk = ndi.binary_dilation(np.isin(lab, idx[assign == fm]), iterations=2) & ~walls
+            mat = fm.split(":", 1)[1]
+            if mat not in cache:
+                cache[mat] = self.material(mat)
+            canvas[mk] = cache[mat][mk]
 
         def ink(mask, color, alpha):
             canvas[mask] = canvas[mask] * (1 - alpha) + rgb(color) * alpha
@@ -259,8 +312,8 @@ class Plan:
         for lb in labels:
             x, y = self.px(lb["at"][0], lb["at"][1])
             light = lb.get("light", False)
-            c1 = (255, 255, 255) if light else (62, 45, 30)
-            c2 = (240, 248, 248) if light else (95, 82, 62)
+            c1 = (38, 84, 84) if light else (62, 45, 30)  # "light" = on water: deep teal
+            c2 = (52, 100, 100) if light else (95, 82, 62)
             rot = lb.get("rot", 0)
             if rot:
                 tmp = Image.new("RGBA", (420, 120), (0, 0, 0, 0))

@@ -48,12 +48,13 @@ def L(name, x, y, sub="", **kw):
 # ---------------- Villa 2 (template for the 7.5 m module) ----------------
 V2_GF_HOUSE = [
     ("rug", 410, 278),
+    ("furn:walnut", 370, 365, 392, 435), ("furn:walnut", 419, 413, 447, 436), ("furn:walnut", 490, 413, 516, 436),
     ("terrazzo", 364, 225, 405, 262),
-    ("deck", 405, 225, 586, 262),
+    ("travertine_out", 405, 225, 586, 262),
     ("terrazzo", 364, 432, 442, 466),
     ("stair", 442, 432, 500, 466),
-    ("wood", 364, 262, 586, 466),
-    ("concrete", 362, 466, 586, 508, "edge"),
+    ("travertine", 364, 262, 586, 466),
+    ("pavers", 362, 466, 586, 508, "edge"),
 ]
 V2_GF_HOUSE_LABELS = [
     L("Shower", 391, 243), L("Terrace", 500, 246),
@@ -61,19 +62,20 @@ V2_GF_HOUSE_LABELS = [
     L("Powder", 398, 447, "3 m²"), L("Parking", 474, 488),
 ]
 V2_2F = [
-    ("furn", 441, 265), ("furn", 530, 265), ("wood", 440, 302), ("wood", 520, 302),
+    ("furn", 441, 265), ("furn", 530, 265), ("travertine", 440, 302), ("travertine", 520, 302),
     ("furn", 398, 318, 426, 342), ("furn", 521, 318, 558, 342),
+    ("furn:walnut", 398, 318, 426, 342), ("furn:walnut", 521, 318, 558, 342),
     ("terrazzo", 400, 331, 476, 405, "paint"), ("terrazzo", 477, 331, 551, 405, "paint"),
-    ("wood", 364, 222, 586, 404), ("wood", 364, 404, 586, 436), ("stair", 364, 436, 586, 466),
+    ("travertine", 364, 222, 586, 404), ("travertine", 364, 404, 586, 436), ("stair", 364, 436, 586, 466),
 ]
 V2_2F_LABELS = [
     L("Bedroom", 422, 266, "14 m²"), L("Bedroom", 530, 266, "14 m²"),
     L("Bathroom", 437, 368, "6 m²"), L("Bathroom", 526, 368, "6 m²"), L("Hallway", 476, 420),
 ]
 V2_RT = [
-    ("water", 406, 268), ("glass", 489, 420),
-    ("grass", 486, 218, 586, 258), ("stone", 364, 218, 586, 404),
-    ("stone", 364, 404, 400, 436), ("stair", 364, 436, 586, 466),
+    ("water", 406, 268), ("glass", 489, 420), ("furn:teak", 441, 348),
+    ("planting", 486, 218, 586, 258), ("travertine_out", 364, 218, 586, 404),
+    ("travertine_out", 364, 404, 400, 436), ("stair", 364, 436, 586, 466),
 ]
 V2_RT_LABELS = [L("Rooftop", 535, 330, "33 m²"), L("Jacuzzi", 406, 268, light=True), L("Skylight", 489, 418)]
 
@@ -82,20 +84,21 @@ def villa_123(n):
     dx = (n - 2) * MODULE
     gf, gfl = shift(V2_GF_HOUSE, V2_GF_HOUSE_LABELS, dx)
     if n == 1:
-        gf = [("water", 206, 165)] + gf[:1] + [
-            ("terrazzo", 157, 222, 195, 256), ("deck", 195, 215, 372, 256),
-            ("deck", 300, 100, 372, 222), ("stone", 108, 100, 302, 214),
-            ("grass", 120, 300), ("grass", 130, 215),
-        ] + gf[3:]
+        # keep the rug and joinery (first 4), replace V2's shower/terrace (next 2) with Villa 1's own
+        gf = [("water", 206, 165)] + gf[:4] + [
+            ("terrazzo", 157, 222, 195, 256), ("travertine_out", 195, 215, 372, 256),
+            ("travertine_out", 300, 100, 372, 222), ("travertine_out", 108, 100, 302, 214),
+            ("planting", 120, 300), ("planting", 130, 215),
+        ] + gf[6:]
         gfl = [L("Pool", 206, 163, "15 m²", light=True), L("Sunbed", 336, 172, "8 m²"),
                L("Shower", 178, 240), L("Terrace", 290, 246)] + gfl[2:]
     elif n == 2:
-        gf = [("water", 448, 175), ("deck", 512, 100, 586, 226), ("grass", 362, 100, 382, 226),
-              ("stone", 380, 100, 515, 226)] + gf
+        gf = [("water", 448, 175), ("travertine_out", 512, 100, 586, 226), ("planting", 362, 100, 382, 226),
+              ("travertine_out", 380, 100, 515, 226)] + gf
         gfl = [L("Pool", 448, 178, "11 m²", light=True), L("Sunbed", 550, 175, "7 m²")] + gfl
     else:
-        gf = [("water", 660, 182), ("deck", 728, 100, 799, 226), ("grass", 575, 100, 594, 226),
-              ("stone", 592, 100, 731, 226)] + gf
+        gf = [("water", 660, 182), ("travertine_out", 728, 100, 799, 226), ("planting", 575, 100, 594, 226),
+              ("travertine_out", 592, 100, 731, 226)] + gf
         gfl = [L("Pool", 662, 180, "7 m²", light=True), L("Sunbed", 763, 190, "5 m²")] + gfl
     f2, f2l = shift(V2_2F, V2_2F_LABELS, dx)
     rt, rtl = shift(V2_RT, V2_RT_LABELS, dx)
@@ -104,27 +107,29 @@ def villa_123(n):
 
 def villa_4():
     gf = [
-        ("water", 860, 255), ("rug", 832, 345), ("grass", 1030, 450),
-        ("terrazzo", 800, 296, 830, 333), ("deck", 830, 292, 1003, 333),
-        ("deck", 912, 172, 1020, 294), ("stone", 795, 172, 915, 294),
-        ("grass", 1000, 172, 1068, 568, "edge"),
+        ("furn:walnut", 797, 435, 820, 503), ("furn:walnut", 845, 478, 870, 503), ("furn:walnut", 905, 478, 930, 503),
+        ("water", 860, 255), ("rug", 832, 345), ("planting", 1030, 450),
+        ("terrazzo", 800, 296, 830, 333), ("travertine_out", 830, 292, 1003, 333),
+        ("travertine_out", 912, 172, 1020, 294), ("travertine_out", 795, 172, 915, 294),
+        ("planting", 1000, 172, 1068, 568, "edge"),
         ("terrazzo", 800, 502, 868, 532), ("stair", 868, 502, 975, 532),
-        ("wood", 797, 333, 1003, 532), ("concrete", 797, 532, 1003, 568, "edge"), ("concrete", 797, 531, 1001, 567, "paint"),
-        ("grass", 790, 568, 1068, 595, "edge"),
+        ("travertine", 797, 333, 1003, 532), ("pavers", 797, 532, 1003, 568, "edge"), ("pavers", 797, 531, 1001, 567, "paint"),
+        ("planting", 790, 568, 1068, 595, "edge"),
     ]
     gfl = [L("Pool", 860, 256, "6 m²", light=True), L("Sunbed", 965, 268, "6 m²"),
            L("Shower", 815, 312), L("Terrace", 925, 314),
            L("Living", 968, 378, "25 m²"), L("Dining", 972, 442, "+ Kitchen · 15 m²"),
            L("Powder", 834, 518, "3 m²"), L("Parking", 900, 550)]
-    f2 = [("furn", 864, 330), ("furn", 955, 330), ("wood", 864, 365), ("wood", 955, 365),
+    f2 = [("furn", 864, 330), ("furn", 955, 330), ("travertine", 864, 365), ("travertine", 955, 365),
           ("furn", 824, 392, 852, 412), ("furn", 949, 392, 977, 412),
+          ("furn:walnut", 824, 392, 852, 412), ("furn:walnut", 949, 392, 977, 412),
           ("terrazzo", 826, 403, 901, 472, "paint"), ("terrazzo", 902, 403, 977, 472, "paint"),
-          ("wood", 797, 292, 1006, 472), ("wood", 797, 472, 1006, 501), ("stair", 797, 501, 1006, 532)]
+          ("travertine", 797, 292, 1006, 472), ("travertine", 797, 472, 1006, 501), ("stair", 797, 501, 1006, 532)]
     f2l = [L("Bedroom", 850, 322, "14 m²"), L("Bedroom", 955, 322, "14 m²"),
            L("Bathroom", 864, 425, "6 m²"), L("Bathroom", 940, 425, "6 m²"), L("Hallway", 900, 487)]
-    rt = [("water", 830, 337), ("glass", 915, 486),
-          ("grass", 915, 288, 1006, 326), ("stone", 797, 288, 1006, 470),
-          ("stone", 797, 470, 826, 500), ("stair", 797, 500, 1006, 532)]
+    rt = [("water", 830, 337), ("glass", 915, 486), ("furn:teak", 868, 420),
+          ("planting", 915, 288, 1006, 326), ("travertine_out", 797, 288, 1006, 470),
+          ("travertine_out", 797, 470, 826, 500), ("stair", 797, 500, 1006, 532)]
     rtl = [L("Rooftop", 960, 410, "33 m²"), L("Jacuzzi", 830, 337, light=True), L("Skylight", 915, 486)]
     return [(gf, gfl), (f2, f2l), (rt, rtl)]
 

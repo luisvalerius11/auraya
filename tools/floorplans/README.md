@@ -18,3 +18,12 @@ Output per villa: `villa-N-{ground,second,rooftop}.webp` (web, 1400 px), `villa-
 - `plans.py` holds the crop and the room/material/label definitions for each villa and floor.
   When the architect issues a new PDF with the same sheet layout, rerun the command; if rooms
   move, adjust the coordinates (PDF points on the A3 sheet) in `plans.py`.
+
+## Materials
+
+Matched to the Auraya renders and brochure ("lime plaster, textured paint, natural stone and Ulin wood",
+"travertine bathrooms"): cream travertine floors inside (60x120) and on the terrace, sunbed and roof
+(60x60, continuous with inside), greige terrazzo in bathrooms, shower and powder room, pale aqua pool and
+jacuzzi, grey stone stairs, grey pavers at the parking, tropical planting in the gardens, walnut kitchen
+units and wardrobes, a teak table on the roof. Materials are defined in `Plan.material()` in `render.py`
+and assigned per room in `plans.py`.
