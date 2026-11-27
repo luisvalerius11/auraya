@@ -23,10 +23,6 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 FONTS = os.path.join(ROOT, "assets", "fonts")
 
 CLIPS = {1: (55, 100, 372, 508), 2: (362, 100, 586, 508), 3: (575, 100, 799, 508), 4: (790, 172, 1068, 595)}
-AREAS = {  # built area per floor (m²), from the drawing sheets
-    1: (104.825, 68.265, 49.32, 222.41), 2: (95.175, 68.265, 49.32, 212.76),
-    3: (89.625, 68.265, 49.32, 207.21), 4: (87.885, 68.265, 49.32, 205.47),
-}
 FLOORS = [("ground", "Ground Floor", 0), ("second", "Second Floor", 1), ("rooftop", "Rooftop", 2)]
 
 
@@ -77,7 +73,7 @@ V2_RT = [
     ("planting", 486, 218, 586, 258), ("travertine_out", 364, 218, 586, 404),
     ("travertine_out", 364, 404, 400, 436), ("stair", 364, 436, 586, 466),
 ]
-V2_RT_LABELS = [L("Rooftop", 535, 330, "33 m²"), L("Jacuzzi", 406, 268, light=True), L("Skylight", 489, 418)]
+V2_RT_LABELS = [L("Rooftop", 535, 330, "33 m²"), L("Jacuzzi", 406, 268, "Optional add-on", light=True), L("Skylight", 489, 418)]
 
 
 def villa_123(n):
@@ -130,7 +126,7 @@ def villa_4():
     rt = [("water", 830, 337), ("glass", 915, 486), ("furn:teak", 868, 420),
           ("planting", 915, 288, 1006, 326), ("travertine_out", 797, 288, 1006, 470),
           ("travertine_out", 797, 470, 826, 500), ("stair", 797, 500, 1006, 532)]
-    rtl = [L("Rooftop", 960, 410, "33 m²"), L("Jacuzzi", 830, 337, light=True), L("Skylight", 915, 486)]
+    rtl = [L("Rooftop", 960, 410, "33 m²"), L("Jacuzzi", 830, 337, "Optional add-on", light=True), L("Skylight", 915, 486)]
     return [(gf, gfl), (f2, f2l), (rt, rtl)]
 
 
@@ -153,11 +149,10 @@ def build(pdf, out, only=None):
         sheets = []
         for (slug, fname, page), (zones, labels) in zip(FLOORS, defs):
             img = Plan(doc[page], CLIPS[n]).render(zones, labels, F)
-            area = AREAS[n][page]
-            sheet = frame(img, f"Villa {n}", fname,
-                          f"Built area {area:.1f} m²  ·  Scale 1:100 at 300 dpi  ·  Indicative, design development 05.01.2026", F)
+            sheet = frame(img, f"Villa A{n}", fname,
+                          "Scale 1:100 at 300 dpi  ·  Indicative, design development 05.01.2026", F)
             sheets.append(sheet)
-            base = f"villa-{n}-{slug}"
+            base = f"villa-a{n}-{slug}"
             sheet.save(os.path.join(out, "hires", base + ".png"), optimize=True)
             web = sheet.copy()
             web.thumbnail((1400, 1400), Image.LANCZOS)
@@ -172,10 +167,10 @@ def build(pdf, out, only=None):
         for s in sheets:
             board.paste(s, (x, 0))
             x += s.width + gap
-        board.save(os.path.join(out, "hires", f"villa-{n}-all-floors.pdf"), resolution=300)
+        board.save(os.path.join(out, "hires", f"villa-a{n}-all-floors.pdf"), resolution=300)
         web = board.copy()
         web.thumbnail((2400, 2400), Image.LANCZOS)
-        web.save(os.path.join(out, f"villa-{n}-all-floors.webp"), quality=86, method=6)
+        web.save(os.path.join(out, f"villa-a{n}-all-floors.webp"), quality=86, method=6)
         print("wrote board", n, board.size)
 
 

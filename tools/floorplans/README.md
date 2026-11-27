@@ -9,9 +9,9 @@ python3 tools/floorplans/plans.py "<path to 2026_0109_PDF_Villa_Matteo_Luas_Bang
 python3 tools/floorplans/plans.py <pdf> assets/floorplans 4     # one villa only
 ```
 
-Output per villa: `villa-N-{ground,second,rooftop}.webp` (web, 1400 px), `villa-N-all-floors.webp`
+Output per villa (A1–A4, as in the brochure and price list): `villa-aN-{ground,second,rooftop}.webp` (web, 1400 px), `villa-aN-all-floors.webp`
 (the three floors side by side), and in `hires/` 300 dpi PNGs (1:100 at 300 dpi) plus a
-`villa-N-all-floors.pdf` board for print.
+`villa-aN-all-floors.pdf` board for print.
 
 - `render.py` reads the vector drawing, sorts paths by CAD layer (walls, furniture, hatch, …),
   fills rooms with materials, adds shadows and labels, and draws the title block.
@@ -27,3 +27,6 @@ Matched to the Auraya renders and brochure ("lime plaster, textured paint, natur
 jacuzzi, grey stone stairs, grey pavers at the parking, tropical planting in the gardens, walnut kitchen
 units and wardrobes, a teak table on the roof. Materials are defined in `Plan.material()` in `render.py`
 and assigned per room in `plans.py`.
+
+Sheets carry no built-area figures (the drawing totals differ from the 145 m² used in marketing);
+room sizes come from the drawing. The rooftop jacuzzi is labelled as an optional add-on.
