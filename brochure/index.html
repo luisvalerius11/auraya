@@ -217,6 +217,11 @@
   .hl-list{ list-style:none; margin:0; padding:0; }
   .hl-list li{ font-size:.8em; font-weight:400; letter-spacing:.08em; text-transform:uppercase; padding:.62em 0; border-bottom:1.5px solid #16130e; }
   .hl-list b{ font-weight:600; }
+  /* the zoning line: "pink tourism zone" in pink (4.5:1 on the cream page), with a note underneath */
+  .zone-pink{ color:#b03a6e; font-weight:600; }
+  .zone-pink::before{ content:""; display:inline-block; width:.62em; height:.62em; border-radius:50%; background:#e58bb1;
+    box-shadow:inset 0 0 0 1px rgba(176,58,110,.45); margin-right:.45em; vertical-align:.02em; }
+  .zone-note{ display:block; margin-top:.35em; font-size:.84em; letter-spacing:.02em; text-transform:none; color:#5d564a; line-height:1.45; }
 
   /* location */
   .loc .page-inner{ flex-direction:row; gap:2.5em; padding:2.8em 3em; }
@@ -754,7 +759,7 @@ body.narrow .price-t td{ font-size:.8em; }
           <li><b>Land size:</b> 110 – 147 sqm</li>
           <li><b>Building size:</b> 145 sqm</li>
           <li><b>Ownership:</b> leasehold 30+20 or freehold‑equivalent HGB</li>
-          <li><b>Zoning:</b> pink tourism zone</li>
+          <li><b>Zoning:</b> <span class="zone-pink">pink tourism zone</span><span class="zone-note">Bali's tourism zone: the zoning designated for holiday villas and short‑term rentals.</span></li>
         </ul>
       </div>
       <div class="half-photo" data-video="vid/rooftop.mp4?v=3" style="background-image:url(img/04.webp)"></div>
