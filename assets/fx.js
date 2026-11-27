@@ -43,7 +43,7 @@
       var c = find(code) || LIST[0], v = idr / c.rate;
       return (v < 0 ? '−' : '') + c.prefix + (c.code === 'IDR' ? dots(v) : group(v, ','));
     },
-    /* compact form for headline figures: Rp 5,31 B, Rp 576 M, $298,105 */
+    /* compact form for headline figures: Rp 5,31 B, Rp 576 M, $298,090 */
     short: function(idr, code){
       var c = find(code) || LIST[0];
       if (c.code !== 'IDR') return window.AurayaFX.fromIDR(idr, code);
