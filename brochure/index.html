@@ -423,6 +423,16 @@
   .room-grid{ flex:1; min-height:0; display:flex; gap:1.4em; }
   .room-grid .im{ flex:1; background-size:cover; background-position:center; min-height:0; box-shadow:0 8px 24px rgba(0,0,0,.18); }
 
+  /* photo captions: the room, with its level number from the section and floorplan pages */
+  .room-grid .im{ position:relative; overflow:hidden; }
+  .room-grid .im::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:38%; z-index:1; pointer-events:none;
+    background:linear-gradient(180deg, rgba(20,16,10,0), rgba(20,16,10,.55)); }
+  .im-lb{ position:absolute; left:1.1em; bottom:.95em; z-index:2; display:flex; align-items:center; gap:.7em;
+    font-size:.64em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--bone);
+    text-shadow:0 1px 8px rgba(0,0,0,.45); }
+  .im-lb .no{ font-family:var(--serif); font-weight:500; letter-spacing:.06em; padding-right:.7em; border-right:1px solid rgba(239,233,217,.6); }
+  body.narrow .im-lb{ left:.8em; bottom:.7em; font-size:.56em; }
+
   /* materials */
   .mat .split > .half-photo{ background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#111; }
   .mat-copy{ margin:auto 0; font-size:1.0em; line-height:1.7; text-align:center; font-weight:500; }
@@ -776,8 +786,8 @@ body.narrow .price-t td{ font-size:.8em; }
         <p class="caps-para">This timeless villa blends natural stone walls with lush tropical greenery, featuring a stunning infinity pool that merges with the endless ocean views.</p>
       </div>
       <div class="room-grid">
-        <div class="im" data-video="vid/complex.mp4?v=3" style="background-image:url(img/03.jpg)"></div>
-        <div class="im" data-video="vid/facade.mp4?v=3" style="background-image:url(img/12.jpg)"></div>
+        <div class="im" data-video="vid/complex.mp4?v=3" style="background-image:url(img/03.jpg)"><span class="im-lb">Facade</span></div>
+        <div class="im" data-video="vid/facade.mp4?v=3" style="background-image:url(img/12.jpg)"><span class="im-lb"><span class="no">00</span>Pool terrace</span></div>
       </div>
     </div>
     <span class="pnum" style="color:#3b362c;">13</span>
@@ -791,10 +801,10 @@ body.narrow .price-t td{ font-size:.8em; }
         <p class="caps-para">Open‑plan living with a rustic kitchen heart, two serene en‑suite bedrooms with direct ocean views, and travertine bathrooms. Classic style with total comfort and privacy.</p>
       </div>
       <div class="room-grid">
-        <div class="im" data-video="vid/living.mp4?v=3" style="background-image:url(img/17.jpg)"></div>
-        <div class="im" data-video="vid/kitchen.mp4?v=3" style="background-image:url(img/18.jpg)"></div>
-        <div class="im" data-video="vid/bedroom.mp4?v=3" style="background-image:url(img/19.jpg)"></div>
-        <div class="im" style="background-image:url(img/20.jpg)"></div>
+        <div class="im" data-video="vid/living.mp4?v=3" style="background-image:url(img/17.jpg)"><span class="im-lb"><span class="no">00</span>Living room</span></div>
+        <div class="im" data-video="vid/kitchen.mp4?v=3" style="background-image:url(img/18.jpg)"><span class="im-lb"><span class="no">00</span>Kitchen</span></div>
+        <div class="im" data-video="vid/bedroom.mp4?v=3" style="background-image:url(img/19.jpg)"><span class="im-lb"><span class="no">01</span>Bedroom</span></div>
+        <div class="im" style="background-image:url(img/20.jpg)"><span class="im-lb"><span class="no">01</span>En-suite bathroom</span></div>
       </div>
     </div>
     <span class="pnum" style="color:#3b362c;">14</span>
