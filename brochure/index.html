@@ -294,6 +294,7 @@
   .place .nm{ font-size:.8em; font-weight:600; padding:.75em .9em .1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .rt{ font-size:.66em; padding:0 1.1em .3em; color:#5f5a4e; white-space:nowrap; }
   .rt .stars{ color:#e8a12d; letter-spacing:.08em; }
+  .place .rt:empty::before{ content:"\00a0"; }   /* keeps cards the same height while a rating is still to come */
   .place .tp{ font-size:.62em; padding:0 1.15em 1em; color:#8a8474; }
   .life-hint{ margin-top:.4em; font-size:.62em; letter-spacing:.16em; text-transform:uppercase; color:#857f6e; }
 
@@ -1126,46 +1127,46 @@ body.narrow .price-t td{ font-size:.8em; }
     { name:"Island Padel Uluwatu",     cat:"Wellness",         type:"Padel club",              rating:4.7, reviews:337,
       img:"img/places/padel.webp",    video:"vid/places/padel.mp4" },
 
-    /* ---- researched, waiting for photo + Google rating (hold:true keeps them hidden) ---- */
-    { hold:true, name:"Monster Padel Social Club", cat:"Wellness",    type:"Padel & wellness club",
+    /* ---- researched 27 Nov 2026: shown with placeholder tiles until photo + Google rating are in ---- */
+    { name:"Monster Padel Social Club", cat:"Wellness",    type:"Padel & wellness club",
       blurb:"Padel club on Jalan Belimbing Sari, close to Auraya, with ten courts, a pool, sauna, ice baths and a yoga studio." },
-    { hold:true, name:"Karma Beach Bali",          cat:"Beach Clubs", type:"Beach club",
+    { name:"Karma Beach Bali",          cat:"Beach Clubs", type:"Beach club",
       blurb:"Beach club in a cove below the Karma Kandara resort in Ungasan, reached by a funicular down the cliff." },
-    { hold:true, name:"Ulu Cliffhouse",            cat:"Beach Clubs", type:"Cliff club & restaurant",
+    { name:"Ulu Cliffhouse",            cat:"Beach Clubs", type:"Cliff club & restaurant",
       blurb:"Clifftop club above Uluwatu's surf breaks, with pools, sunset views and the Burnt fire‑cooking restaurant." },
-    { hold:true, name:"OneEighty at The Edge",     cat:"Beach Clubs", type:"Clifftop day club",
+    { name:"OneEighty at The Edge",     cat:"Beach Clubs", type:"Clifftop day club",
       blurb:"Day club at The Edge in Pecatu, known for its glass‑bottomed pool on the cliff edge." },
-    { hold:true, name:"El Kabron",                 cat:"Nightlife",   type:"Spanish restaurant & cliff club",
+    { name:"El Kabron",                 cat:"Nightlife",   type:"Spanish restaurant & cliff club",
       blurb:"Spanish restaurant and cliff club in Pecatu, known for its sunset sessions above the ocean." },
-    { hold:true, name:"Motel Mexicola Uluwatu",    cat:"Nightlife",   type:"Mexican restaurant & bar",
+    { name:"Motel Mexicola Uluwatu",    cat:"Nightlife",   type:"Mexican restaurant & bar",
       blurb:"The Uluwatu home of Motel Mexicola, opened in 2026 on the Bingin clifftop." },
-    { hold:true, name:"Saltwood",                  cat:"Dining",      type:"Cliffside restaurant & bar",
+    { name:"Saltwood",                  cat:"Dining",      type:"Cliffside restaurant & bar",
       blurb:"All‑day cliffside restaurant and bar in Bingin, opened in 2026." },
-    { hold:true, name:"Suluban Beach",             cat:"Beaches",     type:"Beach & surf break",
+    { name:"Suluban Beach",             cat:"Beaches",     type:"Beach & surf break",
       blurb:"A cave beach below the cliffs at the Uluwatu surf break, reached through the rocks at low tide." },
-    { hold:true, name:"Single Fin",                cat:"Nightlife",   type:"Bar & restaurant",
+    { name:"Single Fin",                cat:"Nightlife",   type:"Bar & restaurant",
       blurb:"Clifftop bar above the Uluwatu surf break, known for its sunset views and Sunday sessions." },
-    { hold:true, name:"Padang Padang Beach",       cat:"Beaches",     type:"Beach",
+    { name:"Padang Padang Beach",       cat:"Beaches",     type:"Beach",
       blurb:"A small cove reached by steps through a gap in the rocks, home to one of Bali's best-known surf breaks." },
-    { hold:true, name:"Uluwatu Temple",            cat:"Culture",     type:"Sea temple",
+    { name:"Uluwatu Temple",            cat:"Culture",     type:"Sea temple",
       blurb:"Pura Luhur Uluwatu, an 11th-century Balinese sea temple on a cliff some 70 m above the ocean. The Kecak fire dance is performed here at sunset." },
 
     /* Weddings tab */
-    { hold:true, name:"Villa Plenilunio",          cat:"Weddings",    type:"Clifftop villa estate",
+    { name:"Villa Plenilunio",          cat:"Weddings",    type:"Clifftop villa estate",
       blurb:"Ten‑bedroom clifftop estate above Nunggalan Beach in Pecatu, mixing antique Javanese joglos with modern buildings; hosts weddings of up to 200 seated guests." },
-    { hold:true, name:"Tirtha Uluwatu",            cat:"Weddings",    type:"Glass wedding chapel",
+    { name:"Tirtha Uluwatu",            cat:"Weddings",    type:"Glass wedding chapel",
       blurb:"Purpose‑built wedding venue in Pecatu with a glass chapel above the ocean and a dining pavilion for receptions." },
-    { hold:true, name:"Bvlgari Resort Bali",       cat:"Weddings",    type:"Resort & chapel",
+    { name:"Bvlgari Resort Bali",       cat:"Weddings",    type:"Resort & chapel",
       blurb:"Clifftop resort near Uluwatu Temple with a stone‑and‑glass chapel set about 150 m above the sea." },
-    { hold:true, name:"Alila Villas Uluwatu",      cat:"Weddings",    type:"Clifftop resort",
+    { name:"Alila Villas Uluwatu",      cat:"Weddings",    type:"Clifftop resort",
       blurb:"Architect‑designed clifftop resort in Pecatu, often chosen for open‑air ceremonies above the ocean." },
-    { hold:true, name:"Six Senses Uluwatu",        cat:"Weddings",    type:"Clifftop resort",
+    { name:"Six Senses Uluwatu",        cat:"Weddings",    type:"Clifftop resort",
       blurb:"Clifftop resort in Uluwatu hosting ocean‑view ceremonies and larger receptions in its ballroom." },
-    { hold:true, name:"Khayangan Estate",          cat:"Weddings",    type:"Private clifftop estate",
+    { name:"Khayangan Estate",          cat:"Weddings",    type:"Private clifftop estate",
       blurb:"Private estate on a cliff some 140 m above the ocean, booked exclusively for weddings of up to about 250 guests." },
-    { hold:true, name:"Wonderland Uluwatu",        cat:"Weddings",    type:"Clifftop event venue",
+    { name:"Wonderland Uluwatu",        cat:"Weddings",    type:"Clifftop event venue",
       blurb:"Large clifftop event venue on Jalan Batu Nunggalan, set up for weddings of 300 guests and more." },
-    { hold:true, name:"Anantara Uluwatu",          cat:"Weddings",    type:"Resort & glass chapel",
+    { name:"Anantara Uluwatu",          cat:"Weddings",    type:"Resort & glass chapel",
       blurb:"Clifftop resort in Pecatu with the Dewa Dewi glass chapel for ceremonies of around 50 guests." }
   ];
   PLACES = PLACES.filter(function(p){ return !p.hold; });   /* researched places wait here until ready */
