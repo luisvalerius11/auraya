@@ -16,6 +16,7 @@
 <meta name="twitter:description" content="Leasehold 30+20 or freehold-equivalent HGB. From ~USD 298K. Only 4 will ever exist.">
 <meta name="twitter:image" content="https://YOUR-DOMAIN.com/assets/og-image.jpg">
 <!-- Analytics (GA4 and Meta Pixel): paste the IDs once in assets/analytics.js; it is shared with the brochure and the ROI model -->
+<script src="/assets/ref.js"></script>
 <script src="/assets/analytics.js"></script>
 <!-- Hero photo: a portrait crop for phones, the full frame elsewhere; only the one that is shown is fetched -->
 <link rel="preload" as="image" href="assets/hero-portrait.webp" fetchpriority="high" media="(max-aspect-ratio: 3/5)">
@@ -616,7 +617,9 @@
        name, email, phone (as typed), timeline, source, page, brochure_url, submitted_at
        phone_digits  country code + number, digits only, e.g. 6281234567890
        wa_chat_id    ready for WAHA's chatId, e.g. 6281234567890@c.us
-       lead_id       unique per submission, so n8n can skip a duplicate              */
+       lead_id       unique per submission, so n8n can skip a duplicate; also in brochure_url
+                     (?lid=...), so brochure and simulator activity can be tied to the lead
+       agent         agent ID when the visitor came through an agent link (?agent=...), else empty */
   const LEAD_ENDPOINT = "https://valenira.app.n8n.cloud/webhook/164cb6af-80a3-4ea2-8b01-856597b9c2e2";
   const WA_NUMBER = "6285899530004";
 
@@ -680,21 +683,28 @@
     btn.disabled=true; btn.textContent='Sending…';
     track('generate_lead','Lead',{timeline:timeline||'not given'});
 
+    const lead_id=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));
+    /* remember the lead for this visit, so brochure and simulator activity is tied to it (see /assets/ref.js) */
+    const Ref=window.AurayaRef; if(Ref) Ref.setLead(lead_id);
+    const brochure_url=new URL(Ref?Ref.withParams('brochure/'):'brochure/',location.href).href;
     const payload={name,email,phone,timeline,
       phone_digits:digits,
       wa_chat_id:digits+'@c.us',
-      lead_id:(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2)),
+      lead_id,
+      agent:Ref?Ref.agentId:'',
       source:'investor-pack-form',
       page:location.href,
-      brochure_url:new URL('brochure/',location.href).href,
+      brochure_url,
       submitted_at:new Date().toISOString()};
+    document.getElementById('openBrochure').href=brochure_url;
 
     const result=await sendLead(payload);
 
     /* Personalise the follow-up WhatsApp link with their name */
-    const waText=encodeURIComponent("Hi Auraya, this is "+name+". I just requested the investor pack.");
+    const who=Ref&&Ref.agent?Ref.agent:null;   /* on an agent link, the follow-up goes to the agent */
+    const waText=encodeURIComponent((who?"Hi "+who.name.split(' ')[0]:"Hi Auraya")+", this is "+name+". I just requested the Auraya Villas investor pack.");
     const wa=document.getElementById('waHandoff');
-    wa.href="https://api.whatsapp.com/send?phone="+WA_NUMBER+"&text="+waText;
+    wa.href="https://api.whatsapp.com/send?phone="+(who?who.wa:WA_NUMBER)+"&text="+waText;
 
     /* If the webhook clearly failed, don't promise a WhatsApp message that won't come:
        still give them the brochure, and ask them to message us so the lead isn't lost. */

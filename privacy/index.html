@@ -11,6 +11,7 @@
 <link rel="icon" href="/assets/favicon.ico?v=3" sizes="any">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=3">
 <!-- Analytics: IDs live in /assets/analytics.js, shared with every page -->
+<script src="/assets/ref.js"></script>
 <script src="/assets/analytics.js"></script>
 <!-- Fonts are self-hosted (/assets/fonts): no extra connections to Google, and no visitor data sent there -->
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/cinzel-latin.woff2" crossorigin>
@@ -107,6 +108,8 @@
     <p>If you email us or message us on WhatsApp, we keep your messages and the contact details that come with them.</p>
     <h3>When you browse, only if you agree</h3>
     <p>With your consent, analytics and advertising tools record how you use the site: pages viewed, how you move through the brochure and the ROI model, buttons and links clicked, the website that referred you, your device and browser type, and your approximate location (country or city, from your IP address). These tools use cookies and similar identifiers. Nothing is collected this way until you agree in the cookie banner.</p>
+    <h3>If you came through your agent or our investor pack, only if you agree</h3>
+    <p>If you opened the brochure from a link your agent shared, or from the link we sent with your investor pack, and you turn on <b>Follow‑up</b> in the cookie banner, we record a few key moments: opening the brochure, reaching the price list, payment, ROI and floorplan pages, finishing it, opening the ROI model or payment simulator, the payment plan you settle on in the simulator (villa, ownership, add‑ons, total) and tapping WhatsApp or email. We share these with you via our sales team or your agent, so they can follow up on what interests you. Visitors who did not come through such a link send nothing of this kind.</p>
     <h3>Technical data</h3>
     <p>Like any website, the servers that deliver these pages see your IP address and browser details when you load them. The site's typefaces are served from our own website, not from a third party.</p>
 
@@ -116,6 +119,7 @@
       <li><b>To answer your questions</b> and arrange viewings, because you contacted us.</li>
       <li><b>To understand how the site is used</b> and improve it (analytics), only with your consent.</li>
       <li><b>To measure and improve our advertising</b> on Meta and Google (marketing), only with your consent.</li>
+      <li><b>To follow up on what interests you</b>: if you came through your agent or our investor pack, our sales team and your agent see the key brochure pages and payment plans you looked at (follow‑up), only with your consent.</li>
       <li><b>If you reserve or buy a villa</b>, to prepare and carry out the reservation and purchase, and to meet our legal obligations.</li>
     </ul>
     <p>We do not sell your personal data, and we do not use it to make automated decisions about you.</p>
@@ -123,8 +127,9 @@
     <h2>Who helps us handle it</h2>
     <p>We use the following service providers. They process your data on our behalf and only for the purposes above.</p>
     <ul>
-      <li><b>n8n</b> (n8n GmbH): receives the investor‑pack form and passes it on to the services below.</li>
-      <li><b>Google</b>: Google Sheets stores form submissions; Google Analytics measures site use, with your consent.</li>
+      <li><b>n8n</b> (n8n GmbH): receives the investor‑pack form and, with your consent, the follow‑up activity, and passes them on to the services below.</li>
+      <li><b>Google</b>: Google Sheets stores form submissions and follow‑up activity; Google Analytics measures site use, with your consent.</li>
+      <li><b>Independent property agents</b>: if you came through an agent's link, that agent sees your follow‑up activity and any plan you send them.</li>
       <li><b>Meta</b>: WhatsApp carries our messages to you; the Meta Pixel measures our advertising, with your consent.</li>
       <li><b>Our email provider</b>, <span class="todo">[name]</span>: notifies our sales team of new enquiries and carries email.</li>
       <li><b>Our web host</b>, <span class="todo">[name]</span>: delivers these pages.</li>
@@ -150,6 +155,7 @@
         <thead><tr><th>Name</th><th>Type</th><th>Purpose</th><th>Kept for</th></tr></thead>
         <tbody>
           <tr><td><code>auraya_consent</code></td><td>Essential (stored in your browser)</td><td>Remembers your cookie choice</td><td>6 months</td></tr>
+          <tr><td><code>auraya_ref</code></td><td>Essential (stored in this browser tab)</td><td>Remembers which agent's or investor‑pack link you opened, so the right contact is shown as you move between pages; follow‑up activity is sent only with your consent</td><td>Until you close the tab</td></tr>
           <tr><td><code>_ga</code>, <code>_ga_*</code></td><td>Analytics, Google</td><td>Tells visits apart and counts how the site is used</td><td>Up to 2 years</td></tr>
           <tr><td><code>_fbp</code></td><td>Marketing, Meta</td><td>Measures visits that come from our Meta ads</td><td>3 months</td></tr>
         </tbody>
