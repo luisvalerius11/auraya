@@ -37,6 +37,7 @@
      - roi_model_open:     "See the full calculation" clicked
      - roi_model_change:   an input changed on the ROI model page
      - plan_open / plan_view: simulator opened from a link / simulator page shown
+     - plan_gate:          simulator asked for before the investor-pack form; the form is shown first
      - plan_change:        an input changed in the payment plan simulator
      - plan_built:         the plan a visitor settled on (sent after a pause in changes)
      - lifestyle_filter / lifestyle_place_open / lifestyle_map_open:

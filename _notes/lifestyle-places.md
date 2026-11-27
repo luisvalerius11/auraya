@@ -157,6 +157,13 @@ For each place, fill in:
 | 10 | **Motel Mexicola Uluwatu** (Nightlife) | Jl. Pantai Bingin, opened July 2026. New, so few reviews yet |
 | 11 | **Saltwood** (Dining) | Cliffside restaurant & bar, Jl. Petra Bingin, opened June 2026 |
 | 12 | **Suluban Beach** (Beaches) | Cave beach at the Uluwatu surf break (Blue Point) |
+| 13 | **The Cave** (Dining) | Chef Ryan Clift, 22 seats, in a limestone cave at The Edge, Pecatu. Booking required. thecavebali.com |
+| 14 | **Oliverra** (Dining) | Mediterranean, clifftop at Umana Bali (LXR), Jl. Melasti, Ungasan. @oliverra.bali |
+| 15 | **CIRE** (Dining) | Signature restaurant at Alila Villas Uluwatu, Pecatu. Sunday lobster brunch |
+| 16 | **Double Ikat** (Dining) | Balinese / Indonesian, open kitchen, at Renaissance Bali Uluwatu, Jl. Pantai Balangan |
+| 17 | **Svaha Spa Bingin** (Wellness) | Balinese massage spa near Bingin Beach (Wonderspace group) |
+| 18 | **Six Senses Spa Uluwatu** (Wellness) | The spa at Six Senses Uluwatu, Pecatu: spa, gym, yoga pavilion. Use the spa's own listing if it has one |
+| 19 | **Karma Spa at Karma Kandara** (Wellness) | Karma Kandara resort, Ungasan: infrared sauna, ice bath, soaking pool. Please confirm day guests can book |
 
 Single Fin, Padang Padang Beach and Uluwatu Temple (above) are also switched off the same way.
 
