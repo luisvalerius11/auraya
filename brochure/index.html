@@ -346,21 +346,80 @@
   .spec-list li{ font-size:.85em; letter-spacing:.05em; padding:.58em 0; border-bottom:1.5px solid #16130e; }
   .spec-list b{ font-weight:600; }
 
-  /* section page */
+  /* section page: the drawing with a band per level; the chosen level stays clear, the others fade into the paper */
   .sectionpg{ background:#f4f2ec; }
-  .sectionpg .page-inner{ padding:2.2em 2.6em; }
-  .section-img{ flex:1; min-height:0; background-size:contain; background-repeat:no-repeat; background-position:center; }
-  .section-cap{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:1em; }
-  .section-cap .fat-title{ font-size:1.9em; }
-  .section-cap .k{ font-size:.72em; letter-spacing:.22em; text-transform:uppercase; color:#6d675a; }
+  .sectionpg .page-inner{ padding:2.4em 2.6em 2.2em; }
+  .sec-kicker{ color:#6d675a; }
+  .sec-title{ font-size:2.3em; margin-top:.35em; }
+  .sec-lede{ margin:.8em 0 0; max-width:34em; font-size:.8em; line-height:1.6; color:#3b362c; }
+  .sec-fig{ position:relative; margin:1.4em -2.6em 0; aspect-ratio:1600/893; flex:none; }
+  .sec-fig img{ display:block; width:100%; height:100%; }
+  .sec-band{ position:absolute; left:0; right:0; margin:0; padding:0; border:0; background:none; cursor:pointer; font:inherit; color:inherit; }
+  .sec-band::before{ content:""; position:absolute; inset:0; background:#f4f2ec; opacity:0; transition:opacity .45s ease; pointer-events:none; }
+  .sec-band::after{ content:""; position:absolute; left:1.2em; right:1.2em; bottom:0; border-bottom:1px dashed rgba(22,19,14,.28); opacity:0; transition:opacity .3s; }
+  .sectionpg.has-level .sec-band::before{ opacity:.74; }
+  .sectionpg.has-level .sec-band.on::before{ opacity:0; }
+  .sec-band:hover::after, .sec-band.on::after{ opacity:1; }
+  .sec-band[data-level="0"]::after{ display:none; }
+  .sec-no{ position:absolute; left:.9em; top:50%; transform:translateY(-50%); z-index:1;
+    font-family:var(--serif); font-size:1.7em; letter-spacing:.04em; color:rgba(22,19,14,.30); transition:color .3s; }
+  .sec-band:hover .sec-no, .sec-band.on .sec-no{ color:var(--ink); }
+  .sec-band:focus-visible{ outline:2px solid #8a7a4f; outline-offset:-2px; }
+  .sec-levels{ list-style:none; margin:1.2em 0 0; padding:0; border-top:1.5px solid var(--ink); }
+  .sec-levels li{ border-bottom:1px solid rgba(22,19,14,.22); }
+  .sec-lv{ display:grid; grid-template-columns:3.1em 1fr; align-items:baseline; gap:.1em .4em; width:100%; padding:.62em 0 .62em .1em;
+    border:0; background:none; text-align:left; cursor:pointer; font:inherit; color:inherit; position:relative; transition:padding .3s ease; }
+  .sec-lv::before{ content:""; position:absolute; left:-.9em; top:.7em; bottom:.7em; width:2px; background:var(--ink); transform:scaleY(0); transition:transform .3s ease; }
+  .sec-lv .no{ grid-row:span 2; font-family:var(--serif); font-size:1.35em; color:rgba(22,19,14,.38); transition:color .3s; }
+  .sec-lv .nm{ font-size:.78em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; }
+  .sec-lv .rm{ font-size:.72em; line-height:1.5; color:#5d564a; }
+  .sec-lv:hover .no, .sec-lv.on .no{ color:var(--ink); }
+  .sec-lv.on::before{ transform:scaleY(1); }
+  .sec-lv:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
+  .sec-more{ margin-top:auto; align-self:flex-start; padding:1em 0 0; border:0; background:none; cursor:pointer; font:inherit;
+    font-size:.66em; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#3b362c; }
+  .sec-more:hover{ color:var(--ink); }
+  body.spread .sec-more{ display:none; }          /* the floorplan is the facing page */
 
-  /* floorplan */
-  .plan .page-inner{ align-items:center; padding:2.4em 3em; }
-  .plan-title{ font-size:3em; }
-  .plan-row{ display:flex; gap:2em; width:100%; flex:1; min-height:0; margin-top:1.4em; }
-  .plan-col{ flex:1; display:flex; flex-direction:column; align-items:center; min-width:0; }
-  .plan-col .im{ flex:1; width:100%; min-height:0; background-size:contain; background-repeat:no-repeat; background-position:center; mix-blend-mode:screen; }
-  .plan-col .lb{ font-size:.78em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; margin-top:.9em; }
+  /* floorplan: tabs per level, one large plan, a numbered key; key and plan numbers light each other up */
+  .plan .page-inner{ padding:2.4em 2.6em 2.2em; }
+  .plan-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:1em; flex-wrap:wrap; }
+  .plan-title{ font-size:2.5em; }
+  .plan-tabs{ display:flex; gap:1.3em; }
+  .plan-tab{ border:0; background:none; padding:.4em 0; cursor:pointer; font:inherit; color:rgba(239,233,217,.55);
+    font-size:.68em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; border-bottom:1.5px solid transparent; transition:color .2s, border-color .2s; }
+  .plan-tab .no{ font-family:var(--serif); font-weight:500; margin-right:.6em; letter-spacing:.06em; }
+  .plan-tab:hover{ color:var(--bone); }
+  .plan-tab[aria-selected="true"]{ color:#fff; border-bottom-color:var(--olive); }
+  .plan-tab:focus-visible{ outline:2px solid var(--olive); outline-offset:3px; }
+  .plan-stage{ flex:1; min-height:0; position:relative; margin-top:1.2em; container-type:size; }
+  .plan-view{ position:absolute; inset:0; margin:0; display:flex; align-items:center; justify-content:center;
+    opacity:0; visibility:hidden; transform:translateY(.6em); transition:opacity .45s ease, transform .45s ease, visibility 0s .45s; }
+  .plan-view.on{ opacity:1; visibility:visible; transform:none; transition:opacity .45s ease, transform .45s ease; }
+  .plan-img{ position:relative; width:min(100cqw, 100cqh * var(--ar)); aspect-ratio:var(--ar); }
+  .plan-img img{ display:block; width:100%; height:100%; }
+  .plan-img.screen img{ mix-blend-mode:screen; }      /* the plan renders sit on black: let the page show through */
+  .plan-img.cropped{ overflow:hidden; }
+  .plan-img.cropped img{ position:absolute; max-width:none; }
+  .plan-img .veil{ position:absolute; left:0; right:0; top:0; background:rgba(62,55,47,.8); box-shadow:0 1px 0 rgba(239,233,217,.35); pointer-events:none; }
+  .plan-cap{ position:absolute; left:.9em; top:.8em; font-size:.6em; letter-spacing:.2em; text-transform:uppercase; color:rgba(239,233,217,.6); }
+  .pin{ position:absolute; width:2.1em; height:2.1em; margin:-1.05em 0 0 -1.05em; padding:0; border:0; border-radius:50%; cursor:pointer;
+    background:none; color:#fff; font:inherit; font-size:.7em; font-weight:600; }
+  .pin::after{ content:""; position:absolute; inset:-.2em; border-radius:50%; border:1.5px solid var(--olive); opacity:0; transform:scale(.6); transition:opacity .25s, transform .25s; }
+  .pin.on::after{ opacity:1; transform:scale(1); animation:pinPulse 1.6s ease-out infinite; }
+  .pin.drawn{ width:1.7em; height:1.7em; margin:-.85em 0 0 -.85em; border-radius:2px; background:#16130e; box-shadow:0 1px 4px rgba(0,0,0,.5); }
+  .pin.drawn::after{ border-radius:3px; }
+  .pin:focus-visible{ outline:2px solid var(--olive); outline-offset:2px; }
+  @keyframes pinPulse{ 0%{ box-shadow:0 0 0 0 rgba(182,194,106,.55); } 100%{ box-shadow:0 0 0 .9em rgba(182,194,106,0); } }
+  @media (prefers-reduced-motion:reduce){ .pin.on::after{ animation:none; } .plan-view, .plan-view.on{ transform:none; } }
+  .plan-line{ margin:1em 0 0; font-size:.74em; line-height:1.55; color:#ded7c3; min-height:1.55em; }
+  .plan-key{ list-style:none; margin:.9em 0 0; padding:.7em 0 0; border-top:1px solid rgba(239,233,217,.35);
+    display:grid; grid-template-columns:1fr 1fr; gap:0 1.6em; }
+  .plan-key li{ display:flex; align-items:baseline; gap:.75em; padding:.32em .3em; font-size:.7em; letter-spacing:.06em; color:#e6dfca; cursor:default; border-radius:2px; transition:background .15s, color .15s; }
+  .plan-key .n{ flex:none; width:1.6em; height:1.6em; display:inline-flex; align-items:center; justify-content:center; background:#16130e; color:#fff; font-size:.85em; font-weight:600; }
+  .plan-key li.on{ background:rgba(239,233,217,.1); color:#fff; }
+  .plan-key li.on .n{ background:var(--olive); color:#16130e; }
+  body.narrow.spread .plan-key{ grid-template-columns:1fr 1fr; }
 
   /* room pages (exterior / interiors) */
   .room .page-inner{ padding:2.4em 3em; }
@@ -390,6 +449,12 @@
 .price-t td:nth-child(4), .price-t td:nth-child(5){ font-weight:600; color:#fff; }
 .price-note{ margin-top:1.8em; font-size:.7em; letter-spacing:.06em; color:#cfc7ae; }
 .price-note-2{ margin-top:.6em; }
+.price-t tr.reserved td{ color:rgba(230,223,202,.5); }
+.price-t tr.reserved td:nth-child(4), .price-t tr.reserved td:nth-child(5){ color:rgba(255,255,255,.45); text-decoration:line-through; text-decoration-color:rgba(255,255,255,.35); }
+.price-t tr.reserved td:first-child{ color:rgba(255,255,255,.6); }
+.res-tag{ display:inline-block; vertical-align:middle; margin-left:.7em; padding:.35em .7em .3em; border:1px solid #c9a66b; border-radius:2px; color:#e2c28a;
+  font:600 .42em var(--sans); letter-spacing:.18em; text-transform:uppercase; }
+.pay-btn{ margin-top:1.4em; background:rgba(0,0,0,.28); }
 body.narrow .price-t th:nth-child(3), body.narrow .price-t td:nth-child(3){ display:none; }
 body.narrow .price-t td{ font-size:.8em; }
 .pay .page-inner{ align-items:center; justify-content:center; padding:2.6em 3em; }
@@ -676,27 +741,35 @@ body.narrow .price-t td{ font-size:.8em; }
     <span class="pnum" style="color:#3b362c;">10</span>
   </section>
 
-  <!-- 11 · IN SECTION -->
+  <!-- 11 · IN SECTION: pick a level on the drawing or in the list; the floorplan page follows (script: VILLA LEVELS) -->
   <section class="page sectionpg" data-title="In Section">
     <div class="page-inner">
-      <div class="section-cap">
-        <h2 class="fat-title">The villa, in section</h2>
-        <span class="k">Pool · Jacuzzi · Rooftop · Two floors</span>
+      <div class="kicker sec-kicker">Three levels on the hillside</div>
+      <h2 class="fat-title sec-title">The villa, in section</h2>
+      <p class="sec-lede">Living opens straight onto the pool, the bedrooms sit above it, and the roof is a terrace of its own. Choose a level to see what is on it.</p>
+      <div class="sec-fig">
+        <img src="img/13.webp" alt="Cut-away section of the villa: living, kitchen and pool on the ground floor, a bedroom and bathroom above, and a roof terrace with a jacuzzi on top" width="1600" height="893" loading="lazy" decoding="async">
+        <!-- one band per level, top and height in % of the drawing -->
+        <button type="button" class="sec-band" data-level="2" style="top:0;height:34%" aria-label="Roof terrace"><span class="sec-no">02</span></button>
+        <button type="button" class="sec-band" data-level="1" style="top:34%;height:32.5%" aria-label="Upper floor"><span class="sec-no">01</span></button>
+        <button type="button" class="sec-band" data-level="0" style="top:66.5%;height:33.5%" aria-label="Ground floor"><span class="sec-no">00</span></button>
       </div>
-      <div class="section-img" style="background-image:url(img/13.webp)"></div>
+      <ol class="sec-levels"></ol>
+      <button type="button" class="sec-more" data-goto="12">Every level on the floorplan <span aria-hidden="true">&rarr;</span></button>
     </div>
     <span class="pnum" style="color:#3b362c;">11</span>
   </section>
 
-  <!-- 12 · FLOORPLAN -->
+  <!-- 12 · FLOORPLAN: one level at a time, with a numbered key (script: VILLA LEVELS) -->
   <section class="page tex-dark plan" data-title="Floorplan">
     <div class="page-inner">
-      <h2 class="serif-title plan-title">Floorplan</h2>
-      <div class="plan-row">
-        <div class="plan-col"><div class="im" style="background-image:url(img/14.webp)"></div><div class="lb">Ground Floor</div></div>
-        <div class="plan-col"><div class="im" style="background-image:url(img/15.webp)"></div><div class="lb">Second Floor</div></div>
-        <div class="plan-col"><div class="im" style="background-image:url(img/16.webp)"></div><div class="lb">Rooftop</div></div>
+      <div class="plan-head">
+        <h2 class="serif-title plan-title">Floorplan</h2>
+        <div class="plan-tabs" role="tablist" aria-label="Level"></div>
       </div>
+      <div class="plan-stage"></div>
+      <p class="plan-line"></p>
+      <ol class="plan-key"></ol>
     </div>
     <span class="pnum">12</span>
   </section>
@@ -758,18 +831,19 @@ body.narrow .price-t td{ font-size:.8em; }
   </section>
 
   <!-- 17 · PRICE LIST -->
-  <section class="page tex-dark roi prices" data-title="Price List">
+  <section class="page tex-dark roi prices" data-title="Price List" data-slug="prices">
     <div class="page-inner">
       <div class="roi-head">
         <h2 class="serif-title roi-title">Price List</h2>
         <div class="roi-intro">
           <p class="body-para">Four villas, each on its own plot. Every villa shares the same 145 sqm two bedroom design with private pool and roof terrace; the price follows the size of the land.</p>
+          <a class="roi-btn plan-btn" href="/plan/">Simulate your payment plan <span aria-hidden="true">→</span></a>
         </div>
       </div>
       <table class="roi-t price-t">
         <tr><th>Villa</th><th>Land Size</th><th>Building Size</th><th>Price (IDR)</th><th>Price (USD)</th></tr>
         <tr class="line"><td>A1</td><td>147 sqm</td><td>145 sqm</td><td>5.689.672.000</td><td>$319,644</td></tr>
-        <tr class="line"><td>A2</td><td>121 sqm</td><td>145 sqm</td><td>5.430.472.000</td><td>$305,083</td></tr>
+        <tr class="line reserved"><td>A2 <span class="res-tag">Reserved</span></td><td>121 sqm</td><td>145 sqm</td><td>5.430.472.000</td><td>$305,083</td></tr>
         <tr class="line"><td>A3</td><td>114 sqm</td><td>145 sqm</td><td>5.342.272.000</td><td>$300,128</td></tr>
         <tr class="line"><td>A4</td><td>110 sqm</td><td>145 sqm</td><td>5.306.272.000</td><td>$298,105</td></tr>
       </table>
@@ -780,7 +854,7 @@ body.narrow .price-t td{ font-size:.8em; }
   </section>
 
   <!-- 18 · PAYMENT -->
-  <section class="page photo-page pay" data-title="Payment Timeline" style="background-image:url(img/23.webp)">
+  <section class="page photo-page pay" data-title="Payment Timeline" data-slug="payment" style="background-image:url(img/23.webp)">
     <div class="shade"></div>
     <div class="page-inner">
       <h2 class="serif-title pay-title">Payment Timeline</h2>
@@ -797,6 +871,7 @@ body.narrow .price-t td{ font-size:.8em; }
         </div>
       </div>
       <p class="pay-note">Payments follow construction milestones · handover 1 March 2028</p>
+      <a class="roi-btn plan-btn pay-btn" href="/plan/">Simulate your plan, add‑ons &amp; promotions <span aria-hidden="true">→</span></a>
     </div>
     <span class="pnum">18</span>
   </section>
@@ -1024,6 +1099,136 @@ body.narrow .price-t td{ font-size:.8em; }
     drawTabs(); drawGrid();
   })();
 
+  /* ================= VILLA LEVELS =================
+     Drives the "In section" and "Floorplan" pages together: choosing a level on
+     either page shows it on both. Pins sit over the numbers printed on the plan
+     renders, as x / y in pixels of the image; "drawn: true" draws the number as
+     well (the ground floor is shown on the section, which has no numbers).
+     Room names marked "check" were read off the renders: confirm with the architect. */
+  var LEVELS = [
+    { id:0, no:'00', name:'Ground floor', tab:'Ground',
+      rooms:'Living and kitchen · Infinity pool · Outdoor shower · Powder room',
+      line:'Open-plan living and kitchen with full-height glass onto the pool deck; the infinity pool runs along the cliff edge.',
+      img:'img/13.webp', w:1600, h:893, crop:[240,400,1600,893], veilTo:610, cap:'Shown in section', drawn:true,
+      key:[ { t:'Entrance',          p:[[1398,742]] },
+            { t:'Stairway',          p:[[1232,665]] },
+            { t:'Powder room',       p:[[1212,790]] },
+            { t:'Kitchen',           p:[[1035,700]] },
+            { t:'Living room',       p:[[850,722]] },
+            { t:'Pool deck & outdoor shower', p:[[640,770]] },
+            { t:'Infinity pool',     p:[[420,820]] } ] },
+    { id:1, no:'01', name:'Upper floor', tab:'Upper',
+      rooms:'Two ocean-facing bedrooms, each with its own bathroom',
+      line:'Two mirror-image suites side by side, each with an ocean-facing bedroom, a walk-in shower, WC and vanity.',
+      img:'img/15.webp', w:624, h:605, screen:true,
+      key:[ { t:'Stairway',            p:[[157,450]] },
+            { t:'Walk-in shower',      p:[[218,312]] },
+            { t:'WC',                  p:[[288,312]] },
+            { t:'Vanity',              p:[[272,242]] },
+            { t:'Wardrobe',            p:[[199,203]], check:true },
+            { t:'Bedroom, ocean view', p:[[262,173]] },
+            { t:'Landing',             p:[[371,380]] },
+            { t:'Laundry & storage',   p:[[407,437]], check:true },
+            { t:'Planter',             p:[[360,508]] } ] },
+    { id:2, no:'02', name:'Roof terrace', tab:'Roof',
+      rooms:'Jacuzzi · Outdoor kitchen · Dining · Sun deck',
+      line:'An open-air floor of its own: a raised jacuzzi over the ocean, an outdoor kitchen and a table for eight.',
+      img:'img/16.webp', w:668, h:534, screen:true,
+      key:[ { t:'Stairway',            p:[[176,383]] },
+            { t:'Storage',             p:[[302,310]], check:true },
+            { t:'Outdoor dining',      p:[[292,207]] },
+            { t:'Outdoor kitchen & BBQ', p:[[488,216]] },
+            { t:'Sun loungers',        p:[[414,126]] },
+            { t:'Steps to jacuzzi',    p:[[282,120]] },
+            { t:'Jacuzzi (optional)',  p:[[220,96]] },
+            { t:'Jacuzzi deck',        p:[[303,59]], check:true },
+            { t:'Planters',            p:[[427,67],[360,442]] } ] }
+  ];
+  /* ================================================ */
+
+  (function villaLevels(){
+    var secPage = document.querySelector('#pageStore .sectionpg'), planPage = document.querySelector('#pageStore .plan');
+    if (!secPage || !planPage) return;
+    function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+    var level = 0, picked = false;
+    var tabs = planPage.querySelector('.plan-tabs'), stage = planPage.querySelector('.plan-stage'),
+        keyEl = planPage.querySelector('.plan-key'), lineEl = planPage.querySelector('.plan-line'),
+        list = secPage.querySelector('.sec-levels');
+
+    LEVELS.slice().reverse().forEach(function(L){                 /* section list reads top floor first, like the drawing */
+      var li = el('li'), b = el('button', 'sec-lv'); b.type = 'button'; b.dataset.level = L.id;
+      b.appendChild(el('span', 'no', L.no)); b.appendChild(el('span', 'nm', L.name)); b.appendChild(el('span', 'rm', L.rooms));
+      li.appendChild(b); list.appendChild(li);
+    });
+    LEVELS.forEach(function(L){
+      var t = el('button', 'plan-tab'); t.type = 'button'; t.dataset.level = L.id;
+      t.setAttribute('role', 'tab'); t.appendChild(el('span', 'no', L.no)); t.appendChild(document.createTextNode(L.tab));
+      tabs.appendChild(t);
+      var fig = el('figure', 'plan-view'); fig.dataset.level = L.id;
+      var c = L.crop || [0, 0, L.w, L.h], cw = c[2]-c[0], ch = c[3]-c[1];      /* crop: [x0, y0, x1, y1] in image pixels */
+      var box = el('div', 'plan-img' + (L.screen ? ' screen' : '')); box.style.setProperty('--ar', cw + '/' + ch);
+      var im = el('img'); im.src = L.img; im.alt = L.name + ' plan'; im.loading = 'lazy'; im.decoding = 'async';
+      if (L.crop){ box.classList.add('cropped');
+        im.style.width = (L.w/cw*100) + '%'; im.style.height = (L.h/ch*100) + '%';
+        im.style.left = (-c[0]/cw*100) + '%'; im.style.top = (-c[1]/ch*100) + '%'; }
+      box.appendChild(im);
+      if (L.veilTo){ var v = el('div', 'veil'); v.style.height = ((L.veilTo-c[1])/ch*100) + '%'; box.appendChild(v); }
+      if (L.cap) box.appendChild(el('span', 'plan-cap', L.cap));
+      L.key.forEach(function(k, i){
+        k.p.forEach(function(pt){
+          var pin = el('button', 'pin' + (L.drawn ? ' drawn' : ''), L.drawn ? String(i+1) : null);
+          pin.type = 'button'; pin.dataset.n = i+1; pin.setAttribute('aria-label', (i+1) + ', ' + k.t);
+          pin.style.left = ((pt[0]-c[0])/cw*100) + '%'; pin.style.top = ((pt[1]-c[1])/ch*100) + '%';
+          box.appendChild(pin);
+        });
+      });
+      fig.appendChild(box); stage.appendChild(fig);
+    });
+
+    function drawKey(){
+      keyEl.innerHTML = '';
+      LEVELS[level].key.forEach(function(k, i){
+        var li = el('li'); li.dataset.n = i+1; li.tabIndex = 0;
+        li.appendChild(el('span', 'n', i+1)); li.appendChild(el('span', 't', k.t));
+        keyEl.appendChild(li);
+      });
+      lineEl.textContent = LEVELS[level].line;
+    }
+    function mark(n){
+      var view = stage.querySelector('.plan-view.on');
+      Array.prototype.forEach.call(view.querySelectorAll('.pin'), function(p){ p.classList.toggle('on', p.dataset.n == n); });
+      Array.prototype.forEach.call(keyEl.children, function(li){ li.classList.toggle('on', li.dataset.n == n); });
+    }
+    function setLevel(id, source){
+      level = +id;
+      Array.prototype.forEach.call(document.querySelectorAll('.sec-band, .sec-lv'), function(b){ b.classList.toggle('on', picked && +b.dataset.level === level); });
+      secPage.classList.toggle('has-level', picked);
+      Array.prototype.forEach.call(tabs.children, function(t){ t.setAttribute('aria-selected', +t.dataset.level === level ? 'true' : 'false'); });
+      Array.prototype.forEach.call(stage.children, function(f){ f.classList.toggle('on', +f.dataset.level === level); });
+      drawKey();
+      if (source) track('villa_level', { level:LEVELS[level].name, source:source });
+    }
+    function pick(id, source){ picked = true; setLevel(id, source); }
+
+    secPage.addEventListener('click', function(e){ var b = e.target.closest('[data-level]'); if (b) pick(b.dataset.level, 'section'); });
+    secPage.addEventListener('mouseover', function(e){ var b = e.target.closest('.sec-band'); if (b && (!picked || +b.dataset.level !== level)) pick(b.dataset.level, null); });
+    tabs.addEventListener('click', function(e){ var t = e.target.closest('.plan-tab'); if (t) pick(t.dataset.level, 'floorplan'); });
+    tabs.addEventListener('keydown', function(e){
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault(); e.stopPropagation();
+      var n = (level + (e.key === 'ArrowRight' ? 1 : LEVELS.length - 1)) % LEVELS.length;
+      pick(n, 'floorplan'); tabs.children[n].focus();
+    });
+    /* key and pins light each other up: hover with a mouse, tap on touch */
+    function nOf(e){ var t = e.target.closest('.pin, .plan-key li'); return t ? t.dataset.n : null; }
+    planPage.addEventListener('mouseover', function(e){ var n = nOf(e); if (n) mark(n); });
+    planPage.addEventListener('mouseleave', function(){ mark(null); });
+    planPage.addEventListener('focusin', function(e){ var n = nOf(e); if (n) mark(n); });
+    planPage.addEventListener('click', function(e){ var n = nOf(e); if (n) mark(n); });
+
+    setLevel(0, null);
+  })();
+
   var store   = document.getElementById('pageStore');
   var pages   = Array.prototype.slice.call(store.querySelectorAll('.page'));
 
@@ -1044,8 +1249,9 @@ body.narrow .price-t td{ font-size:.8em; }
   toc.sort(function(a, b){ return pages.indexOf(a.target) - pages.indexOf(b.target); });
   toc.forEach(function(t){
     var n = pages.indexOf(t.target) + 1;
-    t.btn.dataset.goto = n; t.btn.querySelector('.no').textContent = pad(n);
-    t.btn.parentNode.appendChild(t.btn);
+    t.btn.dataset.goto = n;
+    var no = t.btn.querySelector('.no');
+    if (no){ no.textContent = pad(n); t.btn.parentNode.appendChild(t.btn); }   /* contents entries; other page links just keep their target */
   });
 
   /* Photos load when their page is shown, so fetch the next two pages' photos ahead of time */
@@ -1395,7 +1601,7 @@ body.narrow .price-t td{ font-size:.8em; }
     var td = e.target.closest ? e.target.closest('.roi-explain-t tr[data-k] td') : null;
     if (td) showRoiNote(td.parentNode, td.cellIndex - 1);
   }
-  document.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('.roi-btn')) track('roi_model_open', { from:'brochure' }); });
+  document.addEventListener('click', function(e){ if (!e.target.closest) return; var b = e.target.closest('.roi-btn'); if (b) track(b.classList.contains('plan-btn') ? 'plan_open' : 'roi_model_open', { from:'brochure' }); });
   document.addEventListener('mouseover', roiTarget);
   document.addEventListener('click', roiTarget);
   document.addEventListener('focusin', function(e){
