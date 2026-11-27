@@ -233,7 +233,7 @@
   .mapwrap{ flex:1; position:relative; min-width:0; container-type:size; }
   /* the picture and its pins share one box with the picture's own shape (1500 x 1171), fitted inside the column,
      so a pin's left/top % is a true point on the map at any screen size */
-  .mapbox{ position:absolute; inset:0; margin:auto; width:min(100%, calc(100cqh * 1500 / 1171)); height:auto; aspect-ratio:1500 / 1171; max-height:100%; }
+  .mapbox{ position:absolute; inset:0; margin:auto 0 auto auto; width:min(100%, calc(100cqh * 1500 / 1171)); height:auto; aspect-ratio:1500 / 1171; max-height:100%; }
   .mapbox img{ position:absolute; inset:0; width:100%; height:100%; display:block; mix-blend-mode:screen; opacity:.96; }
   .poi{ position:absolute; width:0; height:0; z-index:2; }
   .poi .d{ position:absolute; left:0; top:0; transform:translate(-50%,-50%); width:.7em; height:.7em; border-radius:50%; background:#5d564a; border:.14em solid #f4f1ea; box-shadow:0 0 0 1px rgba(0,0,0,.25); box-sizing:border-box; }
@@ -607,6 +607,9 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .loc .page-inner{ gap:1.2em; }
   body.narrow .loc-text{ flex:0 0 auto; }
   body.narrow .mapwrap{ flex:1; min-height:8em; }
+  /* the map picture's right side is a straight cut (the land carries on): run it to the page's right edge, no gap */
+  .loc .mapwrap{ margin-right:-3em; }
+  body.narrow .loc .mapwrap{ margin-right:-1.6em; }
   body.narrow .split > .half-photo{ min-height:9em; }
   body.narrow .plan-row{ gap:.8em; }
   body.narrow .room-grid{ flex-wrap:wrap; }
