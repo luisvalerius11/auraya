@@ -1374,7 +1374,7 @@ body.narrow .price-t td{ font-size:.8em; }
      ("auraya_sound"). Browsers only allow sound after the reader clicks, taps or presses
      a key, which is always the case here: the sound only ever follows a page turn.
      To use a recorded sound instead, set SOUND_URL to a short file, e.g. "vid/page-turn.mp3". */
-  var SOUND_URL = "", SOUND_VOLUME = 0.5;
+  var SOUND_URL = "", SOUND_VOLUME = 0.35;   /* 0 to 1; 0.5 was the first setting */
   var pageSound = (function(){
     var on = !still, ctx = null, noise = null, clip = null, last = 0;
     try { var saved = localStorage.getItem('auraya_sound'); if (saved) on = saved === 'on'; } catch(e){}
