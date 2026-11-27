@@ -929,7 +929,7 @@ body.narrow .price-t td{ font-size:.8em; }
         <div class="ao-sim-body">
           <div class="ao-inputs">
             <label class="ao-field"><span class="lb">Electricity bill a month <output id="aoBillOut"></output></span>
-              <input type="range" id="aoBill" min="1000000" max="8000000" step="250000" value="2500000"></label>
+              <input type="range" id="aoBill" min="1000000" max="8000000" step="250000" value="5000000"></label>
             <label class="ao-field"><span class="lb">Share covered by solar <output id="aoShareOut"></output></span>
               <input type="range" id="aoShare" min="20" max="60" step="5" value="50"></label>
           </div>
@@ -939,7 +939,7 @@ body.narrow .price-t td{ font-size:.8em; }
             <div><b id="aoPay"></b><span>to earn back Rp 200 M</span></div>
           </div>
         </div>
-        <p class="ao-note">A rough guide at today's tariffs, before any price rises. Rp 2,5 M a month is the electricity line in our ROI model; actual savings depend on use and sunshine.</p>
+        <p class="ao-note">A rough guide at today's tariffs, before any price rises. It starts at a Rp 5 M bill a month; set your own, as actual savings depend on use and sunshine.</p>
       </div>
       <a class="ao-more" href="/plan/?add=jacuzzi,solar,pergola">Add them to your payment plan <span aria-hidden="true">&rarr;</span></a>
     </div>
@@ -1309,7 +1309,7 @@ body.narrow .price-t td{ font-size:.8em; }
   /* ================================================ */
 
   /* ================= ADD-ONS: rough solar savings =================
-     Saving = monthly electricity bill x share covered by solar; payback = package price / yearly saving.
+     Saving = monthly electricity bill x share covered by solar (defaults Rp 5 M and 50%); payback = package price / yearly saving.
      No tariff rises and no battery value: a rough guide, as the page says. */
   (function solarSavings(){
     var page = document.querySelector('#pageStore .addons'); if (!page) return;
