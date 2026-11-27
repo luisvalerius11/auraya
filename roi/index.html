@@ -47,7 +47,7 @@
   .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
   /* top bar */
-  .bar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 0; }
+  .bar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:20px; padding-bottom:20px; }
   .wordmark{ display:inline-flex; align-items:center; gap:12px; text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
   .wordmark img{ width:30px; height:auto; display:block; }
   .back{ font-size:12px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft); text-decoration:none; padding:10px 0; }
@@ -71,7 +71,7 @@
   .field > .lb output{ font-size:1rem; letter-spacing:.02em; text-transform:none; color:var(--ink); font-weight:500; font-variant-numeric:tabular-nums; }
   .seg{ display:grid; gap:6px; margin-top:10px; }
   .seg.c4{ grid-template-columns:repeat(4,1fr); }
-  .seg.c3{ grid-template-columns:repeat(3,1fr); }
+  .seg.c3{ grid-template-columns:repeat(3,minmax(0,1fr)); }
   .seg button{ font:inherit; cursor:pointer; border:1px solid var(--line); background:var(--paper); color:var(--ink); border-radius:3px; padding:9px 4px 8px;
     display:flex; flex-direction:column; align-items:center; gap:1px; transition:background .2s, border-color .2s, color .2s; min-height:44px; justify-content:center; }
   .seg button b{ font-weight:500; font-size:.95rem; letter-spacing:.04em; }
@@ -137,6 +137,7 @@
   .staff th{ font-weight:500; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); white-space:normal; vertical-align:bottom; }
   .staff th:first-child, .staff td:first-child{ text-align:left; }
   .staff tr.final td{ font-weight:600; border-bottom:1.5px solid var(--ink); }
+  .staff .ph{ display:none; }
 
   /* tables */
   .tbl-scroll{ overflow-x:auto; margin-top:18px; -webkit-overflow-scrolling:touch; }
@@ -154,9 +155,10 @@
   .sens th.rh{ text-align:right; padding-right:12px; width:118px; }
   .sens td{ text-align:center; font-size:.84rem; padding:0; border:2px solid var(--paper); height:40px; cursor:pointer; position:relative; transition:filter .15s; }
   .sens td:hover{ filter:brightness(1.08); }
-  .sens td.cur{ box-shadow:inset 0 0 0 2px var(--olive); font-weight:600; }
+  .sens td.cur{ display:table-cell; border:2px solid var(--paper); border-radius:0; overflow:visible; box-shadow:inset 0 0 0 2px var(--olive); font-weight:600; }   /* undo the currency switcher's .cur */
   .sens caption{ caption-side:bottom; text-align:left; font-size:.78rem; color:var(--ink-soft); padding-top:10px; }
   .axis-title{ font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); text-align:center; padding-bottom:4px; }
+  .axis-title{ min-width:560px; padding-left:118px; box-sizing:border-box; }
   .legend{ display:flex; align-items:center; gap:10px; font-size:.74rem; color:var(--ink-soft); margin-top:12px; font-variant-numeric:tabular-nums; }
   .legend .ramp{ width:160px; height:10px; border-radius:2px; }
 
@@ -185,7 +187,7 @@
   }
   @media (max-width:640px){
     .wrap{ padding:0 16px; }
-    .bar{ padding:14px 0; }
+    .bar{ padding-top:14px; padding-bottom:14px; }
     .wordmark{ font-size:14px; letter-spacing:.3em; }
     .back{ font-size:11px; letter-spacing:.14em; }
     .hero{ padding:24px 0 26px; }
@@ -198,9 +200,31 @@
     .row.final{ margin:0 -8px; padding:16px 8px; }
     .assume{ grid-template-columns:1fr; gap:0; }
     .cta{ padding:28px 20px; }
+    /* staff costs: one card per person instead of a seven-column table */
+    .staff, .staff tbody, .staff tr, .staff td{ display:block; }
+    .staff thead{ display:none; }
+    .staff tr{ padding:12px 0 10px; border-bottom:1px solid var(--line); }
+    .staff td{ display:flex; justify-content:space-between; gap:12px; padding:3px 0; border:0; font-size:.86rem; }
+    .staff td::before{ content:attr(data-l); color:var(--ink-soft); font-weight:400; }
+    .staff td.pos{ display:block; font-size:.98rem; font-weight:500; padding-bottom:6px; }
+    .staff td.pos::before, .staff td.ppl{ display:none; }
+    .staff td.tot{ font-weight:600; }
+    .staff tr.final{ border-bottom:1.5px solid var(--ink); }
+    .staff tr.final td{ border:0; }
+    .staff .ph{ display:inline; }
+    .staff tr.final td.pos{ font-weight:600; }
+    /* ROI grid: all eight occupancy columns on screen */
+    .sens{ min-width:0; }
+    .axis-title{ min-width:0; padding-left:46px; }
+    .sens th{ font-size:.66rem; letter-spacing:.04em; padding:6px 1px; }
+    .sens th.rh{ width:46px; padding-right:6px; }
+    .sens td, .sens td.cur{ font-size:.7rem; height:34px; border-width:1.5px; }
     .scen th, .scen td{ padding:10px 4px; font-size:.8rem; }
     .scen th{ font-size:.62rem; letter-spacing:.06em; }
     .scen td:first-child{ font-size:.78rem; padding-left:0; }
+  }
+  @media (max-width:360px){
+    .seg.c3 button b{ font-size:.86rem; letter-spacing:0; }
   }
 </style>
 </head>
@@ -301,7 +325,7 @@
         <h2 id="h-sens">How the ROI moves</h2>
         <p class="blk-note">Annual ROI for each pairing of day rate and occupancy, with the villa, fees and BPHTB setting chosen on the left. The outlined cell is your current pick; tap any cell to use it.</p>
         <div class="tbl-scroll">
-          <div class="axis-title" style="min-width:560px;padding-left:118px;">Occupancy</div>
+          <div class="axis-title">Occupancy</div>
           <table class="sens" id="sensTable"></table>
         </div>
         <div class="legend"><span id="lgLo"></span><span class="ramp" id="lgRamp"></span><span id="lgHi"></span></div>
@@ -545,13 +569,14 @@
     });
 
     var sh = '<thead><tr><th scope="col">Position</th><th scope="col">People</th><th scope="col">Salary</th><th scope="col">Health insurance</th><th scope="col">Pension fund</th><th scope="col">THR</th><th scope="col">Total</th></tr></thead><tbody>';
-    var tot = [0,0,0,0,0,0];
+    var tot = [0,0,0,0,0,0], LB = ['Salary', 'Health insurance', 'Pension fund', 'THR', 'Total a month'];
+    function cells(v){ return v.map(function(x, k){ return '<td data-l="' + LB[k] + '"' + (k === 4 ? ' class="tot"' : '') + '>' + idr(x) + '</td>'; }).join(''); }
     STAFF.forEach(function(p){
       var t = p[2] + p[3] + p[4] + p[5];
       [p[1], p[2], p[3], p[4], p[5], t].forEach(function(x, k){ tot[k] += x; });
-      sh += '<tr><td>' + p[0] + '</td><td>' + p[1] + '</td><td>' + idr(p[2]) + '</td><td>' + idr(p[3]) + '</td><td>' + idr(p[4]) + '</td><td>' + idr(p[5]) + '</td><td>' + idr(t) + '</td></tr>';
+      sh += '<tr><td class="pos">' + p[0] + (p[1] > 1 ? ' \u00d7 ' + p[1] : '') + '</td><td class="ppl" data-l="People">' + p[1] + '</td>' + cells([p[2], p[3], p[4], p[5], t]) + '</tr>';
     });
-    sh += '<tr class="final"><td>Total</td><td>' + tot[0] + '</td>' + tot.slice(1).map(function(x){ return '<td>' + idr(x) + '</td>'; }).join('') + '</tr>';
+    sh += '<tr class="final"><td class="pos">Total<span class="ph">, ' + tot[0] + ' staff</span></td><td class="ppl" data-l="People">' + tot[0] + '</td>' + cells(tot.slice(1)) + '</tr>';
     $('staffTable').innerHTML = sh + '</tbody>';
 
     renderScenarios(si);
