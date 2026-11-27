@@ -221,6 +221,8 @@
   .form-success h3{margin-bottom:10px;letter-spacing:.02em}.form-success p{color:var(--ink-soft);font-weight:300}
   .form-success .open-btn{display:block;margin-top:26px;background:var(--brown);color:var(--cream);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:.92rem;padding:18px;border-radius:2px;text-decoration:none;transition:background .25s,transform .25s}
   .form-success .open-btn:hover{background:var(--brown-gray);transform:translateY(-2px)}
+  .form-success .open-btn.alt{margin-top:12px;background:transparent;color:var(--brown);border:1px solid var(--brown)}
+  .form-success .open-btn.alt:hover{background:rgba(62,45,30,.06)}
   .form-success .wa-link{display:inline-block;margin-top:20px;color:var(--brown-gray);font-weight:600;text-decoration:none;border-bottom:2px solid var(--gold);padding-bottom:2px}
 
   footer{background:var(--brown);color:rgba(240,235,210,.8);padding:74px 0 40px}
@@ -249,6 +251,12 @@
   @media(max-width:600px){
     nav .nav-cta{display:none}
     .hero-stats{gap:28px}.price-row .price{font-size:2.2rem}
+    /* phones: darker wash over the photo so the paragraph reads, and spec figures that fit their boxes */
+    .hero-photo::after{background:linear-gradient(180deg,rgba(62,45,30,.2) 0%,rgba(40,29,19,.58) 32%,rgba(40,29,19,.86))}
+    .hero-sub{font-size:1.02rem;line-height:1.65}
+    .spec{padding:24px 18px}
+    .spec .num{font-size:1.45rem;line-height:1.15}
+    .spec .lbl{font-size:.72rem;letter-spacing:.12em}
     .mobile-cta{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(250,247,236,.95);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
     .mobile-cta a{flex:1;text-align:center;justify-content:center;padding:15px;font-size:.8rem}
     body{padding-bottom:76px}
@@ -443,8 +451,8 @@
       </div>
       <ul class="loc-hl">
         <li>Next to the famous Savaya beach club</li>
-        <li>Melasti Beach is about an 11-minute drive</li>
-        <li>Beaches, beach clubs, dining and wellness within 15 minutes</li>
+        <li>Melasti Beach is about 12 minutes away by scooter</li>
+        <li>Beach clubs within 10 minutes; Uluwatu's other beaches and the temple within about 15 to 25 minutes</li>
       </ul>
       <a class="loc-link" id="exactLoc" href="#offer">Get the exact location →</a>
     </div>
@@ -527,6 +535,7 @@
         <div class="check">✓</div><h3>On its way.</h3>
         <p>We're sending the brochure to your WhatsApp and your inbox now. You can also open it straight away.</p>
         <a class="open-btn" id="openBrochure" href="brochure/" target="_blank" rel="noopener">Open the brochure →</a>
+        <a class="open-btn alt" id="openPlan" href="/plan/">Open the payment simulator →</a>
         <a class="wa-link" id="waHandoff" href="https://api.whatsapp.com/send?phone=6285899530004&text=Hi%20Auraya%2C%20I%20just%20requested%20the%20investor%20pack" target="_blank" rel="noopener">Message us on WhatsApp →</a>
       </div>
     </div>
@@ -594,7 +603,30 @@
 
   /* ======= CLICK TRACKING ======= */
   document.getElementById('openBrochure').addEventListener('click',()=>track('view_item','ViewContent',{content_name:'brochure'}));
-  document.getElementById('planLink').addEventListener('click',()=>track('plan_open',null,{from:'landing'}));
+  /* ======= PAYMENT SIMULATOR: only after the investor-pack form =======
+     Without a lead ID for this visit (see /assets/ref.js), the simulator button opens the form
+     instead, and the simulator opens once the form is sent. /plan/ itself sends visitors without
+     a lead ID here with ?next=plan (keeping ?add=... for add-ons picked in the brochure). */
+  let wantsPlan=false;
+  function planUrl(){
+    const q=new URLSearchParams(location.search);
+    ['next','agent','lid'].forEach(k=>q.delete(k));   /* agent and lid are added back by withParams */
+    const u='/plan/'+(q.toString()?'?'+q:'');
+    return window.AurayaRef?AurayaRef.withParams(u):u;
+  }
+  function gatePlan(from){
+    wantsPlan=true;
+    document.querySelector('#formView h3').textContent='Open the payment simulator';
+    document.querySelector('#formView .sub').textContent="Fill in your details once and the simulator opens straight away. We'll also send you the full investor pack.";
+    btn.textContent=BTN_LABEL='Open the simulator →';
+    document.getElementById('offer').scrollIntoView({behavior:'smooth'});
+    setTimeout(()=>document.getElementById('name').focus({preventScroll:true}),600);
+    track('plan_gate',null,{from});
+  }
+  document.getElementById('planLink').addEventListener('click',e=>{
+    if(window.AurayaRef&&AurayaRef.lid){track('plan_open',null,{from:'landing'});return;}
+    e.preventDefault(); gatePlan('landing');
+  });
   /* arriving from the brochure's "Get the exact location" (/#leadForm): put the cursor in the form */
   if(location.hash==='#leadForm') setTimeout(()=>{document.querySelector('#offer .card-form').scrollIntoView({block:'center'});document.getElementById('name').focus({preventScroll:true});},400);
   /* "Get the exact location": scroll to the investor-pack form and put the cursor in the first field */
@@ -677,7 +709,7 @@
 
   const form=document.getElementById('leadForm');
   const btn=document.getElementById('submitBtn');
-  const BTN_LABEL=btn.textContent;
+  let BTN_LABEL=btn.textContent;
   function showSuccess(){
     document.getElementById('formView').style.display='none';
     document.getElementById('successView').classList.add('show');
@@ -731,9 +763,13 @@
       document.querySelector('#successView p').textContent="We couldn't confirm your details on our side, so please message us on WhatsApp and we'll send the full investor pack.";
       wa.textContent='Message us on WhatsApp to get the pack →';
     }
+    document.getElementById('openPlan').href=planUrl();
     btn.disabled=false; btn.textContent=BTN_LABEL;
+    /* they asked for the simulator: open it now (the pack still goes to WhatsApp and email) */
+    if(wantsPlan&&result!=='failed'){track('plan_open',null,{from:'form'});location.href=planUrl();return;}
     showSuccess();
   });
+  if(new URLSearchParams(location.search).get('next')==='plan') gatePlan('plan_page');
 </script>
 </body>
 </html>

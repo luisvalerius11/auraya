@@ -767,15 +767,17 @@ body.narrow .price-t td{ font-size:.8em; }
         <div class="kicker" style="margin-top:.8em;">Highlights</div>
         <ul class="loc-hl">
           <li>Situated next to the famous Savaya club</li>
-          <li>The stunning Melasti Beach is a quick 11‑minute drive away</li>
-          <li>All major leisure and wellness activities within a 15‑minute drive</li>
+          <li>The stunning Melasti Beach is about 12 minutes away by scooter</li>
+          <li>Beach clubs within 10 minutes; Uluwatu's other beaches and the temple within about 15 to 25 minutes</li>
         </ul>
         <p class="loc-tip">Tap a place on the map for the scooter time from the villa.</p>
         <a class="loc-link" id="exactLoc" href="/#leadForm" target="_blank" rel="noopener">Get the exact location →</a>
       </div>
-      <!-- Scooter times: road routes from the villa (data-villa, lat,lon) to each place,
-           measured on OpenStreetMap (OSRM), rounded up to whole minutes. Tapping a place
-           shows its data-min. data-km and data-ll keep the distance and position for reference. -->
+      <!-- Scooter times: road distance from the villa (data-villa, lat,lon) to each place,
+           measured on OpenStreetMap (OSRM), turned into minutes at the pace Google Maps gave
+           for a scooter to Padang Padang Beach (18 min for that 6.3 km route, checked 27 Nov 2026):
+           data-min = data-km x 18 / 6.3, rounded up. OSRM's own times assume empty roads and
+           came out far too short. Tapping a place shows its data-min. -->
       <div class="mapwrap" data-villa="-8.8405234,115.136943">
         <!-- The picture is matched to OpenStreetMap's coastline, so each pin's left/top is its real
              position: left = 15101.37 * (lon - 115.083798) / 1500 * 100 %,
@@ -783,16 +785,16 @@ body.narrow .price-t td{ font-size:.8em; }
              data-ll is the place's lat,lon; data-min / data-km the scooter route from the villa. -->
         <div class="mapbox">
           <img src="img/05.webp" alt="Map of the Bukit peninsula" loading="lazy" decoding="async">
-          <button type="button" class="poi lb-right" style="left:34.07%; top:33.21%;" data-min="13" data-km="7.1" data-ll="-8.7995624,115.1176363"><span class="d"></span><span class="t">Dreamland<small>Beach</small></span></button>
-          <button type="button" class="poi lb-right" style="left:19.97%; top:48.42%;" data-min="10" data-km="6.3" data-ll="-8.8112154,115.1036370"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></button>
-          <button type="button" class="poi lb-below-r" style="left:4.8%; top:53.56%;" data-min="13" data-km="8.6" data-ll="-8.8151548,115.0885661"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></button>
-          <button type="button" class="poi lb-right" style="left:0.55%; top:72.11%;" data-min="13" data-km="7.2" data-ll="-8.8293693,115.0843428"><span class="d"></span><span class="t">Pura Luhur Uluwatu<small>Hindu Temple</small></span></button>
-          <button type="button" class="poi lb-above" style="left:10.6%; top:85.66%;" data-min="11" data-km="6.0" data-ll="-8.8397509,115.0943268"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></button>
-          <button type="button" class="poi lb-above" style="left:24.27%; top:91.57%;" data-min="10" data-km="4.6" data-ll="-8.8442782,115.1079083"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></button>
+          <button type="button" class="poi lb-right" style="left:34.07%; top:33.21%;" data-min="21" data-km="7.1" data-ll="-8.7995624,115.1176363"><span class="d"></span><span class="t">Dreamland<small>Beach</small></span></button>
+          <button type="button" class="poi lb-right" style="left:19.97%; top:48.42%;" data-min="18" data-km="6.3" data-ll="-8.8112154,115.1036370"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></button>
+          <button type="button" class="poi lb-below-r" style="left:4.8%; top:53.56%;" data-min="25" data-km="8.6" data-ll="-8.8151548,115.0885661"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></button>
+          <button type="button" class="poi lb-right" style="left:0.55%; top:72.11%;" data-min="21" data-km="7.2" data-ll="-8.8293693,115.0843428"><span class="d"></span><span class="t">Pura Luhur Uluwatu<small>Hindu Temple</small></span></button>
+          <button type="button" class="poi lb-above" style="left:10.6%; top:85.66%;" data-min="18" data-km="6.0" data-ll="-8.8397509,115.0943268"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></button>
+          <button type="button" class="poi lb-above" style="left:24.27%; top:91.57%;" data-min="14" data-km="4.6" data-ll="-8.8442782,115.1079083"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></button>
           <div class="poi poi-auraya lb-above" style="left:53.5%; top:86.67%;"><span class="d"></span><span class="t">AURAYA<br>VILLAS</span></div>
           <button type="button" class="poi lb-left-up" style="left:57.24%; top:94.35%;" data-min="4" data-km="1.4" data-ll="-8.8464133,115.1406518"><span class="d"></span><span class="t">Savaya<small>Beach Club</small></span></button>
-          <button type="button" class="poi lb-above" style="left:68.18%; top:95.72%;" data-min="8" data-km="3.1" data-ll="-8.8474651,115.1515232"><span class="d"></span><span class="t">Sundays<small>Beach Club</small></span></button>
-          <button type="button" class="poi lb-above-r" style="left:74.27%; top:96.8%;" data-min="11" data-km="4.2" data-ll="-8.8482915,115.1575716"><span class="d"></span><span class="t">Melasti<small>Beach</small></span></button>
+          <button type="button" class="poi lb-above" style="left:68.18%; top:95.72%;" data-min="9" data-km="3.1" data-ll="-8.8474651,115.1515232"><span class="d"></span><span class="t">Sundays<small>Beach Club</small></span></button>
+          <button type="button" class="poi lb-above-r" style="left:74.27%; top:96.8%;" data-min="12" data-km="4.2" data-ll="-8.8482915,115.1575716"><span class="d"></span><span class="t">Melasti<small>Beach</small></span></button>
         </div>
       </div>
     </div>
