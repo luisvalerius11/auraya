@@ -493,6 +493,9 @@
   body.tall .plan-tabs{ gap:1.6em; }
   body.tall .plan-tab{ font-size:.76em; }
   body.tall .plan-cap{ left:2.6em; }
+  .plan-img.phone-only, body.tall .plan-img.not-phone{ display:none; }
+  body.tall .plan-img.phone-only{ display:block; }
+  body.tall .plan-img.phone-only .plan-cap{ display:none; }     /* the strip above is too thin for it */
   body.tall .plan-line{ font-size:.9em; }
   body.tall .plan-key li{ font-size:.82em; padding:.4em .3em; }
 
@@ -1318,6 +1321,7 @@ body.narrow .price-t td{ font-size:.8em; }
       rooms:'Living and kitchen · Private pool · Outdoor shower · Powder room',
       line:'Open-plan living and kitchen with full-height glass onto the pool deck and the private pool.',
       img:'img/13.webp?v=2', w:1600, h:893, crop:[240,400,1600,893], veilTo:610, cap:'Shown in section', drawn:true,
+      cropPhone:[365,575,1455,880],      /* phones: just the ground floor, pool to entrance path, so it shows larger */
       key:[ { t:'Entrance',          p:[[1398,742]] },
             { t:'Stairway',          p:[[1232,665]] },
             { t:'Powder room',       p:[[1212,790]] },
@@ -1403,10 +1407,15 @@ body.narrow .price-t td{ font-size:.8em; }
       t.setAttribute('role', 'tab'); t.appendChild(el('span', 'no', L.no)); t.appendChild(document.createTextNode(L.tab));
       tabs.appendChild(t);
       var fig = el('figure', 'plan-view'); fig.dataset.level = L.id;
-      var c = L.crop || [0, 0, L.w, L.h], cw = c[2]-c[0], ch = c[3]-c[1];      /* crop: [x0, y0, x1, y1] in image pixels */
-      var box = el('div', 'plan-img' + (L.screen ? ' screen' : '')); box.style.setProperty('--ar', cw + '/' + ch);
+      fig.appendChild(planBox(L, L.crop, L.cropPhone ? 'not-phone' : ''));
+      if (L.cropPhone) fig.appendChild(planBox(L, L.cropPhone, 'phone-only'));
+      stage.appendChild(fig);
+    });
+    function planBox(L, crop, only){
+      var c = crop || [0, 0, L.w, L.h], cw = c[2]-c[0], ch = c[3]-c[1];      /* crop: [x0, y0, x1, y1] in image pixels */
+      var box = el('div', 'plan-img' + (L.screen ? ' screen' : '') + (only ? ' ' + only : '')); box.style.setProperty('--ar', cw + '/' + ch);
       var im = el('img'); im.src = L.img; im.alt = L.name + ' plan'; im.loading = 'lazy'; im.decoding = 'async';
-      if (L.crop){ box.classList.add('cropped');
+      if (crop){ box.classList.add('cropped');
         im.style.width = (L.w/cw*100) + '%'; im.style.height = (L.h/ch*100) + '%';
         im.style.left = (-c[0]/cw*100) + '%'; im.style.top = (-c[1]/ch*100) + '%'; }
       box.appendChild(im);
@@ -1420,8 +1429,8 @@ body.narrow .price-t td{ font-size:.8em; }
           box.appendChild(pin);
         });
       });
-      fig.appendChild(box); stage.appendChild(fig);
-    });
+      return box;
+    }
 
     function drawKey(){
       keyEl.innerHTML = '';
