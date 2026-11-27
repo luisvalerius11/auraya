@@ -47,10 +47,7 @@
   .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
   /* top bar */
-  .bar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:20px; padding-bottom:20px; }
-  .wordmark{ display:inline-flex; align-items:center; gap:12px; text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
-  .wordmark img{ width:30px; height:auto; display:block; }
-  .back{ font-size:12px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft); text-decoration:none; padding:10px 0; }
+  .back{ display:table; margin:-10px 0 14px; font-size:12px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft); text-decoration:none; padding:10px 0; }
   .back:hover{ color:var(--ink); }
 
   /* intro */
@@ -188,8 +185,6 @@
   }
   @media (max-width:640px){
     .wrap{ padding:0 16px; }
-    .bar{ padding-top:14px; padding-bottom:14px; }
-    .wordmark{ font-size:14px; letter-spacing:.3em; }
     .back{ font-size:11px; letter-spacing:.14em; }
     .hero{ padding:24px 0 26px; }
     .panel{ padding:22px 16px; }
@@ -231,13 +226,10 @@
 </head>
 <body>
 
-<header class="wrap bar">
-  <a class="wordmark" href="/" aria-label="Auraya Villas home"><img src="/brochure/img/logo-ink.webp" alt="" width="96" height="95">Auraya</a>
-  <a class="back" id="backLink" href="/brochure/#roi">← Back to brochure</a>
-</header>
 
 <main class="wrap">
   <div class="hero">
+    <a class="back" id="backLink" href="/brochure/#roi">← Back to brochure</a>
     <span class="eyebrow">Auraya Villas · ROI model</span>
     <h1>The full ROI calculation</h1>
     <p class="lead">Every figure in the brochure's ROI table, worked out line by line. Choose a villa and a scenario, or move any assumption, and the numbers update as you go.</p>
