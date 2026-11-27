@@ -13,6 +13,15 @@
 <!-- Analytics: IDs live in /assets/analytics.js, shared with the landing page and the brochure -->
 <script src="/assets/fx.js"></script>
 <script src="/assets/ref.js"></script>
+<!-- The simulator is for visitors who have filled in the investor-pack form (their lead ID arrives
+     as ?lid= or is remembered for the visit by /assets/ref.js). Anyone else is sent to the form on
+     the landing page, which opens the simulator as soon as it is sent, keeping ?add=... and ?agent=... -->
+<script>
+  if (!(window.AurayaRef && AurayaRef.lid)){
+    var s = location.search.replace(/^\?/, '');
+    location.replace('/?' + (s ? s + '&' : '') + 'next=plan#offer');
+  }
+</script>
 <script src="/assets/analytics.js"></script>
 <!-- Fonts are self-hosted (/assets/fonts): no extra connections to Google, and no visitor data sent there -->
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/cinzel-latin.woff2" crossorigin>
@@ -45,7 +54,7 @@
   .num{ font-variant-numeric:tabular-nums; }
 
   /* top bar */
-  .bar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 0; }
+  .bar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:20px; padding-bottom:20px; }
   .wordmark{ display:inline-flex; align-items:center; gap:12px; text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
   .wordmark img{ width:30px; height:auto; display:block; }
   .back{ font-size:12px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft); text-decoration:none; padding:10px 0; }
@@ -153,6 +162,7 @@
   .sched td:nth-child(2){ white-space:normal; }
   .sched td small{ display:block; color:var(--stone); font-size:.76rem; white-space:normal; }
   .sched td:nth-child(4) small{ white-space:nowrap; }
+  .sched td small.pc{ display:none; }
   .sched .no{ display:inline-flex; width:26px; height:26px; border-radius:50%; align-items:center; justify-content:center; background:var(--taupe); color:var(--bone); font-size:.78rem; font-weight:500; }
   .sched tr.zero td{ color:var(--stone); }
   .sched tr.zero .no{ background:var(--cream-2); color:var(--ink-soft); }
@@ -183,7 +193,7 @@
   }
   @media (max-width:640px){
     .wrap{ padding:0 16px; }
-    .bar{ padding:14px 0; }
+    .bar{ padding-top:14px; padding-bottom:14px; }
     .wordmark{ font-size:14px; letter-spacing:.3em; }
     .back{ font-size:11px; letter-spacing:.14em; }
     .hero{ padding:24px 0 26px; }
@@ -199,6 +209,12 @@
     .sched th, .sched td{ padding:10px 5px; font-size:.82rem; }
     .sched th{ font-size:.6rem; letter-spacing:.06em; }
     .sched .cum{ display:none; }
+  }
+  /* small phones: the share moves under each amount so the milestone names get the room */
+  @media (max-width:400px){
+    .sched th:nth-child(3), .sched td:nth-child(3){ display:none; }
+    .sched td small.pc{ display:block; }
+    .sched th:first-child, .sched td:first-child{ padding-left:0; padding-right:2px; }
   }
   @media print{
     .bar .back, .panel, .cta, footer, .cur{ display:none !important; }
@@ -544,7 +560,7 @@
       var a = r.inst[i]; cum += a;
       var when = i === 0 ? 'On ' + fmtDate(st.date) : s.when;
       t += '<tr' + (a ? '' : ' class="zero"') + '><td><span class="no">' + (i + 1) + '</span></td><td>' + s.name + '<small>' + when + '</small></td>'
-        + '<td>' + (s.pct ? Math.round(s.pct*100) + '%' : '—') + '</td><td>' + (a ? money(a) + (r.addonNet && r.instAddon[i] ? '<small>Villa ' + money(a - r.instAddon[i]) + '<br>Add‑ons ' + money(r.instAddon[i]) + '</small>' : '') : '—') + '</td><td class="cum">' + money(cum) + '</td></tr>';
+        + '<td>' + (s.pct ? Math.round(s.pct*100) + '%' : '—') + '</td><td>' + (a ? money(a) + (s.pct ? '<small class="pc">' + Math.round(s.pct*100) + '% share</small>' : '') + (r.addonNet && r.instAddon[i] ? '<small>Villa ' + money(a - r.instAddon[i]) + '<br>Add‑ons ' + money(r.instAddon[i]) + '</small>' : '') : '—') + '</td><td class="cum">' + money(cum) + '</td></tr>';
       if (s.bphtb && r.bphtb){
         cum += r.bphtb;
         t += '<tr class="extra"><td></td><td>BPHTB (5%)<small>Paid to the tax office, usually before the deed is signed</small></td><td>—</td><td>' + money(r.bphtb) + '</td><td class="cum">' + money(cum) + '</td></tr>';
