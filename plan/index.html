@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Payment Plan Simulator | Auraya Villas Uluwatu</title>
+<meta name="description" content="Simulate your Auraya Villas payment plan: pick a villa and ownership option, choose add-ons, see the promotions you qualify for and every instalment.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#faf7ec">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png?v=3">
+<link rel="icon" href="/assets/favicon.ico?v=3" sizes="any">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=3">
+<!-- Analytics: IDs live in /assets/analytics.js, shared with the landing page and the brochure -->
+<script src="/assets/analytics.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap">
+<style>
+  /* ============================================================
+     AURAYA VILLAS — payment plan simulator, served at /plan/
+     Linked from the Price List and Payment Timeline pages of the brochure.
+     Prices, add-ons, promotions and the payment schedule all live in the
+     CONFIG block at the top of the script; change them there.
+     ============================================================ */
+  :root{
+    --paper:#faf7ec; --cream:#f0ebd2; --cream-2:#e9e4d6;
+    --brown:#3E2D1E; --taupe:#4a4238; --taupe-2:#37312a;
+    --ink:#2b2218; --ink-soft:#6f6450; --stone:#8d8270; --stone-soft:#cfc7b3;
+    --gold:#a78b5f; --olive:#b6c26a; --bone:#efe9d9; --green:#5d6b2a;
+    --line:rgba(62,45,30,.16); --line-dark:rgba(239,233,217,.22);
+    --serif:'Cinzel', Georgia, serif;
+    --sans:'Jost', 'Helvetica Neue', Arial, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); font-weight:300; line-height:1.65; -webkit-font-smoothing:antialiased; }
+  a{ color:inherit; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 28px; }
+  .num{ font-variant-numeric:tabular-nums; }
+
+  /* top bar */
+  .bar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 0; }
+  .wordmark{ display:inline-flex; align-items:center; gap:12px; text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
+  .wordmark img{ width:30px; height:auto; display:block; }
+  .back{ font-size:12px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft); text-decoration:none; padding:10px 0; }
+  .back:hover{ color:var(--ink); }
+
+  /* intro */
+  .hero{ padding:40px 0 34px; border-bottom:1px solid var(--line); }
+  .eyebrow{ font-size:.72rem; font-weight:500; letter-spacing:.34em; text-transform:uppercase; color:var(--gold); }
+  h1, h2{ font-family:var(--serif); font-weight:500; letter-spacing:.08em; text-transform:uppercase; line-height:1.12; margin:0; text-wrap:balance; }
+  h1{ font-size:clamp(2rem, 4.6vw, 3.2rem); margin-top:14px; }
+  h2{ font-size:clamp(1.2rem, 2.2vw, 1.55rem); }
+  .lead{ max-width:62ch; margin:18px 0 0; font-size:1.05rem; color:var(--ink-soft); }
+
+  /* layout */
+  .model{ display:grid; grid-template-columns:350px 1fr; gap:44px; padding:40px 0 20px; align-items:start; }
+  .model > *{ min-width:0; }
+  .panel{ position:sticky; top:20px; background:#fdfcf7; border:1px solid var(--line); border-radius:4px; padding:26px 24px; }
+  .panel h2{ font-size:1rem; letter-spacing:.16em; }
+  .field{ margin-top:24px; }
+  .field > .lb{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:.74rem; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); }
+  .seg{ display:grid; gap:6px; margin-top:10px; }
+  .seg.c4{ grid-template-columns:repeat(4,1fr); }
+  .seg.c2{ grid-template-columns:repeat(2,1fr); }
+  .seg button{ font:inherit; cursor:pointer; border:1px solid var(--line); background:var(--paper); color:var(--ink); border-radius:3px; padding:9px 4px 8px;
+    display:flex; flex-direction:column; align-items:center; gap:1px; transition:background .2s, border-color .2s, color .2s; min-height:44px; justify-content:center; text-align:center; }
+  .seg button b{ font-weight:500; font-size:.95rem; letter-spacing:.04em; }
+  .seg button small{ font-size:.68rem; color:var(--stone); font-variant-numeric:tabular-nums; line-height:1.3; }
+  .seg button:hover{ border-color:var(--stone); }
+  .seg button[aria-pressed="true"]{ background:var(--taupe); border-color:var(--taupe); color:var(--bone); }
+  .seg button[aria-pressed="true"] small{ color:var(--stone-soft); }
+  .seg button:disabled{ cursor:not-allowed; background:repeating-linear-gradient(135deg, transparent 0 6px, rgba(62,45,30,.05) 6px 12px); color:var(--stone); }
+  .seg button:disabled b{ text-decoration:line-through; text-decoration-color:rgba(62,45,30,.45); }
+  .seg.c2 button b{ font-size:.82rem; }
+  .tag{ font-size:.6rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:#9b4a2e; }
+  .check{ display:flex; gap:10px; align-items:flex-start; margin-top:12px; font-size:.9rem; line-height:1.45; cursor:pointer; padding:12px; border:1px solid var(--line); border-radius:3px; background:var(--paper); }
+  .check:hover{ border-color:var(--stone); }
+  .check input{ width:18px; height:18px; margin:2px 0 0; accent-color:var(--taupe); flex:none; }
+  .check .t{ flex:1; }
+  .check .p{ font-weight:500; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .check .p s{ color:var(--stone); font-weight:400; margin-right:6px; }
+  .check small{ display:block; color:var(--stone); font-size:.76rem; }
+  .check .free{ color:var(--green); }
+  input[type=date], input[type=text]{ font:inherit; font-size:.95rem; width:100%; margin-top:10px; padding:10px 12px; border:1px solid var(--line); border-radius:3px; background:var(--paper); color:var(--ink); min-height:44px; }
+  .code-row{ display:flex; gap:6px; margin-top:10px; }
+  .code-row input{ margin-top:0; text-transform:uppercase; }
+  .code-row button{ font:500 .72rem var(--sans); letter-spacing:.16em; text-transform:uppercase; cursor:pointer; padding:0 14px; border:1px solid var(--taupe); background:var(--taupe); color:var(--bone); border-radius:3px; }
+  .hint{ font-size:.76rem; color:var(--stone); margin-top:6px; min-height:1.2em; }
+  .hint.ok{ color:var(--green); } .hint.bad{ color:#9b4a2e; }
+  .reset{ margin-top:22px; width:100%; font:500 .72rem var(--sans); letter-spacing:.18em; text-transform:uppercase; cursor:pointer; padding:12px; border:1px solid var(--line); background:none; color:var(--ink-soft); border-radius:3px; }
+  .reset:hover{ color:var(--ink); border-color:var(--stone); }
+  button:focus-visible, input:focus-visible, a:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
+
+  /* headline figures */
+  .result{ background:var(--taupe); color:var(--bone); border-radius:4px; padding:30px 30px 26px;
+    background-image:radial-gradient(110% 100% at 50% 0%, rgba(255,255,255,.06), rgba(0,0,0,.24) 90%); }
+  .result-top{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+  .result .eyebrow{ color:var(--stone-soft); }
+  .cur{ display:inline-flex; border:1px solid var(--line-dark); border-radius:3px; overflow:hidden; }
+  .cur button{ font:500 .7rem var(--sans); letter-spacing:.16em; cursor:pointer; padding:7px 12px; background:none; border:0; color:var(--stone-soft); min-height:32px; }
+  .cur button[aria-pressed="true"]{ background:var(--bone); color:var(--ink); }
+  .figs{ display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:24px; margin-top:18px; align-items:end; }
+  .fig .v{ font-family:var(--serif); font-size:1.75rem; line-height:1.05; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:.01em; overflow-wrap:anywhere; }
+  .fig.big .v{ font-size:clamp(1.7rem, 2.6vw, 2.3rem); white-space:nowrap; }
+  .fig .l{ margin-top:10px; font-size:.7rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--stone-soft); }
+  .fig.save .v{ color:var(--olive); }
+  .result-sub{ margin:22px 0 0; padding-top:16px; border-top:1px solid var(--line-dark); font-size:.86rem; color:#d9d1bb; }
+
+  section.blk{ margin-top:46px; }
+  .blk-note{ font-size:.86rem; color:var(--ink-soft); margin:8px 0 0; max-width:64ch; }
+
+  /* breakdown */
+  .ledger{ margin-top:18px; border-top:1.5px solid var(--ink); }
+  .row{ display:grid; grid-template-columns:1fr auto; gap:2px 24px; padding:14px 0; border-bottom:1px solid var(--line); }
+  .row .name{ font-weight:500; }
+  .row .val{ font-weight:500; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .row .what{ grid-column:1 / -1; font-size:.84rem; color:var(--ink-soft); }
+  .row.sub{ padding-left:18px; }
+  .row.sub .name, .row.sub .val{ font-weight:400; }
+  .row.promo .val, .row.promo .name{ color:var(--green); }
+  .row.total{ border-bottom:1.5px solid var(--ink); }
+  .row.total .name, .row.total .val{ font-weight:600; }
+  .row.final{ background:var(--cream); padding:18px 16px; margin:0 -16px; border-bottom:0; }
+  .row.final .val{ font-family:var(--serif); font-size:1.4rem; }
+
+  /* promotions */
+  .promos{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px; margin-top:18px; }
+  .promo-card{ border:1px solid var(--line); border-radius:4px; padding:18px 18px 16px; background:#fdfcf7; position:relative; }
+  .promo-card.on{ border-color:var(--green); box-shadow:inset 0 0 0 1px var(--green); }
+  .promo-card .st{ font-size:.62rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--stone); }
+  .promo-card.on .st{ color:var(--green); }
+  .promo-card h3{ font-family:var(--serif); font-weight:500; font-size:1rem; letter-spacing:.06em; margin:6px 0 4px; }
+  .promo-card p{ margin:0; font-size:.86rem; color:var(--ink-soft); }
+  .promo-card .worth{ margin-top:10px; font-weight:500; font-variant-numeric:tabular-nums; }
+  .promo-card .cd{ margin-top:6px; font-size:.76rem; color:var(--gold); }
+
+  /* schedule */
+  .stack{ display:flex; height:14px; border-radius:2px; overflow:hidden; margin-top:20px; background:var(--cream-2); }
+  .stack span{ display:block; height:100%; border-right:2px solid var(--paper); }
+  .stack span:last-child{ border-right:0; }
+  .tbl-scroll{ overflow-x:auto; margin-top:16px; -webkit-overflow-scrolling:touch; }
+  table{ border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+  .sched th, .sched td{ padding:12px 10px; text-align:right; border-bottom:1px solid var(--line); font-size:.92rem; white-space:nowrap; vertical-align:top; }
+  .sched th{ font-weight:500; font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); vertical-align:bottom; }
+  .sched th:nth-child(-n+2), .sched td:nth-child(-n+2){ text-align:left; }
+  .sched td:nth-child(2){ white-space:normal; }
+  .sched td small{ display:block; color:var(--stone); font-size:.76rem; white-space:normal; }
+  .sched .no{ display:inline-flex; width:26px; height:26px; border-radius:50%; align-items:center; justify-content:center; background:var(--taupe); color:var(--bone); font-size:.78rem; font-weight:500; }
+  .sched tr.zero td{ color:var(--stone); }
+  .sched tr.zero .no{ background:var(--cream-2); color:var(--ink-soft); }
+  .sched tr.extra td{ background:rgba(167,139,95,.08); }
+  .sched tfoot td{ font-weight:600; border-bottom:1.5px solid var(--ink); border-top:1.5px solid var(--ink); }
+
+  .assume{ display:grid; grid-template-columns:1fr 1fr; gap:10px 40px; margin:18px 0 0; padding:0; list-style:none; }
+  .assume li{ font-size:.9rem; color:var(--ink-soft); padding:12px 0; border-bottom:1px solid var(--line); }
+  .assume b{ color:var(--ink); font-weight:500; }
+
+  /* closing */
+  .cta{ margin:56px 0 0; padding:40px 36px; background:var(--taupe); color:var(--bone); border-radius:4px; display:flex; justify-content:space-between; align-items:center; gap:28px; flex-wrap:wrap;
+    background-image:radial-gradient(110% 100% at 50% 0%, rgba(255,255,255,.06), rgba(0,0,0,.24) 90%); }
+  .cta h2{ color:#fff; }
+  .cta p{ margin:10px 0 0; color:#d9d1bb; max-width:48ch; }
+  .btns{ display:flex; gap:12px; flex-wrap:wrap; }
+  .btn{ font:inherit; cursor:pointer; background:none; display:inline-flex; align-items:center; min-height:46px; padding:0 22px; border:1px solid rgba(239,233,217,.6); border-radius:2px; text-decoration:none;
+    font-size:.74rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--bone); transition:background .2s, color .2s; }
+  .btn:hover{ background:var(--bone); color:var(--ink); }
+  .btn.solid{ background:var(--bone); color:var(--ink); }
+  .btn.solid:hover{ background:#fff; }
+  .disclaimer{ font-size:.76rem; color:var(--stone); margin:28px 0 0; max-width:90ch; }
+  footer{ padding:30px 0 40px; font-size:.74rem; color:var(--stone); }
+
+  @media (max-width:960px){
+    .model{ grid-template-columns:1fr; gap:30px; }
+    .panel{ position:static; }
+  }
+  @media (max-width:640px){
+    .wrap{ padding:0 16px; }
+    .bar{ padding:14px 0; }
+    .wordmark{ font-size:14px; letter-spacing:.3em; }
+    .back{ font-size:11px; letter-spacing:.14em; }
+    .hero{ padding:24px 0 26px; }
+    .panel{ padding:22px 16px; }
+    .result{ padding:24px 18px 20px; }
+    .figs{ grid-template-columns:1fr 1fr; gap:20px 16px; }
+    .fig.big{ grid-column:1 / -1; }
+    .fig.big .v{ font-size:1.9rem; }
+    .fig .v{ font-size:1.25rem; }
+    .row.final{ margin:0 -8px; padding:16px 8px; }
+    .assume{ grid-template-columns:1fr; gap:0; }
+    .cta{ padding:28px 20px; }
+    .sched th, .sched td{ padding:10px 5px; font-size:.82rem; }
+    .sched th{ font-size:.6rem; letter-spacing:.06em; }
+    .sched .cum{ display:none; }
+  }
+  @media print{
+    .bar .back, .panel, .cta, footer, .cur{ display:none !important; }
+    .model{ grid-template-columns:1fr; padding-top:16px; }
+    .result{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    section.blk{ break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap bar">
+  <a class="wordmark" href="/" aria-label="Auraya Villas home"><img src="/brochure/img/logo-ink.png" alt="" width="520" height="516">Auraya</a>
+  <a class="back" id="backLink" href="/brochure/#prices">← Back to brochure</a>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <span class="eyebrow">Auraya Villas · Payment plan</span>
+    <h1>Simulate your payment plan</h1>
+    <p class="lead">Choose a villa, how you'd like to own it and the add‑ons you want. The simulator applies the promotions you qualify for and shows what you pay at each construction milestone.</p>
+  </div>
+
+  <div class="model">
+    <!-- inputs -->
+    <aside class="panel" aria-label="Your choices">
+      <h2>Your choices</h2>
+
+      <div class="field">
+        <div class="lb" id="lbTenure">1 · Ownership</div>
+        <div class="seg c2" id="tenureSeg" role="group" aria-labelledby="lbTenure"></div>
+        <div class="hint" id="tenureHint" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <div class="lb" id="lbVilla">2 · Villa</div>
+        <div class="seg c4" id="villaSeg" role="group" aria-labelledby="lbVilla"></div>
+        <div class="hint" id="villaHint"></div>
+      </div>
+
+      <div class="field">
+        <div class="lb" id="lbAddons">3 · Add‑ons</div>
+        <div id="addonList" role="group" aria-labelledby="lbAddons"></div>
+      </div>
+
+      <div class="field">
+        <label class="lb" for="resDate">4 · Reservation date</label>
+        <input type="date" id="resDate">
+        <div class="hint">Promotions depend on the day you reserve.</div>
+      </div>
+
+      <div class="field" id="codeField" hidden>
+        <label class="lb" for="code">Promo code</label>
+        <div class="code-row"><input type="text" id="code" autocomplete="off" spellcheck="false"><button type="button" id="codeBtn">Apply</button></div>
+        <div class="hint" id="codeHint" aria-live="polite"></div>
+      </div>
+
+      <button class="reset" id="reset" type="button">Start over</button>
+    </aside>
+
+    <!-- outputs -->
+    <div>
+      <div class="result" aria-live="polite">
+        <div class="result-top">
+          <span class="eyebrow" id="resultLabel"></span>
+          <div class="cur" role="group" aria-label="Currency"><button type="button" data-cur="idr">IDR</button><button type="button" data-cur="usd">USD</button></div>
+        </div>
+        <div class="figs">
+          <div class="fig big"><div class="v" id="fTotal"></div><div class="l">Total you pay</div></div>
+          <div class="fig"><div class="v" id="fRes"></div><div class="l">Due to reserve</div></div>
+          <div class="fig save"><div class="v" id="fSave"></div><div class="l">You save</div></div>
+        </div>
+        <p class="result-sub" id="resultSub"></p>
+      </div>
+
+      <section class="blk" aria-labelledby="h-promos">
+        <h2 id="h-promos">Promotions</h2>
+        <p class="blk-note">Current offers. The ones you qualify for are applied to your plan automatically.</p>
+        <div class="promos" id="promoList"></div>
+      </section>
+
+      <section class="blk" aria-labelledby="h-break">
+        <h2 id="h-break">Price breakdown</h2>
+        <div class="ledger" id="ledger"></div>
+      </section>
+
+      <section class="blk" aria-labelledby="h-sched">
+        <h2 id="h-sched">Your payment schedule</h2>
+        <p class="blk-note">Payments follow construction milestones, with handover on 1 March 2028. Each instalment is a share of your total contract price (villa plus add‑ons, after promotions).</p>
+        <div class="stack" id="stack" aria-hidden="true"></div>
+        <div class="tbl-scroll"><table class="sched" id="schedTable"></table></div>
+      </section>
+
+      <section class="blk" aria-labelledby="h-assume">
+        <h2 id="h-assume">How the plan is worked out</h2>
+        <ul class="assume">
+          <li><b>Rupiah first.</b> All transactions are in IDR. USD figures are indicative only, at IDR 17.800 per USD, as in the price list of 17 November 2026.</li>
+          <li><b>Add‑ons follow the same schedule.</b> Their price is added to the villa and paid in the same milestone shares.</li>
+          <li><b>BPHTB on freehold only.</b> Choosing freehold adds the 5% land and building acquisition duty, worked out on the villa price and usually settled at notarial signing. Leasehold has no BPHTB.</li>
+          <li><b>Milestones, not dates.</b> Progress payments fall due as construction reaches each stage, so only the reservation and handover have fixed dates.</li>
+          <li><b>Not included:</b> notary fees, PT PMA set‑up costs (for the HGB option), bank transfer charges and currency movements.</li>
+          <li><b>Promotions</b> are applied as stated on each offer and only while it runs; one villa per offer.</li>
+        </ul>
+      </section>
+
+      <div class="cta">
+        <div>
+          <h2>Reserve or ask about this plan</h2>
+          <p>Send us this plan as it stands and we'll confirm availability, the promotions and the exact figures for your contract.</p>
+        </div>
+        <div class="btns">
+          <a class="btn solid" id="waBtn" href="#" target="_blank" rel="noopener">Send on WhatsApp</a>
+          <a class="btn" id="mailBtn" href="#">Email</a>
+          <button class="btn" id="printBtn" type="button">Print / save PDF</button>
+        </div>
+      </div>
+
+      <p class="disclaimer">Illustrative simulation, not an offer capable of acceptance. Prices, add‑ons and promotions may change and are confirmed only in the reservation agreement, notarial deed and building contract prepared for each buyer.</p>
+    </div>
+  </div>
+</main>
+
+<footer class="wrap">© 2026 Auraya Villas · Developed by Nira Group · <a href="/privacy/">Privacy policy</a> · <a href="#" data-cookie-settings>Cookie settings</a></footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= CONFIG =================
+     Villa prices from the brochure price list (17 November 2026), IDR.
+     Set reserved:true to show a villa as reserved; it can't be picked.  */
+  var FX = 17800;
+  var VILLAS = [
+    { id:'A1', land:147, idr:5689672000 },
+    { id:'A2', land:121, idr:5430472000, reserved:true },
+    { id:'A3', land:114, idr:5342272000 },
+    { id:'A4', land:110, idr:5306272000 }
+  ];
+  var TENURES = [
+    { id:'lease', name:'Leasehold', sub:'30+20 yrs · no BPHTB', bphtb:0 },
+    { id:'free',  name:'Freehold',  sub:'HGB via PT PMA · +5% BPHTB', bphtb:0.05 }
+  ];
+  /* Add-ons, IDR. on:true = ticked by default. */
+  var ADDONS = [
+    { id:'jacuzzi', name:'Rooftop jacuzzi', idr:250000000, on:true,
+      note:'Heated jacuzzi on the roof terrace, with ocean view.' },
+    { id:'solar',   name:'Solar package',  idr:200000000,
+      note:'Nusa Power panels with 15 kWh battery backup; offsets up to 60% of the monthly electricity bill.' }
+  ];
+  /* Promotions. Each one:
+       id, name, text      shown on the promotion card
+       until               last day to reserve (YYYY-MM-DD); from optional
+       freeAddon           makes that add-on free when it is chosen, or
+       pct / idr           a discount on the villa price (e.g. pct:0.02 or idr:50000000)
+       code                optional: the offer applies only once this code is entered
+                           (a code box appears in the panel as soon as one promotion has a code)
+       villas              optional: limit to some villas, e.g. ['A1']           */
+  var PROMOS = [
+    { id:'jacuzzi-2026', name:'Free rooftop jacuzzi', freeAddon:'jacuzzi', until:'2026-12-31',
+      text:'Reserve by 31 December 2026 and the rooftop jacuzzi is included free.' }
+  ];
+  /* Payment schedule: share of the contract price at each milestone (must add up to 1). */
+  var SCHEDULE = [
+    { name:'Reservation fee',     pct:0.10, when:'On reservation' },
+    { name:'Notarial signing',    pct:0.30, when:'At signing of the deed', bphtb:true },
+    { name:'Start construction',  pct:0,    when:'No payment due' },
+    { name:'Progress 25%',        pct:0.10, when:'When construction reaches 25%' },
+    { name:'Progress 55%',        pct:0.20, when:'When construction reaches 55%' },
+    { name:'Progress 85%',        pct:0.20, when:'When construction reaches 85%' },
+    { name:'Project finished',    pct:0.10, when:'Handover, 1 March 2028' }
+  ];
+  var DEFAULTS = { villa:3, tenure:0, cur:'idr' };
+  /* ========================================== */
+
+  var $ = function(id){ return document.getElementById(id); };
+  var st = {};
+
+  function todayISO(){ var d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+  function fmtDate(iso){ var p = iso.split('-'); return new Date(+p[0], p[1]-1, +p[2]).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }); }
+  function daysBetween(a, b){ var pa = a.split('-'), pb = b.split('-'); return Math.round((Date.UTC(pb[0], pb[1]-1, pb[2]) - Date.UTC(pa[0], pa[1]-1, pa[2])) / 864e5); }
+  function idr(v){ return (v < 0 ? '−' : '') + 'Rp ' + Math.round(Math.abs(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  function usd(v){ return (v < 0 ? '−' : '') + '$' + Math.round(Math.abs(v) / FX).toLocaleString('en-US'); }
+  function money(v){ return st.cur === 'usd' ? usd(v) : idr(v); }
+  function short(v){   /* compact figure for the headline tiles */
+    if (st.cur === 'usd') return usd(v);
+    var a = Math.abs(v);
+    if (a >= 1e9) return 'Rp ' + (v/1e9).toFixed(2).replace('.', ',') + ' B';
+    if (a >= 1e6) return 'Rp ' + Math.round(v/1e6) + ' M';
+    return idr(v);
+  }
+  function firstFree(){ for (var i = 0; i < VILLAS.length; i++) if (!VILLAS[i].reserved) return i; return 0; }
+
+  /* Is a promotion live for this reservation date, villa and code? */
+  function promoState(p){
+    var v = VILLAS[st.villa];
+    if (p.from && st.date < p.from) return { ok:false, why:'Starts ' + fmtDate(p.from) };
+    if (p.until && st.date > p.until) return { ok:false, why:'Ended ' + fmtDate(p.until) };
+    if (p.villas && p.villas.indexOf(v.id) < 0) return { ok:false, why:'Not available on villa ' + v.id };
+    if (p.code && st.codes.indexOf(p.code.toUpperCase()) < 0) return { ok:false, why:'Needs promo code' };
+    if (p.freeAddon && !st.addons[p.freeAddon]) return { ok:false, why:'Add the ' + addonById(p.freeAddon).name.toLowerCase() + ' to use it', soft:true };
+    return { ok:true };
+  }
+  function addonById(id){ for (var i = 0; i < ADDONS.length; i++) if (ADDONS[i].id === id) return ADDONS[i]; return { name:id, idr:0 }; }
+
+  function calc(){
+    var v = VILLAS[st.villa], t = TENURES[st.tenure];
+    var lines = [], promos = [];
+    var addonsTotal = 0, discount = 0;
+    ADDONS.forEach(function(a){ if (st.addons[a.id]) { addonsTotal += a.idr; lines.push(a); } });
+    PROMOS.forEach(function(p){
+      var s = promoState(p); if (!s.ok) return;
+      var amt = p.freeAddon ? addonById(p.freeAddon).idr : p.pct ? Math.round(v.idr * p.pct) : (p.idr || 0);
+      discount += amt; promos.push({ p:p, amt:amt });
+    });
+    var contract = v.idr + addonsTotal - discount;
+    var bphtb = Math.round(v.idr * t.bphtb);
+    /* instalments: round each to the rupiah; the last one takes the remainder so they add up exactly */
+    var paid = 0, last = -1;
+    SCHEDULE.forEach(function(s, i){ if (s.pct > 0) last = i; });
+    var inst = SCHEDULE.map(function(s, i){
+      var a = i === last ? contract - paid : Math.round(contract * s.pct);
+      paid += a; return a;
+    });
+    return { v:v, t:t, addons:lines, addonsTotal:addonsTotal, promos:promos, discount:discount, contract:contract, bphtb:bphtb,
+      total:contract + bphtb, inst:inst };
+  }
+
+  /* ----- controls ----- */
+  VILLAS.forEach(function(v, i){
+    var b = document.createElement('button'); b.type = 'button';
+    b.innerHTML = '<b>' + v.id + '</b><small>' + v.land + ' sqm</small>' + (v.reserved ? '<span class="tag">Reserved</span>' : '');
+    b.setAttribute('aria-label', 'Villa ' + v.id + ', ' + v.land + ' square metres of land' + (v.reserved ? ', reserved, not available' : ''));
+    if (v.reserved) b.disabled = true;
+    b.addEventListener('click', function(){ st.villa = i; update('villa', v.id); });
+    $('villaSeg').appendChild(b);
+  });
+  TENURES.forEach(function(t, i){
+    var b = document.createElement('button'); b.type = 'button';
+    b.innerHTML = '<b>' + t.name + '</b><small>' + t.sub + '</small>';
+    b.addEventListener('click', function(){ st.tenure = i; update('tenure', t.id); });
+    $('tenureSeg').appendChild(b);
+  });
+  ADDONS.forEach(function(a){
+    var l = document.createElement('label'); l.className = 'check';
+    l.innerHTML = '<input type="checkbox" data-addon="' + a.id + '"><span class="t">' + a.name + '<small>' + a.note + '</small></span><span class="p" data-price="' + a.id + '"></span>';
+    l.querySelector('input').addEventListener('change', function(){ st.addons[a.id] = this.checked; update('addon_' + a.id, this.checked ? 'on' : 'off'); });
+    $('addonList').appendChild(l);
+  });
+  $('resDate').addEventListener('change', function(){ st.date = this.value || todayISO(); update('date', st.date); });
+  document.querySelectorAll('.cur button').forEach(function(b){
+    b.addEventListener('click', function(){ st.cur = b.dataset.cur; update('currency', st.cur); });
+  });
+  if (PROMOS.some(function(p){ return p.code; })) $('codeField').hidden = false;
+  function applyCode(){
+    var c = $('code').value.trim().toUpperCase(), h = $('codeHint');
+    if (!c) { h.textContent = ''; h.className = 'hint'; return; }
+    var hit = PROMOS.filter(function(p){ return p.code && p.code.toUpperCase() === c; })[0];
+    if (!hit) { h.textContent = 'That code isn’t recognised.'; h.className = 'hint bad'; return; }
+    if (st.codes.indexOf(c) < 0) st.codes.push(c);
+    var s = promoState(hit);
+    h.textContent = s.ok ? hit.name + ' applied.' : hit.name + ': ' + s.why.toLowerCase() + '.';
+    h.className = 'hint ' + (s.ok ? 'ok' : 'bad');
+    update('code', c);
+  }
+  $('codeBtn').addEventListener('click', applyCode);
+  $('code').addEventListener('keydown', function(e){ if (e.key === 'Enter') applyCode(); });
+  $('reset').addEventListener('click', function(){ reset(); update('reset', ''); });
+  $('printBtn').addEventListener('click', function(){ track('plan_print', {}); window.print(); });
+
+  /* ----- render ----- */
+  function render(){
+    var r = calc(), sameCur = st.cur === 'usd';
+
+    document.querySelectorAll('#villaSeg button').forEach(function(b, i){ b.setAttribute('aria-pressed', i === st.villa); });
+    document.querySelectorAll('#tenureSeg button').forEach(function(b, i){ b.setAttribute('aria-pressed', i === st.tenure); });
+    document.querySelectorAll('.cur button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.cur === st.cur); });
+    $('resDate').value = st.date;
+    var taken = VILLAS.filter(function(v){ return v.reserved; }).map(function(v){ return v.id; });
+    $('tenureHint').textContent = r.bphtb
+      ? '5% BPHTB (' + money(r.bphtb) + ') is added on top of the villa price, due at notarial signing.'
+      : 'Leasehold: no BPHTB. You can convert to freehold later.';
+    $('villaHint').textContent = taken.length ? 'Villa ' + taken.join(', ') + (taken.length > 1 ? ' are' : ' is') + ' reserved · ' + (VILLAS.length - taken.length) + ' of ' + VILLAS.length + ' remaining' : '';
+
+    ADDONS.forEach(function(a){
+      document.querySelector('[data-addon="' + a.id + '"]').checked = !!st.addons[a.id];
+      var free = r.promos.some(function(x){ return x.p.freeAddon === a.id; });
+      document.querySelector('[data-price="' + a.id + '"]').innerHTML = free ? '<s>' + short(a.idr) + '</s><span class="free">Free</span>' : '+' + short(a.idr);
+    });
+
+    $('resultLabel').textContent = 'Villa ' + r.v.id + ' · ' + r.t.name;
+    $('fTotal').textContent = money(r.total);
+    $('fRes').textContent = short(r.inst[0]);
+    $('fSave').textContent = r.discount ? short(r.discount) : '—';
+    var parts = ['Villa ' + money(r.v.idr)];
+    if (r.addonsTotal) parts.push('add‑ons ' + money(r.addonsTotal));
+    if (r.discount) parts.push('promotions ' + money(-r.discount));
+    if (r.bphtb) parts.push('BPHTB ' + money(r.bphtb));
+    $('resultSub').textContent = parts.join(' · ') + (sameCur ? ' · USD indicative at IDR 17.800' : ' · ≈ ' + usd(r.total));
+
+    /* promotions */
+    $('promoList').innerHTML = PROMOS.map(function(p){
+      var s = promoState(p);
+      var worth = p.freeAddon ? 'Worth ' + money(addonById(p.freeAddon).idr) : p.pct ? (p.pct*100) + '% off the villa price' : p.idr ? money(p.idr) + ' off' : '';
+      var left = p.until && st.date <= p.until ? daysBetween(todayISO(), p.until) : null;
+      var cd = left != null && left >= 0 ? (left === 0 ? 'Last day today' : left + ' day' + (left === 1 ? '' : 's') + ' left · until ' + fmtDate(p.until)) : '';
+      return '<div class="promo-card' + (s.ok ? ' on' : '') + '"><span class="st">' + (s.ok ? '✓ Applied' : s.why) + '</span>'
+        + '<h3>' + p.name + '</h3><p>' + p.text + '</p>'
+        + (worth ? '<div class="worth">' + worth + '</div>' : '') + (cd ? '<div class="cd">' + cd + '</div>' : '') + '</div>';
+    }).join('') || '<p class="blk-note">No promotions are running right now.</p>';
+
+    /* breakdown */
+    var h = row('', 'Villa ' + r.v.id, money(r.v.idr), r.v.land + ' sqm of land · 145 sqm two bedroom villa with private pool and roof terrace');
+    r.addons.forEach(function(a){ h += row('sub', a.name, '+' + money(a.idr), ''); });
+    r.promos.forEach(function(x){ h += row('sub promo', x.p.name, money(-x.amt), ''); });
+    h += row('total', 'Contract price', money(r.contract), 'Paid in instalments, as in the schedule below');
+    if (r.bphtb) h += row('sub', 'BPHTB (5%)', '+' + money(r.bphtb), 'Land and building acquisition duty on the freehold option: 5% of ' + idr(r.v.idr));
+    h += row('final', 'Total you pay', money(r.total), sameCur ? '' : '≈ ' + usd(r.total) + ', indicative');
+    $('ledger').innerHTML = h;
+
+    /* schedule */
+    var shades = ['#4a4238','#6a5d4c','#a78b5f','#8d8270','#5f5446','#b9a57d','#37312a'];
+    $('stack').innerHTML = SCHEDULE.map(function(s, i){
+      var a = r.inst[i] + (s.bphtb ? r.bphtb : 0);
+      return a > 0 ? '<span style="flex:' + a + ';background:' + shades[i % shades.length] + '" title="' + s.name + '"></span>' : '';
+    }).join('');
+    var cum = 0;
+    var t = '<thead><tr><th>Step</th><th>Milestone</th><th>Share</th><th>Amount</th><th class="cum">Paid to date</th></tr></thead><tbody>';
+    SCHEDULE.forEach(function(s, i){
+      var a = r.inst[i]; cum += a;
+      var when = i === 0 ? 'On ' + fmtDate(st.date) : s.when;
+      t += '<tr' + (a ? '' : ' class="zero"') + '><td><span class="no">' + (i + 1) + '</span></td><td>' + s.name + '<small>' + when + '</small></td>'
+        + '<td>' + (s.pct ? Math.round(s.pct*100) + '%' : '—') + '</td><td>' + (a ? money(a) : '—') + '</td><td class="cum">' + money(cum) + '</td></tr>';
+      if (s.bphtb && r.bphtb){
+        cum += r.bphtb;
+        t += '<tr class="extra"><td></td><td>BPHTB (5%)<small>Paid to the tax office, usually before the deed is signed</small></td><td>—</td><td>' + money(r.bphtb) + '</td><td class="cum">' + money(cum) + '</td></tr>';
+      }
+    });
+    t += '</tbody><tfoot><tr><td></td><td>Total</td><td>100%</td><td>' + money(r.total) + '</td><td class="cum"></td></tr></tfoot>';
+    $('schedTable').innerHTML = t;
+
+    /* hand-off links carry the plan as it stands */
+    var msg = 'Hi Auraya, I simulated a payment plan:\n'
+      + '• Villa ' + r.v.id + ', ' + r.t.name + '\n'
+      + (r.addons.length ? '• Add-ons: ' + r.addons.map(function(a){ return a.name; }).join(', ') + '\n' : '')
+      + (r.promos.length ? '• Promotions: ' + r.promos.map(function(x){ return x.p.name; }).join(', ') + '\n' : '')
+      + '• Total: ' + idr(r.total) + ' (≈ ' + usd(r.total) + ')\n'
+      + '• Reservation fee: ' + idr(r.inst[0]) + '\n'
+      + location.href;
+    $('waBtn').href = 'https://api.whatsapp.com/send?phone=6285899530004&text=' + encodeURIComponent(msg);
+    $('mailBtn').href = 'mailto:sales@auraya-villas.com?subject=' + encodeURIComponent('Payment plan: Villa ' + r.v.id) + '&body=' + encodeURIComponent(msg);
+    return r;
+  }
+  function row(cls, name, val, what){
+    return '<div class="row ' + cls + '"><span class="name">' + name + '</span><span class="val">' + val + '</span>' + (what ? '<span class="what">' + what + '</span>' : '') + '</div>';
+  }
+
+  /* ----- state <-> link, so a plan can be shared ----- */
+  function save(){
+    var q = new URLSearchParams();
+    q.set('villa', VILLAS[st.villa].id); q.set('own', TENURES[st.tenure].id);
+    q.set('add', ADDONS.filter(function(a){ return st.addons[a.id]; }).map(function(a){ return a.id; }).join(','));
+    if (st.date !== todayISO()) q.set('date', st.date);
+    if (st.cur !== 'idr') q.set('cur', st.cur);
+    if (st.codes.length) q.set('code', st.codes.join(','));
+    try { history.replaceState(null, '', '?' + q.toString()); } catch(e){}
+  }
+  function load(){
+    var q; try { q = new URLSearchParams(location.search); } catch(e){ return; }
+    VILLAS.forEach(function(v, i){ if (q.get('villa') === v.id && !v.reserved) st.villa = i; });
+    TENURES.forEach(function(t, i){ if (q.get('own') === t.id) st.tenure = i; });
+    if (q.has('add')) { var on = q.get('add').split(','); ADDONS.forEach(function(a){ st.addons[a.id] = on.indexOf(a.id) >= 0; }); }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(q.get('date') || '')) st.date = q.get('date');
+    if (q.get('cur') === 'usd') st.cur = 'usd';
+    if (q.get('code')) st.codes = q.get('code').toUpperCase().split(',');
+  }
+  function reset(){
+    st = { villa:VILLAS[DEFAULTS.villa].reserved ? firstFree() : DEFAULTS.villa, tenure:DEFAULTS.tenure, cur:DEFAULTS.cur, date:todayISO(), addons:{}, codes:[] };
+    ADDONS.forEach(function(a){ st.addons[a.id] = !!a.on; });
+    $('code').value = ''; $('codeHint').textContent = '';
+  }
+  function update(control, value){
+    var r = render(); save();
+    track('plan_change', { control:control, value:String(value), villa:r.v.id, tenure:r.t.id, total_idr:r.total });
+  }
+  /* analytics: does nothing until an ID is set in /assets/analytics.js */
+  function track(ev, params){ if (window.track) window.track(ev, null, params); }
+
+  /* back to the brochure: return to the exact page the reader came from when possible */
+  $('backLink').addEventListener('click', function(e){
+    track('plan_back_to_brochure', {});
+    try{
+      if (document.referrer && new URL(document.referrer).pathname.indexOf('/brochure') === 0 && history.length > 1){ e.preventDefault(); history.back(); }
+    }catch(err){}
+  });
+  $('waBtn').addEventListener('click', function(){ track('plan_whatsapp', {}); });
+  $('mailBtn').addEventListener('click', function(){ track('plan_email', {}); });
+
+  reset();
+  load();
+  render();
+})();
+</script>
+</body>
+</html>

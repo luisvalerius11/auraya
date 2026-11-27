@@ -443,6 +443,12 @@
 .price-t td:nth-child(4), .price-t td:nth-child(5){ font-weight:600; color:#fff; }
 .price-note{ margin-top:1.8em; font-size:.7em; letter-spacing:.06em; color:#cfc7ae; }
 .price-note-2{ margin-top:.6em; }
+.price-t tr.reserved td{ color:rgba(230,223,202,.5); }
+.price-t tr.reserved td:nth-child(4), .price-t tr.reserved td:nth-child(5){ color:rgba(255,255,255,.45); text-decoration:line-through; text-decoration-color:rgba(255,255,255,.35); }
+.price-t tr.reserved td:first-child{ color:rgba(255,255,255,.6); }
+.res-tag{ display:inline-block; vertical-align:middle; margin-left:.7em; padding:.35em .7em .3em; border:1px solid #c9a66b; border-radius:2px; color:#e2c28a;
+  font:600 .42em var(--sans); letter-spacing:.18em; text-transform:uppercase; }
+.pay-btn{ margin-top:1.4em; background:rgba(0,0,0,.28); }
 body.narrow .price-t th:nth-child(3), body.narrow .price-t td:nth-child(3){ display:none; }
 body.narrow .price-t td{ font-size:.8em; }
 .pay .page-inner{ align-items:center; justify-content:center; padding:2.6em 3em; }
@@ -819,18 +825,19 @@ body.narrow .price-t td{ font-size:.8em; }
   </section>
 
   <!-- 17 · PRICE LIST -->
-  <section class="page tex-dark roi prices" data-title="Price List">
+  <section class="page tex-dark roi prices" data-title="Price List" data-slug="prices">
     <div class="page-inner">
       <div class="roi-head">
         <h2 class="serif-title roi-title">Price List</h2>
         <div class="roi-intro">
           <p class="body-para">Four villas, each on its own plot. Every villa shares the same 145 sqm two bedroom design with private pool and roof terrace; the price follows the size of the land.</p>
+          <a class="roi-btn plan-btn" href="/plan/">Simulate your payment plan <span aria-hidden="true">→</span></a>
         </div>
       </div>
       <table class="roi-t price-t">
         <tr><th>Villa</th><th>Land Size</th><th>Building Size</th><th>Price (IDR)</th><th>Price (USD)</th></tr>
         <tr class="line"><td>A1</td><td>147 sqm</td><td>145 sqm</td><td>5.689.672.000</td><td>$319,644</td></tr>
-        <tr class="line"><td>A2</td><td>121 sqm</td><td>145 sqm</td><td>5.430.472.000</td><td>$305,083</td></tr>
+        <tr class="line reserved"><td>A2 <span class="res-tag">Reserved</span></td><td>121 sqm</td><td>145 sqm</td><td>5.430.472.000</td><td>$305,083</td></tr>
         <tr class="line"><td>A3</td><td>114 sqm</td><td>145 sqm</td><td>5.342.272.000</td><td>$300,128</td></tr>
         <tr class="line"><td>A4</td><td>110 sqm</td><td>145 sqm</td><td>5.306.272.000</td><td>$298,105</td></tr>
       </table>
@@ -841,7 +848,7 @@ body.narrow .price-t td{ font-size:.8em; }
   </section>
 
   <!-- 18 · PAYMENT -->
-  <section class="page photo-page pay" data-title="Payment Timeline" style="background-image:url(img/23.jpg)">
+  <section class="page photo-page pay" data-title="Payment Timeline" data-slug="payment" style="background-image:url(img/23.jpg)">
     <div class="shade"></div>
     <div class="page-inner">
       <h2 class="serif-title pay-title">Payment Timeline</h2>
@@ -858,6 +865,7 @@ body.narrow .price-t td{ font-size:.8em; }
         </div>
       </div>
       <p class="pay-note">Payments follow construction milestones · handover 1 March 2028</p>
+      <a class="roi-btn plan-btn pay-btn" href="/plan/">Simulate your plan, add‑ons &amp; promotions <span aria-hidden="true">→</span></a>
     </div>
     <span class="pnum">18</span>
   </section>
@@ -1581,7 +1589,7 @@ body.narrow .price-t td{ font-size:.8em; }
     var td = e.target.closest ? e.target.closest('.roi-explain-t tr[data-k] td') : null;
     if (td) showRoiNote(td.parentNode, td.cellIndex - 1);
   }
-  document.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('.roi-btn')) track('roi_model_open', { from:'brochure' }); });
+  document.addEventListener('click', function(e){ if (!e.target.closest) return; var b = e.target.closest('.roi-btn'); if (b) track(b.classList.contains('plan-btn') ? 'plan_open' : 'roi_model_open', { from:'brochure' }); });
   document.addEventListener('mouseover', roiTarget);
   document.addEventListener('click', roiTarget);
   document.addEventListener('focusin', function(e){
