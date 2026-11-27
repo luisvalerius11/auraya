@@ -367,7 +367,7 @@
   .sec-kicker{ color:#6d675a; }
   .sec-title{ font-size:2.3em; margin-top:.35em; }
   .sec-lede{ margin:.8em 0 0; max-width:34em; font-size:.8em; line-height:1.6; color:#3b362c; }
-  .sec-fig{ position:relative; margin:1.4em -2.6em 0; aspect-ratio:1600/893; flex:none; }
+  .sec-fig{ position:relative; margin:auto -2.6em; aspect-ratio:1600/893; flex:none; }
   .sec-fig img{ display:block; width:100%; height:100%; }
   .sec-band{ position:absolute; left:0; right:0; margin:0; padding:0; border:0; background:none; cursor:pointer; font:inherit; color:inherit; }
   .sec-band::before{ content:""; position:absolute; inset:0; background:#f4f2ec; opacity:0; transition:opacity .45s ease; pointer-events:none; }
@@ -376,21 +376,18 @@
   .sectionpg.has-level .sec-band.on::before{ opacity:0; }
   .sec-band:hover::after, .sec-band.on::after{ opacity:1; }
   .sec-band[data-level="0"]::after{ display:none; }
-  .sec-no{ position:absolute; left:.9em; top:50%; transform:translateY(-50%); z-index:1;
-    font-family:var(--serif); font-size:1.7em; letter-spacing:.04em; color:rgba(22,19,14,.30); transition:color .3s; }
+  /* each band carries its own label: number, level name and rooms, over the open left side of the drawing */
+  .sec-tag{ position:absolute; left:0; top:50%; transform:translateY(-50%); z-index:1; display:grid; grid-template-columns:auto 1fr;
+    align-items:center; gap:0 .7em; width:42%; padding:1.1em 2.4em 1.1em 2.6em; text-align:left;
+    background:radial-gradient(farthest-side at 30% 50%, rgba(244,242,236,.95) 0, rgba(244,242,236,.85) 55%, rgba(244,242,236,0) 100%);
+    text-shadow:0 0 .4em #f4f2ec, 0 0 .9em #f4f2ec; }
+  .sec-no{ grid-row:span 2; font-family:var(--serif); font-size:2.1em; line-height:1; letter-spacing:.04em; color:rgba(22,19,14,.34); transition:color .3s; }
+  .sec-tag .nm{ font-size:.8em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--ink); }
+  .sec-tag .rm{ font-size:.72em; line-height:1.45; color:#3b362c; margin-top:.25em; text-wrap:pretty; }
   .sec-band:hover .sec-no, .sec-band.on .sec-no{ color:var(--ink); }
+  .sectionpg.has-level .sec-band:not(.on) .sec-tag{ opacity:.55; }
+  .sec-tag{ transition:opacity .3s; }
   .sec-band:focus-visible{ outline:2px solid #8a7a4f; outline-offset:-2px; }
-  .sec-levels{ list-style:none; margin:1.2em 0 0; padding:0; border-top:1.5px solid var(--ink); }
-  .sec-levels li{ border-bottom:1px solid rgba(22,19,14,.22); }
-  .sec-lv{ display:grid; grid-template-columns:3.1em 1fr; align-items:baseline; gap:.1em .4em; width:100%; padding:.62em 0 .62em .1em;
-    border:0; background:none; text-align:left; cursor:pointer; font:inherit; color:inherit; position:relative; transition:padding .3s ease; }
-  .sec-lv::before{ content:""; position:absolute; left:-.9em; top:.7em; bottom:.7em; width:2px; background:var(--ink); transform:scaleY(0); transition:transform .3s ease; }
-  .sec-lv .no{ grid-row:span 2; font-family:var(--serif); font-size:1.35em; color:rgba(22,19,14,.38); transition:color .3s; }
-  .sec-lv .nm{ font-size:.78em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; }
-  .sec-lv .rm{ font-size:.72em; line-height:1.5; color:#5d564a; }
-  .sec-lv:hover .no, .sec-lv.on .no{ color:var(--ink); }
-  .sec-lv.on::before{ transform:scaleY(1); }
-  .sec-lv:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
   .sec-more{ margin-top:auto; align-self:flex-start; padding:1em 0 0; border:0; background:none; cursor:pointer; font:inherit;
     font-size:.66em; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#3b362c; }
   .sec-more:hover{ color:var(--ink); }
@@ -732,7 +729,7 @@ body.narrow .price-t td{ font-size:.8em; }
         <tr data-k="opex" tabindex="0"><td>Operating Cost (Staff, Utilities, Upkeep)</td><td>$8,134</td><td>$8,134</td><td>$8,134</td></tr>
         <tr data-k="ctax" tabindex="0" class="line"><td>Central Tax (0.5%)</td><td>$219</td><td>$256</td><td>$295</td></tr>
         <tr data-k="exp" tabindex="0" class="strong"><td>Total Expense</td><td>$22,588</td><td>$24,998</td><td>$27,587</td></tr>
-        <tr data-k="inv" tabindex="0" class="gap"><td>Investment (Villa A4)</td><td>$298,105</td><td>$298,105</td><td>$298,105</td></tr>
+        <tr data-k="inv" tabindex="0" class="gap"><td>Investment (Villa A4)</td><td>$298,090</td><td>$298,090</td><td>$298,090</td></tr>
         <tr data-k="net" tabindex="0" class="line"><td>Net Income</td><td>$21,212</td><td>$26,102</td><td>$31,361</td></tr>
         <tr data-k="roi" tabindex="0" class="strong"><td>% Annual ROI</td><td>7%</td><td>9%</td><td>11%</td></tr>
       </table>
@@ -784,11 +781,11 @@ body.narrow .price-t td{ font-size:.8em; }
       <div class="sec-fig">
         <img src="img/13.webp?v=2" alt="Cut-away section of the villa: living, kitchen and pool on the ground floor, a bedroom and bathroom above, and a roof terrace with a jacuzzi on top" width="1600" height="893" loading="lazy" decoding="async">
         <!-- one band per level, top and height in % of the drawing -->
-        <button type="button" class="sec-band" data-level="2" style="top:0;height:34%" aria-label="Roof terrace"><span class="sec-no">02</span></button>
-        <button type="button" class="sec-band" data-level="1" style="top:34%;height:32.5%" aria-label="Upper floor"><span class="sec-no">01</span></button>
-        <button type="button" class="sec-band" data-level="0" style="top:66.5%;height:33.5%" aria-label="Ground floor"><span class="sec-no">00</span></button>
+        <!-- each band's label (number, name, rooms) is filled in from VILLA LEVELS in the script -->
+        <button type="button" class="sec-band" data-level="2" style="top:0;height:34%"></button>
+        <button type="button" class="sec-band" data-level="1" style="top:34%;height:32.5%"></button>
+        <button type="button" class="sec-band" data-level="0" style="top:66.5%;height:33.5%"></button>
       </div>
-      <ol class="sec-levels"></ol>
       <button type="button" class="sec-more" data-goto="12">Every level on the floorplan <span aria-hidden="true">&rarr;</span></button>
     </div>
     <span class="pnum" style="color:#3b362c;">11</span>
@@ -876,12 +873,12 @@ body.narrow .price-t td{ font-size:.8em; }
       </div>
       <table class="roi-t price-t">
         <tr><th>Villa</th><th>Land Size</th><th>Building Size</th><th>Price (IDR)</th><th>Price (USD)</th></tr>
-        <tr class="line"><td>A1</td><td>147 sqm</td><td>145 sqm</td><td>5.689.672.000</td><td>$319,644</td></tr>
-        <tr class="line reserved"><td>A2 <span class="res-tag">Reserved</span></td><td>121 sqm</td><td>145 sqm</td><td>5.430.472.000</td><td>$305,083</td></tr>
-        <tr class="line"><td>A3</td><td>114 sqm</td><td>145 sqm</td><td>5.342.272.000</td><td>$300,128</td></tr>
-        <tr class="line"><td>A4</td><td>110 sqm</td><td>145 sqm</td><td>5.306.272.000</td><td>$298,105</td></tr>
+        <tr class="line"><td>A1</td><td>147 sqm</td><td>145 sqm</td><td>5.689.000.000</td><td>$319,607</td></tr>
+        <tr class="line reserved"><td>A2 <span class="res-tag">Reserved</span></td><td>121 sqm</td><td>145 sqm</td><td>5.430.000.000</td><td>$305,056</td></tr>
+        <tr class="line"><td>A3</td><td>114 sqm</td><td>145 sqm</td><td>5.342.000.000</td><td>$300,112</td></tr>
+        <tr class="line"><td>A4</td><td>110 sqm</td><td>145 sqm</td><td>5.306.000.000</td><td>$298,090</td></tr>
       </table>
-      <p class="price-note">Prices as of 17 November 2026 · All transactions are in Indonesian Rupiah (IDR); USD figures are indicative only, at IDR 17.800 per USD · leasehold 30+20 with the option to convert to freehold, or freehold‑equivalent HGB via PT PMA</p>
+      <p class="price-note">Prices as of 27 November 2026 · All transactions are in Indonesian Rupiah (IDR); USD figures are indicative only, at IDR 17.800 per USD · leasehold 30+20 with the option to convert to freehold, or freehold‑equivalent HGB via PT PMA</p>
       <p class="price-note price-note-2">For freehold, 5% BPHTB (land and building acquisition duty) applies on top of the price, as per standard regulation</p>
     </div>
     <span class="pnum">17</span>
@@ -1234,13 +1231,13 @@ body.narrow .price-t td{ font-size:.8em; }
     function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
     var level = 0, picked = false;
     var tabs = planPage.querySelector('.plan-tabs'), stage = planPage.querySelector('.plan-stage'),
-        keyEl = planPage.querySelector('.plan-key'), lineEl = planPage.querySelector('.plan-line'),
-        list = secPage.querySelector('.sec-levels');
+        keyEl = planPage.querySelector('.plan-key'), lineEl = planPage.querySelector('.plan-line');
 
-    LEVELS.slice().reverse().forEach(function(L){                 /* section list reads top floor first, like the drawing */
-      var li = el('li'), b = el('button', 'sec-lv'); b.type = 'button'; b.dataset.level = L.id;
-      b.appendChild(el('span', 'no', L.no)); b.appendChild(el('span', 'nm', L.name)); b.appendChild(el('span', 'rm', L.rooms));
-      li.appendChild(b); list.appendChild(li);
+    LEVELS.forEach(function(L){                                    /* label each band of the section drawing */
+      var band = secPage.querySelector('.sec-band[data-level="' + L.id + '"]'); if (!band) return;
+      var tag = el('span', 'sec-tag');
+      tag.appendChild(el('span', 'sec-no', L.no)); tag.appendChild(el('span', 'nm', L.name)); tag.appendChild(el('span', 'rm', L.rooms));
+      band.appendChild(tag);
     });
     LEVELS.forEach(function(L){
       var t = el('button', 'plan-tab'); t.type = 'button'; t.dataset.level = L.id;
@@ -1283,7 +1280,7 @@ body.narrow .price-t td{ font-size:.8em; }
     }
     function setLevel(id, source){
       level = +id;
-      Array.prototype.forEach.call(document.querySelectorAll('.sec-band, .sec-lv'), function(b){ b.classList.toggle('on', picked && +b.dataset.level === level); });
+      Array.prototype.forEach.call(document.querySelectorAll('.sec-band'), function(b){ b.classList.toggle('on', picked && +b.dataset.level === level); });
       secPage.classList.toggle('has-level', picked);
       Array.prototype.forEach.call(tabs.children, function(t){ t.setAttribute('aria-selected', +t.dataset.level === level ? 'true' : 'false'); });
       Array.prototype.forEach.call(stage.children, function(f){ f.classList.toggle('on', +f.dataset.level === level); });
@@ -1628,7 +1625,7 @@ body.narrow .price-t td{ font-size:.8em; }
   var SC = ['Conservative','Expected','Accelerated'];
   /* Cost structure follows the managed-villa ROI projection: booking commission and PB1 tax on revenue,
      a management fee on revenue after commission, fixed monthly running costs in rupiah, and 0.5% central tax on gross rental income. */
-  var RATE = [160,175,190], OCC = [.75,.80,.85], PRICE = 298105, FX = 17800;
+  var RATE = [160,175,190], OCC = [.75,.80,.85], PRICE = 298090, FX = 17800;
   var OTA = .10, PB1 = .10, MGMT = .15, CTAX = .005, FIXED_IDR_MONTH = 12065000;
   function usd(v){ return '$' + Math.round(v).toLocaleString('en-US'); }
   /* each line is rounded to whole dollars before it is added up, so every column sums exactly as printed */
@@ -1657,7 +1654,7 @@ body.narrow .price-t td{ font-size:.8em; }
     exp:  ['Total Expense', 'Selling cost, management fee, operating cost and central tax together.',
       function(c){ var x = roiCalc(c); return usd(x.sell) + ' + ' + usd(x.m) + ' + ' + usd(x.o) + ' + ' + usd(x.t) + ' = ' + usd(x.e); }],
     inv:  ['Investment (Villa A4)', 'Villa A4\u2019s price in USD at IDR 17.800, the same in every scenario. The 5% BPHTB on freehold is not included.',
-      function(){ return 'Rp 5.306.272.000 ÷ 17.800 = ' + usd(PRICE); }],
+      function(){ return 'Rp 5.306.000.000 ÷ 17.800 = ' + usd(PRICE); }],
     net:  ['Net Income', 'What the owner keeps each year after every cost and tax above.',
       function(c){ var x = roiCalc(c); return usd(x.g) + ' − ' + usd(x.e) + ' = ' + usd(x.n); }],
     roi:  ['% Annual ROI', 'Net income as a share of the price: the yearly cash return. Any rise in the villa’s value comes on top.',

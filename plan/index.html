@@ -295,11 +295,11 @@
       <section class="blk" aria-labelledby="h-assume">
         <h2 id="h-assume">How the plan is worked out</h2>
         <ul class="assume">
-          <li><b>Rupiah first.</b> All transactions are in IDR. Other currencies are indicative only: USD at IDR 17.800, as in the price list of 17 November 2026; AUD, EUR and GBP at fixed rates set on <span id="fxAsOf"></span>.</li>
+          <li><b>Rupiah first.</b> All transactions are in IDR. Other currencies are indicative only: USD at IDR 17.800, as in the price list of 27 November 2026; AUD, EUR and GBP at fixed rates set on <span id="fxAsOf"></span>.</li>
           <li><b>Add‑ons are paid in instalments.</b> No separate upfront payment: their price is spread over the same milestones as the villa (10 / 30 / 10 / 20 / 20 / 10%).</li>
           <li><b>BPHTB on freehold only.</b> Choosing freehold adds the 5% land and building acquisition duty, worked out on the villa price and usually settled at notarial signing. Leasehold has no BPHTB.</li>
           <li><b>Milestones, not dates.</b> Progress payments fall due as construction reaches each stage, so only the reservation and handover have fixed dates.</li>
-          <li><b>Notary fee included.</b> Estimated at 1% of the villa price, for both leasehold and freehold, and paid at notarial signing. The notary confirms the exact fee.</li>
+          <li><b>Notary fee included.</b> Estimated at 1% of the villa price, for both leasehold and freehold, and paid at notarial signing. Like BPHTB and each instalment, it is rounded down to whole millions of rupiah. The notary confirms the exact fee.</li>
           <li><b>Promotions</b> are applied as stated on each offer and only while it runs; one villa per offer.</li>
         </ul>
       </section>
@@ -326,14 +326,14 @@
   "use strict";
 
   /* ================= CONFIG =================
-     Villa prices from the brochure price list (17 November 2026), IDR.
+     Villa prices from the brochure price list (27 November 2026), IDR.
      Set reserved:true to show a villa as reserved; it can't be picked.  */
   var FX = 17800;
   var VILLAS = [
-    { id:'A1', land:147, idr:5689672000 },
-    { id:'A2', land:121, idr:5430472000, reserved:true },
-    { id:'A3', land:114, idr:5342272000 },
-    { id:'A4', land:110, idr:5306272000 }
+    { id:'A1', land:147, idr:5689000000 },
+    { id:'A2', land:121, idr:5430000000, reserved:true },
+    { id:'A3', land:114, idr:5342000000 },
+    { id:'A4', land:110, idr:5306000000 }
   ];
   var TENURES = [
     { id:'lease', name:'Leasehold', sub:'30+20 yrs · no BPHTB', bphtb:0 },
@@ -384,6 +384,8 @@
   var FXL = window.AurayaFX;
   function money(v){ return FXL.fromIDR(v, st.cur); }
   function short(v){ return FXL.short(v, st.cur); }   /* compact figure for the headline tiles */
+  /* every amount the simulator works out is rounded down to whole millions of rupiah (prices are set in millions) */
+  function million(v){ return Math.floor(v / 1e6 + 1e-9) * 1e6; }
   function firstFree(){ for (var i = 0; i < VILLAS.length; i++) if (!VILLAS[i].reserved) return i; return 0; }
 
   /* Is a promotion live for this reservation date, villa and code? */
@@ -405,24 +407,24 @@
     ADDONS.forEach(function(a){ if (st.addons[a.id]) { addonsTotal += a.idr; lines.push(a); } });
     PROMOS.forEach(function(p){
       var s = promoState(p); if (!s.ok) return;
-      var amt = p.freeAddon ? addonById(p.freeAddon).idr : p.pct ? Math.round(v.idr * p.pct) : (p.idr || 0);
+      var amt = p.freeAddon ? addonById(p.freeAddon).idr : p.pct ? million(v.idr * p.pct) : (p.idr || 0);
       discount += amt; promos.push({ p:p, amt:amt });
       if (p.freeAddon) addonFree += amt;
     });
     var contract = v.idr + addonsTotal - discount;
-    var bphtb = Math.round(v.idr * t.bphtb);
-    var notary = Math.round(v.idr * NOTARY_PCT);
-    /* instalments: round each to the rupiah; the last one takes the remainder so they add up exactly */
+    var bphtb = million(v.idr * t.bphtb);
+    var notary = million(v.idr * NOTARY_PCT);
+    /* instalments: each rounded down to whole millions; the last one takes the remainder so they add up exactly */
     var paid = 0, last = -1;
     SCHEDULE.forEach(function(s, i){ if (s.pct > 0) last = i; });
     var inst = SCHEDULE.map(function(s, i){
-      var a = i === last ? contract - paid : Math.round(contract * s.pct);
+      var a = i === last ? contract - paid : million(contract * s.pct);
       paid += a; return a;
     });
     /* add-ons are paid in the same instalments: the add-on part of each one, after free add-ons */
     var addonNet = addonsTotal - addonFree, aPaid = 0;
     var instAddon = SCHEDULE.map(function(s, i){
-      var a = i === last ? addonNet - aPaid : Math.round(addonNet * s.pct);
+      var a = i === last ? addonNet - aPaid : million(addonNet * s.pct);
       aPaid += a; return a;
     });
     return { v:v, t:t, addons:lines, addonsTotal:addonsTotal, promos:promos, discount:discount, contract:contract, bphtb:bphtb, notary:notary,
