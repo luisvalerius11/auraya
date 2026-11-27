@@ -818,12 +818,12 @@ body.narrow .price-t td{ font-size:.8em; }
         <tr data-k="gross" tabindex="0" class="strong"><td>Gross Rental Income</td><td>$43,800</td><td>$51,100</td><td>$58,948</td></tr>
         <tr data-k="sell" tabindex="0" class="gap"><td>Selling Cost (OTA 10% + PB1 Tax 10%)</td><td>$8,322</td><td>$9,709</td><td>$11,200</td></tr>
         <tr data-k="mgmt" tabindex="0"><td>Management Fee (15%)</td><td>$5,913</td><td>$6,899</td><td>$7,958</td></tr>
-        <tr data-k="opex" tabindex="0"><td>Operating Cost (Staff, Utilities, Upkeep)</td><td>$8,134</td><td>$8,134</td><td>$8,134</td></tr>
+        <tr data-k="opex" tabindex="0"><td>Operating Cost (Staff, Utilities, Upkeep)</td><td>$9,145</td><td>$9,145</td><td>$9,145</td></tr>
         <tr data-k="ctax" tabindex="0" class="line"><td>Central Tax (0.5%)</td><td>$219</td><td>$256</td><td>$295</td></tr>
-        <tr data-k="exp" tabindex="0" class="strong"><td>Total Expense</td><td>$22,588</td><td>$24,998</td><td>$27,587</td></tr>
+        <tr data-k="exp" tabindex="0" class="strong"><td>Total Expense</td><td>$23,599</td><td>$26,009</td><td>$28,598</td></tr>
         <tr data-k="inv" tabindex="0" class="gap"><td>Investment (Villa A4)</td><td>$298,090</td><td>$298,090</td><td>$298,090</td></tr>
-        <tr data-k="net" tabindex="0" class="line"><td>Net Income</td><td>$21,212</td><td>$26,102</td><td>$31,361</td></tr>
-        <tr data-k="roi" tabindex="0" class="strong"><td>% Annual ROI</td><td>7%</td><td>9%</td><td>11%</td></tr>
+        <tr data-k="net" tabindex="0" class="line"><td>Net Income</td><td>$20,201</td><td>$25,091</td><td>$30,350</td></tr>
+        <tr data-k="roi" tabindex="0" class="strong"><td>% Annual ROI</td><td>7%</td><td>8%</td><td>10%</td></tr>
       </table>
       <div class="roi-explain" id="roiExplain" aria-live="polite">
         <p class="rx-hint"><span class="rx-dot" aria-hidden="true">i</span>Hover over or tap any line to see what it means and how it is worked out.</p>
@@ -1866,7 +1866,7 @@ body.narrow .price-t td{ font-size:.8em; }
   /* Cost structure follows the managed-villa ROI projection: booking commission and PB1 tax on revenue,
      a management fee on revenue after commission, fixed monthly running costs in rupiah, and 0.5% central tax on gross rental income. */
   var RATE = [160,175,190], OCC = [.75,.80,.85], PRICE = 298090, FX = 17800;
-  var OTA = .10, PB1 = .10, MGMT = .15, CTAX = .005, FIXED_IDR_MONTH = 12065000;
+  var OTA = .10, PB1 = .10, MGMT = .15, CTAX = .005, FIXED_IDR_MONTH = 13565000;
   function usd(v){ return '$' + Math.round(v).toLocaleString('en-US'); }
   /* each line is rounded to whole dollars before it is added up, so every column sums exactly as printed */
   function roiCalc(c){
@@ -1888,7 +1888,7 @@ body.narrow .price-t td{ font-size:.8em; }
     mgmt: ['Management Fee', 'The management company’s fee for reservations, marketing and reception: 15% of rental income after commission.',
       function(c){ var x = roiCalc(c); return '15% × ' + usd(x.g - x.ota) + ' = ' + usd(x.m); }],
     opex: ['Operating Cost', 'Fixed running costs, the same in every scenario: three staff, operations, utilities, internet, laundry, maintenance, insurance, guest supplies and the banjar.',
-      function(){ return 'Rp 12.065.000 a month × 12 ÷ 17.800 = ' + usd(FIXED_IDR_MONTH*12/FX); }],
+      function(){ return 'Rp 13.565.000 a month × 12 ÷ 17.800 = ' + usd(FIXED_IDR_MONTH*12/FX); }],
     ctax: ['Central Tax', 'Central government tax of 0.5%, charged on gross rental income.',
       function(c){ var x = roiCalc(c); return '0.5% × ' + usd(x.g) + ' = ' + usd(x.t); }],
     exp:  ['Total Expense', 'Selling cost, management fee, operating cost and central tax together.',

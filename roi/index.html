@@ -311,7 +311,7 @@
         <h2 id="h-assume">What the model assumes</h2>
         <ul class="assume">
           <li><b>365 rentable nights a year.</b> Occupancy is the share of those nights that are booked.</li>
-          <li><b>Two kinds of cost.</b> Booking commission, PB1 tax, the management fee and central tax move with rental income; the running costs are a fixed Rp 12.065.000 a month, in today's prices.</li>
+          <li><b>Two kinds of cost.</b> Booking commission, PB1 tax, the management fee and central tax move with rental income; the running costs are a fixed Rp 13.565.000 a month, in today's prices.</li>
           <li><b>Other currencies are indicative.</b> All transactions are in rupiah. The model works in US dollars, as in the brochure, with day rates set in USD; USD figures use IDR 17.800 per USD, as in the price list of 27 November 2026. In AUD, EUR, GBP or IDR the same model runs in that currency from the rupiah prices and costs, at fixed rates set on <span id="fxAsOf"></span>, so the ROI can differ in the last decimal.</li>
           <li><b>A full year of rentals.</b> The figures describe a typical year once the villa is handed over (1 March 2028) and listed.</li>
           <li><b>Not included:</b> the owner's personal income tax, financing costs, and the optional solar package, which would lower the electricity bill.</li>
@@ -363,7 +363,7 @@
     ['Salaries (incl. THR & insurance)', 3815000, 'Housekeeper, pool attendant and gardener, with health insurance, pension and THR. See the staff costs below.'],
     ['Operations fee', 2000000, 'Fixed fee for running the villa day to day: staff, check‑in and check‑out, guest requests and keeping the villa in good condition.'],
     ['Relief staff', 400000, 'Rp 100.000 a day for about four days a month, to cover staff days off.'],
-    ['Electricity', 2500000, 'Based on market and operating data, without the optional solar package.'],
+    ['Electricity', 4000000, 'Based on market and operating data, without the optional solar package.'],
     ['Water', 650000, 'Includes reverse‑osmosis treatment and drinking water.'],
     ['Internet', 300000, 'Standard rate.'],
     ['Laundry', 700000, 'Linen, towels and the like.'],
@@ -373,7 +373,7 @@
     ['Guest supplies', 600000, 'Welcome drinks, breakfast, toiletries, tissues, drinking water and the like.'],
     ['Banjar contribution', 150000, 'Contribution to the local banjar, the village community.']
   ];
-  var FIXED_MONTH = FIXED.reduce(function(a, f){ return a + f[1]; }, 0);   /* Rp 12.065.000 */
+  var FIXED_MONTH = FIXED.reduce(function(a, f){ return a + f[1]; }, 0);   /* Rp 13.565.000 */
   var STAFF = [   /* position, people, salary, health insurance, pension fund (IDR per month); THR is one month's salary a year, set aside monthly */
     ['Housekeeper', 1, 2300000, 115000, 25000],
     ['Pool attendant', 1, 500000, 25000, 25000],
