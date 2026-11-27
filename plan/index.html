@@ -221,23 +221,24 @@
       <h2>Your choices</h2>
 
       <div class="field">
-        <div class="lb" id="lbVilla">Villa</div>
+        <div class="lb" id="lbTenure">1 · Ownership</div>
+        <div class="seg c2" id="tenureSeg" role="group" aria-labelledby="lbTenure"></div>
+        <div class="hint" id="tenureHint" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <div class="lb" id="lbVilla">2 · Villa</div>
         <div class="seg c4" id="villaSeg" role="group" aria-labelledby="lbVilla"></div>
         <div class="hint" id="villaHint"></div>
       </div>
 
       <div class="field">
-        <div class="lb" id="lbTenure">Ownership</div>
-        <div class="seg c2" id="tenureSeg" role="group" aria-labelledby="lbTenure"></div>
-      </div>
-
-      <div class="field">
-        <div class="lb" id="lbAddons">Add‑ons</div>
+        <div class="lb" id="lbAddons">3 · Add‑ons</div>
         <div id="addonList" role="group" aria-labelledby="lbAddons"></div>
       </div>
 
       <div class="field">
-        <label class="lb" for="resDate">Reservation date</label>
+        <label class="lb" for="resDate">4 · Reservation date</label>
         <input type="date" id="resDate">
         <div class="hint">Promotions depend on the day you reserve.</div>
       </div>
@@ -289,7 +290,7 @@
         <ul class="assume">
           <li><b>Rupiah first.</b> All transactions are in IDR. USD figures are indicative only, at IDR 17.800 per USD, as in the price list of 17 November 2026.</li>
           <li><b>Add‑ons follow the same schedule.</b> Their price is added to the villa and paid in the same milestone shares.</li>
-          <li><b>BPHTB on freehold.</b> The 5% land and building acquisition duty is worked out on the villa price and is usually settled at notarial signing.</li>
+          <li><b>BPHTB on freehold only.</b> Choosing freehold adds the 5% land and building acquisition duty, worked out on the villa price and usually settled at notarial signing. Leasehold has no BPHTB.</li>
           <li><b>Milestones, not dates.</b> Progress payments fall due as construction reaches each stage, so only the reservation and handover have fixed dates.</li>
           <li><b>Not included:</b> notary fees, PT PMA set‑up costs (for the HGB option), bank transfer charges and currency movements.</li>
           <li><b>Promotions</b> are applied as stated on each offer and only while it runs; one villa per offer.</li>
@@ -330,7 +331,7 @@
     { id:'A4', land:110, idr:5306272000 }
   ];
   var TENURES = [
-    { id:'lease', name:'Leasehold', sub:'30+20 yrs · convert later', bphtb:0 },
+    { id:'lease', name:'Leasehold', sub:'30+20 yrs · no BPHTB', bphtb:0 },
     { id:'free',  name:'Freehold',  sub:'HGB via PT PMA · +5% BPHTB', bphtb:0.05 }
   ];
   /* Add-ons, IDR. on:true = ticked by default. */
@@ -469,6 +470,9 @@
     document.querySelectorAll('.cur button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.cur === st.cur); });
     $('resDate').value = st.date;
     var taken = VILLAS.filter(function(v){ return v.reserved; }).map(function(v){ return v.id; });
+    $('tenureHint').textContent = r.bphtb
+      ? '5% BPHTB (' + money(r.bphtb) + ') is added on top of the villa price, due at notarial signing.'
+      : 'Leasehold: no BPHTB. You can convert to freehold later.';
     $('villaHint').textContent = taken.length ? 'Villa ' + taken.join(', ') + (taken.length > 1 ? ' are' : ' is') + ' reserved · ' + (VILLAS.length - taken.length) + ' of ' + VILLAS.length + ' remaining' : '';
 
     ADDONS.forEach(function(a){
