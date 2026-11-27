@@ -100,7 +100,7 @@
   .cur{ display:inline-flex; border:1px solid var(--line-dark); border-radius:3px; overflow:hidden; }
   .cur button{ font:500 .7rem var(--sans); letter-spacing:.16em; cursor:pointer; padding:7px 12px; background:none; border:0; color:var(--stone-soft); min-height:32px; }
   .cur button[aria-pressed="true"]{ background:var(--bone); color:var(--ink); }
-  .figs{ display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:24px; margin-top:16px; align-items:end; }
+  .figs{ display:grid; grid-template-columns:1.25fr 1fr; gap:24px; margin-top:16px; align-items:end; }
   .fig .v{ font-family:var(--serif); font-size:2.1rem; line-height:1; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
   .fig.big .v{ font-size:3.6rem; }
   .fig .l{ margin-top:10px; font-size:.7rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--stone-soft); }
@@ -275,7 +275,6 @@
         <div class="figs">
           <div class="fig big"><div class="v" id="fRoi"></div><div class="l">Annual ROI</div></div>
           <div class="fig"><div class="v" id="fNet"></div><div class="l">Net income a year</div></div>
-          <div class="fig"><div class="v" id="fPay"></div><div class="l">Years to earn back the price</div></div>
         </div>
         <p class="result-sub" id="resultSub"></p>
       </div>
@@ -312,7 +311,7 @@
         <h2 id="h-assume">What the model assumes</h2>
         <ul class="assume">
           <li><b>365 rentable nights a year.</b> Occupancy is the share of those nights that are booked.</li>
-          <li><b>Two kinds of cost.</b> Booking commission, PB1 tax, the management fee and central tax move with rental income; the running costs are a fixed Rp 12.065.000 a month, in today's prices.</li>
+          <li><b>Two kinds of cost.</b> Booking commission, PB1 tax, the management fee and central tax move with rental income; the running costs are a fixed Rp 13.565.000 a month, in today's prices.</li>
           <li><b>Other currencies are indicative.</b> All transactions are in rupiah. The model works in US dollars, as in the brochure, with day rates set in USD; USD figures use IDR 17.800 per USD, as in the price list of 27 November 2026. In AUD, EUR, GBP or IDR the same model runs in that currency from the rupiah prices and costs, at fixed rates set on <span id="fxAsOf"></span>, so the ROI can differ in the last decimal.</li>
           <li><b>A full year of rentals.</b> The figures describe a typical year once the villa is handed over (1 March 2028) and listed.</li>
           <li><b>Not included:</b> the owner's personal income tax, financing costs, and the optional solar package, which would lower the electricity bill.</li>
@@ -364,7 +363,7 @@
     ['Salaries (incl. THR & insurance)', 3815000, 'Housekeeper, pool attendant and gardener, with health insurance, pension and THR. See the staff costs below.'],
     ['Operations fee', 2000000, 'Fixed fee for running the villa day to day: staff, check‑in and check‑out, guest requests and keeping the villa in good condition.'],
     ['Relief staff', 400000, 'Rp 100.000 a day for about four days a month, to cover staff days off.'],
-    ['Electricity', 2500000, 'Based on market and operating data, without the optional solar package.'],
+    ['Electricity', 4000000, 'Based on market and operating data, without the optional solar package.'],
     ['Water', 650000, 'Includes reverse‑osmosis treatment and drinking water.'],
     ['Internet', 300000, 'Standard rate.'],
     ['Laundry', 700000, 'Linen, towels and the like.'],
@@ -374,7 +373,7 @@
     ['Guest supplies', 600000, 'Welcome drinks, breakfast, toiletries, tissues, drinking water and the like.'],
     ['Banjar contribution', 150000, 'Contribution to the local banjar, the village community.']
   ];
-  var FIXED_MONTH = FIXED.reduce(function(a, f){ return a + f[1]; }, 0);   /* Rp 12.065.000 */
+  var FIXED_MONTH = FIXED.reduce(function(a, f){ return a + f[1]; }, 0);   /* Rp 13.565.000 */
   var STAFF = [   /* position, people, salary, health insurance, pension fund (IDR per month); THR is one month's salary a year, set aside monthly */
     ['Housekeeper', 1, 2300000, 115000, 25000],
     ['Pool attendant', 1, 500000, 25000, 25000],
@@ -408,7 +407,7 @@
     var pre = gross - sell - mgmt - fixed, ctax = R(gross * CTAX);   /* central tax: 0.5% of gross rental income */
     var exp = sell + mgmt + fixed + ctax, net = gross - exp;
     return { v:v, base:base, inv:inv, nights:nights, gross:gross, ota:ota, pb1:pb1, sell:sell, mgmt:mgmt, fixed:fixed, pre:pre, ctax:ctax, exp:exp, net:net,
-      roi: net/inv, pay: net > 0 ? inv/net : Infinity };
+      roi: net/inv };
   }
   function withSt(extra){ var o = { villa:st.villa, rate:st.rate, occ:st.occ, ota:st.ota, mgmt:st.mgmt, bphtb:st.bphtb }; for (var k in extra) o[k] = extra[k]; return o; }
 
@@ -480,7 +479,6 @@
     $('resultLabel').textContent = 'Villa ' + v.id + ' · ' + (si >= 0 ? SCEN[si].name + ' scenario' : 'Custom scenario');
     $('fRoi').textContent = pct(r.roi);
     $('fNet').textContent = usd(r.net);
-    $('fPay').textContent = isFinite(r.pay) ? r.pay.toFixed(1) : '–';
     $('resultSub').textContent = 'About ' + usd(r.net/12) + ' a month after every cost and tax, on an investment of ' + usd(r.inv) + '.';
 
     var after = r.gross - r.ota;
@@ -531,10 +529,7 @@
         (CUR.code === 'IDR' ? idr(v.idr) : idr(v.idr) + rateDiv() + ' = ' + usd(r.base)) + (st.bphtb ? ' \u00d7 1.05 BPHTB = ' + usd(r.inv) : '')],
       ['Annual ROI', pct(r.roi),
         'Net income as a share of the investment: the cash return the villa earns each year. Any rise in the villa\u2019s value comes on top.',
-        usd(r.net) + ' \u00f7 ' + usd(r.inv) + ' = ' + pct(r.roi, 2), 'final'],
-      ['Years to earn back the price', isFinite(r.pay) ? r.pay.toFixed(1) + ' years' : '\u2013',
-        'How long the net income takes to add up to the investment, if every year matched this one.',
-        isFinite(r.pay) ? usd(r.inv) + ' \u00f7 ' + usd(r.net) + ' = ' + r.pay.toFixed(1) + ' years' : 'Not reached: net income is not above zero']
+        usd(r.net) + ' \u00f7 ' + usd(r.inv) + ' = ' + pct(r.roi, 2), 'final']
     );
     $('ledger').innerHTML = '';
     rows.forEach(function(x){

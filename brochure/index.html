@@ -143,12 +143,23 @@
   /* upright tablets: drop the side arrows (swipe or use the toolbar) so both pages get the full width */
   @media (max-width:1100px) and (orientation:portrait){ .nav-arrow{ display:none; } }
   @media (max-width:700px){
-    .viewer{ padding:0 12px max(12px, env(safe-area-inset-bottom)); }
-    .bar{ padding:14px 4px 12px; }
-    .desk{ padding:14px 8px 12px; border-radius:14px; }
+    .viewer{ padding:0 8px max(10px, env(safe-area-inset-bottom)); }
+    .bar{ padding:10px 6px 6px; }
+    .wordmark{ font-size:14px; gap:10px; }
+    .wordmark img{ width:26px; }
+    .bar-label{ font-size:10px; }
+    .desk{ padding:6px 0 4px; border-radius:0; }
     .nav-arrow{ display:none; }
-    .tools{ padding-top:12px; }
+    .tools{ padding-top:8px; }
+    .tool{ width:48px; height:44px; }
+    .counter{ white-space:nowrap; }
   }
+  /* touch tablets and unfolded foldables: slimmer margins so the open book is bigger */
+  @media (pointer:coarse) and (min-width:701px) and (max-width:1100px){
+    .viewer{ padding:0 10px max(12px, env(safe-area-inset-bottom)); }
+    .desk{ padding:10px 4px 8px; }
+  }
+  @media (max-width:360px){ .tool{ width:42px; } .counter{ padding:0 10px; } }
 
   /* ============ pages ============ */
   .page{ flex:1; min-width:0; position:relative; box-sizing:border-box; overflow:hidden;
@@ -410,6 +421,33 @@
     font-size:.66em; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#3b362c; }
   .sec-more:hover{ color:var(--ink); }
   body.spread .sec-more{ display:none; }          /* the floorplan is the facing page */
+  /* phones (tall single page): crop the empty fog on the left so the house is bigger, and list the levels
+     under the drawing instead of over it */
+  .sec-list{ display:none; }
+  body.tall .sec-tag{ display:none; }
+  body.tall .sec-fig{ margin:1.8em -2.6em 0; aspect-ratio:1150/893; }
+  body.tall .sec-fig img{ object-fit:cover; object-position:100% 50%; }
+  body.tall .sec-band::after{ left:0; right:0; }
+  body.tall .sec-list{ display:block; margin:1.2em 0 0; padding:0; list-style:none; }
+  .sec-list button{ display:grid; grid-template-columns:2.6em 1fr; align-items:center; gap:0 .6em; width:100%; margin:0; padding:.95em 0;
+    border:0; border-top:1px solid rgba(22,19,14,.14); background:none; cursor:pointer; font:inherit; color:inherit; text-align:left; transition:opacity .3s; }
+  .sec-list li:last-child button{ border-bottom:1px solid rgba(22,19,14,.14); }
+  .sec-list .sec-no{ font-size:2em; }
+  .sec-list .nm{ font-size:.8em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; }
+  .sec-list .rm{ grid-column:2; font-size:.78em; line-height:1.45; color:#3b362c; margin-top:.2em; }
+  .sec-list button.on .sec-no{ color:var(--ink); }
+  .sectionpg.has-level .sec-list button:not(.on){ opacity:.5; }
+  .sec-list button:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
+  body.tall .sectionpg .sec-lede{ font-size:.9em; }
+  /* shorter phones (iPhone SE and the like): a tighter list so the page still fits */
+  @media (max-height:740px){
+    body.tall .sectionpg .page-inner{ padding-top:2em; }
+    body.tall .sec-fig{ margin-top:1.2em; }
+    body.tall .sec-list{ margin-top:.6em; }
+    .sec-list button{ padding:.55em 0; }
+    .sec-list .sec-no{ font-size:1.7em; }
+    body.tall .sec-fig{ aspect-ratio:1250/893; }
+  }
 
   /* floorplan: tabs per level, one large plan, a numbered key; key and plan numbers light each other up */
   .plan .page-inner{ padding:2.4em 2.6em 2.2em; }
@@ -450,6 +488,16 @@
   .plan-key li.on{ background:rgba(239,233,217,.1); color:#fff; }
   .plan-key li.on .n{ background:var(--olive); color:#16130e; }
   body.narrow.spread .plan-key{ grid-template-columns:1fr 1fr; }
+  /* phones: the drawings run to the page edges, and the text under them is set larger */
+  body.tall .plan-stage{ margin:1.2em -2.6em 0; }
+  body.tall .plan-tabs{ gap:1.6em; }
+  body.tall .plan-tab{ font-size:.76em; }
+  body.tall .plan-cap{ left:2.6em; }
+  .plan-img.phone-only, body.tall .plan-img.not-phone{ display:none; }
+  body.tall .plan-img.phone-only{ display:block; }
+  body.tall .plan-img.phone-only .plan-cap{ display:none; }     /* the strip above is too thin for it */
+  body.tall .plan-line{ font-size:.9em; }
+  body.tall .plan-key li{ font-size:.82em; padding:.4em .3em; }
 
   /* room pages (exterior / interiors) */
   .room .page-inner{ padding:2.4em 3em; }
@@ -474,13 +522,32 @@
   .mat-copy{ margin:auto 0; font-size:1.0em; line-height:1.7; text-align:center; font-weight:500; }
   .mat-copy em{ display:block; margin-top:1.2em; font-weight:600; }
 
-  /* solar */
-  .solar-photo{ flex:1.15; background-size:cover; background-position:center; min-height:0; }
-  .solar-band{ flex:1; display:flex; gap:3em; padding:2.2em 3em; align-items:flex-start; box-sizing:border-box; min-height:0; overflow:hidden; }
-  .solar-title{ font-size:2.8em; flex:0 0 auto; }
-  .solar-copy{ flex:1; font-size:.8em; line-height:1.6; text-align:justify; }
-  .solar-copy b{ font-weight:600; }
-  .solar-note{ font-size:.72em; font-style:italic; margin-top:.9em; }
+  /* add-ons: three roof options and a rough solar savings calculator */
+  .addons .page-inner{ padding:2.4em 2.6em 2em; color:#2b2218; }
+  .ao-kicker{ color:#6d675a; }
+  .ao-title{ font-size:2.5em; margin-top:.3em; }
+  .ao-lede{ margin:.6em 0 0; max-width:36em; font-size:.78em; line-height:1.6; color:#3b362c; }
+  .ao-cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:1em; margin-top:1.2em; }
+  .ao-img{ aspect-ratio:1/1; background-size:cover; background-position:center; border-radius:2px; }
+  .ao-txt h3{ margin:.7em 0 0; font-size:.64em; font-weight:600; letter-spacing:.18em; text-transform:uppercase; }
+  .ao-price{ margin:.25em 0 0; font-family:var(--serif); font-size:.88em; }
+  .ao-free{ display:block; margin-top:.3em; font-family:var(--sans); font-size:.66em; line-height:1.35; font-weight:600; letter-spacing:.08em; color:#5d6b2a; }
+  .ao-desc{ margin:.4em 0 0; font-size:.64em; line-height:1.55; color:#5d564a; }
+  .ao-sim{ margin-top:1.4em; padding:1em 1.2em .9em; background:rgba(255,255,255,.55); border:1px solid rgba(22,19,14,.14); border-radius:3px; }
+  .ao-sim-head{ display:flex; justify-content:space-between; align-items:baseline; gap:1em; flex-wrap:wrap; }
+  .ao-sim-head h3{ margin:0; font-family:var(--serif); font-weight:500; font-size:.95em; letter-spacing:.06em; }
+  .ao-sim-head span{ font-size:.62em; color:#6d675a; }
+  .ao-sim-body{ display:grid; grid-template-columns:1.1fr 1fr; gap:1.4em; margin-top:.5em; align-items:center; }
+  .ao-field{ display:block; margin-top:.25em; }
+  .ao-field .lb{ display:flex; justify-content:space-between; gap:.6em; font-size:.64em; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#5d564a; }
+  .ao-field output{ font-size:1.15em; letter-spacing:.02em; text-transform:none; color:#2b2218; font-variant-numeric:tabular-nums; }
+  .ao-field input{ width:100%; margin:.2em 0 0; accent-color:#4a4238; height:1.4em; }
+  .ao-outs{ display:grid; grid-template-columns:repeat(3,1fr); gap:.6em; text-align:center; }
+  .ao-outs b{ display:block; font-family:var(--serif); font-weight:500; font-size:1.25em; font-variant-numeric:tabular-nums; }
+  .ao-outs span{ display:block; margin-top:.3em; font-size:.58em; letter-spacing:.1em; text-transform:uppercase; color:#6d675a; line-height:1.4; }
+  .ao-note{ margin:.7em 0 0; font-size:.6em; line-height:1.5; color:#6d675a; }
+  .ao-more{ margin-top:auto; align-self:flex-start; padding-top:1em; font-size:.64em; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#3b362c; text-decoration:none; }
+  .ao-more:hover{ color:var(--ink); }
 
   /* payment */
   .price-t{ margin-top:2.4em; }
@@ -559,9 +626,9 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .plan-col{ flex-direction:row; align-items:center; gap:1.2em; min-height:0; }
   body.narrow .plan-col .im{ height:100%; }
   body.narrow .plan-col .lb{ flex:0 0 6.5em; margin-top:0; line-height:1.5; }
-  body.narrow .solar-band{ flex-direction:column; gap:1.1em; padding:2.2em 2em; }
-  body.narrow .solar-title{ font-size:2.6em; }
-  body.narrow .solar-copy{ font-size:.86em; }
+  body.narrow .addons .page-inner{ padding:2em 1.6em 1.6em; }
+  body.narrow .ao-cards{ gap:.8em; margin-top:1em; }
+  body.narrow .ao-sim-body{ grid-template-columns:1fr; gap:.7em; }
   body.narrow .pay-title{ font-size:2.3em; text-align:center; }
   body.narrow .timeline{ width:auto; margin-top:2.2em; }
   body.narrow .tl-line{ left:.99em; right:auto; top:.9em; bottom:.9em; width:2px; height:auto; }
@@ -627,7 +694,7 @@ body.narrow .price-t td{ font-size:.8em; }
         <button class="toc-item" data-goto="6"><span class="no">06</span><span class="lb">Island Lifestyle</span></button>
         <button class="toc-item" data-goto="12"><span class="no">12</span><span class="lb">Floorplan</span></button>
         <button class="toc-item" data-goto="7"><span class="no">07</span><span class="lb">The Film</span></button>
-        <button class="toc-item" data-goto="16"><span class="no">16</span><span class="lb">Sustainability</span></button>
+        <button class="toc-item" data-goto="16"><span class="no">16</span><span class="lb">Add-ons</span></button>
         <button class="toc-item" data-goto="8"><span class="no">08</span><span class="lb">ROI Projection</span></button>
         <button class="toc-item" data-goto="17"><span class="no">17</span><span class="lb">Price List &amp; Payment Plan</span></button>
       </div>
@@ -751,12 +818,12 @@ body.narrow .price-t td{ font-size:.8em; }
         <tr data-k="gross" tabindex="0" class="strong"><td>Gross Rental Income</td><td>$43,800</td><td>$51,100</td><td>$58,948</td></tr>
         <tr data-k="sell" tabindex="0" class="gap"><td>Selling Cost (OTA 10% + PB1 Tax 10%)</td><td>$8,322</td><td>$9,709</td><td>$11,200</td></tr>
         <tr data-k="mgmt" tabindex="0"><td>Management Fee (15%)</td><td>$5,913</td><td>$6,899</td><td>$7,958</td></tr>
-        <tr data-k="opex" tabindex="0"><td>Operating Cost (Staff, Utilities, Upkeep)</td><td>$8,134</td><td>$8,134</td><td>$8,134</td></tr>
+        <tr data-k="opex" tabindex="0"><td>Operating Cost (Staff, Utilities, Upkeep)</td><td>$9,145</td><td>$9,145</td><td>$9,145</td></tr>
         <tr data-k="ctax" tabindex="0" class="line"><td>Central Tax (0.5%)</td><td>$219</td><td>$256</td><td>$295</td></tr>
-        <tr data-k="exp" tabindex="0" class="strong"><td>Total Expense</td><td>$22,588</td><td>$24,998</td><td>$27,587</td></tr>
+        <tr data-k="exp" tabindex="0" class="strong"><td>Total Expense</td><td>$23,599</td><td>$26,009</td><td>$28,598</td></tr>
         <tr data-k="inv" tabindex="0" class="gap"><td>Investment (Villa A4)</td><td>$298,090</td><td>$298,090</td><td>$298,090</td></tr>
-        <tr data-k="net" tabindex="0" class="line"><td>Net Income</td><td>$21,212</td><td>$26,102</td><td>$31,361</td></tr>
-        <tr data-k="roi" tabindex="0" class="strong"><td>% Annual ROI</td><td>7%</td><td>9%</td><td>11%</td></tr>
+        <tr data-k="net" tabindex="0" class="line"><td>Net Income</td><td>$20,201</td><td>$25,091</td><td>$30,350</td></tr>
+        <tr data-k="roi" tabindex="0" class="strong"><td>% Annual ROI</td><td>7%</td><td>8%</td><td>10%</td></tr>
       </table>
       <div class="roi-explain" id="roiExplain" aria-live="polite">
         <p class="rx-hint"><span class="rx-dot" aria-hidden="true">i</span>Hover over or tap any line to see what it means and how it is worked out.</p>
@@ -811,6 +878,7 @@ body.narrow .price-t td{ font-size:.8em; }
         <button type="button" class="sec-band" data-level="1" style="top:34%;height:32.5%"></button>
         <button type="button" class="sec-band" data-level="0" style="top:66.5%;height:33.5%"></button>
       </div>
+      <ol class="sec-list" aria-label="Levels"></ol>
       <button type="button" class="sec-more" data-goto="12">Every level on the floorplan <span aria-hidden="true">&rarr;</span></button>
     </div>
     <span class="pnum" style="color:#3b362c;">11</span>
@@ -873,15 +941,54 @@ body.narrow .price-t td{ font-size:.8em; }
     <span class="pnum" style="color:#3b362c;">15</span>
   </section>
 
-  <!-- 16 · SOLAR -->
-  <section class="page" data-title="Sustainability">
-    <div class="solar-photo" style="background-image:url(img/22.webp)"></div>
-    <div class="solar-band tex-cream">
-      <h2 class="fat-title solar-title">Solar Panel</h2>
-      <div>
-        <p class="solar-copy">We offer sustainable power solutions, starting with high‑efficiency panels that deliver a robust up to <b>1.200 kWh/kWp</b> daily yield to cover your entire estate's climate control and lighting. Our seamless integration includes smart battery storage, providing a <b>15 kWh</b> backup capacity to ensure your home remains fully powered long after the sun sets or if there's any blackout.</p>
-        <p class="solar-note">Additional Price Rp 200.000.000 | Projected Bill Offset <b>up to 60% of Monthly Electricity Bill</b></p>
+  <!-- 16 · ADD-ONS: three roof options, with a rough solar savings calculator (script: ADD-ONS) -->
+  <section class="page tex-cream addons" data-title="Add-ons" data-slug="addons">
+    <div class="page-inner">
+      <div class="kicker ao-kicker">Make the roof yours</div>
+      <h2 class="fat-title ao-title">Add-ons</h2>
+      <p class="ao-lede">Three options for the roof terrace, chosen when you reserve and paid in the same instalments as the villa.</p>
+      <div class="ao-cards">
+        <article class="ao-card">
+          <div class="ao-img" style="background-image:url(img/04.webp);background-size:330%;background-position:4% 52%"></div>
+          <div class="ao-txt">
+            <h3>Rooftop jacuzzi</h3>
+            <p class="ao-price">Rp 250.000.000 <span class="ao-free">Free if you reserve by 31 Dec 2026</span></p>
+            <p class="ao-desc">Raised at the edge of the roof terrace, facing the ocean.</p>
+          </div>
+        </article>
+        <article class="ao-card">
+          <div class="ao-img" style="background-image:url(img/22.webp)"></div>
+          <div class="ao-txt">
+            <h3>Solar package</h3>
+            <p class="ao-price">Rp 200.000.000</p>
+            <p class="ao-desc">Panels with a 15 kWh battery: up to 60% off the electricity bill, and power through a blackout.</p>
+          </div>
+        </article>
+        <article class="ao-card">
+          <div class="ao-img" style="background-image:url(img/pergola.webp);background-position:50% 40%"></div>
+          <div class="ao-txt">
+            <h3>Rooftop pergola</h3>
+            <p class="ao-price">Rp 100.000.000</p>
+            <p class="ao-desc">Slatted shade over the outdoor kitchen and dining table.</p>
+          </div>
+        </article>
       </div>
+      <div class="ao-sim" data-noswipe>
+        <div class="ao-sim-head"><h3>Solar savings, roughly</h3><span>On an electricity bill of Rp 4 M a month</span></div>
+        <div class="ao-sim-body">
+          <div class="ao-inputs">
+            <label class="ao-field"><span class="lb">Share covered by solar <output id="aoShareOut"></output></span>
+              <input type="range" id="aoShare" min="20" max="60" step="5" value="50"></label>
+          </div>
+          <div class="ao-outs">
+            <div><b id="aoMonth"></b><span>saved a month</span></div>
+            <div><b id="aoYear"></b><span>saved a year</span></div>
+            <div><b id="aoPay"></b><span>to earn back Rp 200 M</span></div>
+          </div>
+        </div>
+        <p class="ao-note">A rough guide at today's tariffs, before any price rises; actual savings depend on use and sunshine.</p>
+      </div>
+      <a class="ao-more" href="/plan/?add=jacuzzi,solar,pergola">Add them to your payment plan <span aria-hidden="true">&rarr;</span></a>
     </div>
     <span class="pnum" style="color:#3b362c;">16</span>
   </section>
@@ -1250,6 +1357,7 @@ body.narrow .price-t td{ font-size:.8em; }
       rooms:'Living and kitchen · Private pool · Outdoor shower · Powder room',
       line:'Open-plan living and kitchen with full-height glass onto the pool deck and the private pool.',
       img:'img/13.webp?v=2', w:1600, h:893, crop:[240,400,1600,893], veilTo:610, cap:'Shown in section', drawn:true,
+      cropPhone:[365,575,1455,880],      /* phones: just the ground floor, pool to entrance path, so it shows larger */
       key:[ { t:'Entrance',          p:[[1398,742]] },
             { t:'Stairway',          p:[[1232,665]] },
             { t:'Powder room',       p:[[1212,790]] },
@@ -1286,6 +1394,29 @@ body.narrow .price-t td{ font-size:.8em; }
   ];
   /* ================================================ */
 
+  /* ================= ADD-ONS: rough solar savings =================
+     Saving = monthly electricity bill x share covered by solar (bill fixed at Rp 4 M a month, share 50% to start); payback = package price / yearly saving.
+     No tariff rises and no battery value: a rough guide, as the page says. */
+  (function solarSavings(){
+    var page = document.querySelector('#pageStore .addons'); if (!page) return;
+    var PRICE = 200000000;
+    var BILL = 4000000, share = page.querySelector('#aoShare');   /* electricity bill a month, IDR */
+    function m(v){ return 'Rp ' + (v/1e6).toFixed(v < 1e7 ? 1 : 0).replace('.', ',') + ' M'; }
+    function upd(){
+      var month = BILL * +share.value / 100, year = month * 12;
+      page.querySelector('#aoShareOut').textContent = share.value + '%';
+      page.querySelector('#aoMonth').textContent = m(month);
+      page.querySelector('#aoYear').textContent = m(year);
+      page.querySelector('#aoPay').textContent = '≈ ' + Math.round(PRICE / year) + ' yrs';
+    }
+    var sent = false;
+    [share].forEach(function(el){
+      el.addEventListener('input', upd);
+      el.addEventListener('change', function(){ if (!sent){ sent = true; track('solar_savings_used', {}); } });
+    });
+    upd();
+  })();
+
   (function villaLevels(){
     var secPage = document.querySelector('#pageStore .sectionpg'), planPage = document.querySelector('#pageStore .plan');
     if (!secPage || !planPage) return;
@@ -1300,15 +1431,26 @@ body.narrow .price-t td{ font-size:.8em; }
       tag.appendChild(el('span', 'sec-no', L.no)); tag.appendChild(el('span', 'nm', L.name)); tag.appendChild(el('span', 'rm', L.rooms));
       band.appendChild(tag);
     });
+    var secList = secPage.querySelector('.sec-list');                /* the same levels as a list, for phones (top floor first) */
+    if (secList) LEVELS.slice().reverse().forEach(function(L){
+      var li = el('li'), b = el('button'); b.type = 'button'; b.dataset.level = L.id;
+      b.appendChild(el('span', 'sec-no', L.no)); b.appendChild(el('span', 'nm', L.name)); b.appendChild(el('span', 'rm', L.rooms));
+      li.appendChild(b); secList.appendChild(li);
+    });
     LEVELS.forEach(function(L){
       var t = el('button', 'plan-tab'); t.type = 'button'; t.dataset.level = L.id;
       t.setAttribute('role', 'tab'); t.appendChild(el('span', 'no', L.no)); t.appendChild(document.createTextNode(L.tab));
       tabs.appendChild(t);
       var fig = el('figure', 'plan-view'); fig.dataset.level = L.id;
-      var c = L.crop || [0, 0, L.w, L.h], cw = c[2]-c[0], ch = c[3]-c[1];      /* crop: [x0, y0, x1, y1] in image pixels */
-      var box = el('div', 'plan-img' + (L.screen ? ' screen' : '')); box.style.setProperty('--ar', cw + '/' + ch);
+      fig.appendChild(planBox(L, L.crop, L.cropPhone ? 'not-phone' : ''));
+      if (L.cropPhone) fig.appendChild(planBox(L, L.cropPhone, 'phone-only'));
+      stage.appendChild(fig);
+    });
+    function planBox(L, crop, only){
+      var c = crop || [0, 0, L.w, L.h], cw = c[2]-c[0], ch = c[3]-c[1];      /* crop: [x0, y0, x1, y1] in image pixels */
+      var box = el('div', 'plan-img' + (L.screen ? ' screen' : '') + (only ? ' ' + only : '')); box.style.setProperty('--ar', cw + '/' + ch);
       var im = el('img'); im.src = L.img; im.alt = L.name + ' plan'; im.loading = 'lazy'; im.decoding = 'async';
-      if (L.crop){ box.classList.add('cropped');
+      if (crop){ box.classList.add('cropped');
         im.style.width = (L.w/cw*100) + '%'; im.style.height = (L.h/ch*100) + '%';
         im.style.left = (-c[0]/cw*100) + '%'; im.style.top = (-c[1]/ch*100) + '%'; }
       box.appendChild(im);
@@ -1322,8 +1464,8 @@ body.narrow .price-t td{ font-size:.8em; }
           box.appendChild(pin);
         });
       });
-      fig.appendChild(box); stage.appendChild(fig);
-    });
+      return box;
+    }
 
     function drawKey(){
       keyEl.innerHTML = '';
@@ -1341,7 +1483,7 @@ body.narrow .price-t td{ font-size:.8em; }
     }
     function setLevel(id, source){
       level = +id;
-      Array.prototype.forEach.call(document.querySelectorAll('.sec-band'), function(b){ b.classList.toggle('on', picked && +b.dataset.level === level); });
+      Array.prototype.forEach.call(document.querySelectorAll('.sec-band, .sec-list button'), function(b){ b.classList.toggle('on', picked && +b.dataset.level === level); });
       secPage.classList.toggle('has-level', picked);
       Array.prototype.forEach.call(tabs.children, function(t){ t.setAttribute('aria-selected', +t.dataset.level === level ? 'true' : 'false'); });
       Array.prototype.forEach.call(stage.children, function(f){ f.classList.toggle('on', +f.dataset.level === level); });
@@ -1483,14 +1625,19 @@ body.narrow .price-t td{ font-size:.8em; }
   function fit(){
     var ar = 3/4.1;
     var arrows = getComputedStyle(prevBtn).display !== 'none';
-    var w = stage.clientWidth - (arrows ? 150 : 14), h = stage.clientHeight - 14;
+    var w = stage.clientWidth - (arrows ? 150 : 14), h = stage.clientHeight - (arrows ? 14 : 8);
     var one = Math.min(w, h*ar), two = Math.min(w/2, h*ar);
     /* two pages whenever they fit well, and always on tablet-width screens and up */
     var wantSpread = two >= one*0.62 || stage.clientWidth >= 600;
-    var pw = Math.max(wantSpread ? two : one, 120);
+    var pw = Math.max(wantSpread ? two : one, 120), ph = pw/ar, fs = pw * 0.026;
+    /* Phones held upright: a printed page shape would leave half the screen empty, so the page takes
+       the full width and grows taller (down to 1:2), and the type is set larger to match. */
+    var tall = !wantSpread && w < h*ar*0.97;
+    if (tall){ pw = Math.max(w, 120); ph = Math.min(h, pw*2); fs = Math.min(pw * 0.034, ph * 0.0195); }
+    document.body.classList.toggle('tall', tall);
     sheetBox.style.width  = (wantSpread ? 2*pw : pw) + 'px';
-    sheetBox.style.height = (pw/ar) + 'px';
-    sheetBox.style.fontSize = (pw * 0.026) + 'px';
+    sheetBox.style.height = ph + 'px';
+    sheetBox.style.fontSize = fs + 'px';
     if (wantSpread !== spread){ spread = wantSpread; rebuild(); }
   }
 
@@ -1699,11 +1846,14 @@ body.narrow .price-t td{ font-size:.8em; }
   prevTool.addEventListener('click', via('toolbar', prev)); nextTool.addEventListener('click', via('toolbar', next));
   document.getElementById('tocTool').addEventListener('click', via('contents_button', function(){ go(1); }));
   document.addEventListener('keydown', function(e){
+    if (e.target && e.target.tagName === 'INPUT') return;          /* arrow keys move a focused slider, not the page */
     if (e.key === 'ArrowRight' || e.key === 'PageDown') via('keyboard', next)();
     if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   via('keyboard', prev)();
   });
   var tx = null, ty = null;
-  stage.addEventListener('touchstart', function(e){ tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY; }, {passive:true});
+  stage.addEventListener('touchstart', function(e){
+    if (e.target.closest && e.target.closest('input, [data-noswipe]')){ tx = null; return; }   /* dragging a slider is not a page turn */
+    tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY; }, {passive:true});
   stage.addEventListener('touchend', function(e){
     if (tx === null) return;
     var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; tx = null;
@@ -1754,7 +1904,7 @@ body.narrow .price-t td{ font-size:.8em; }
   /* Cost structure follows the managed-villa ROI projection: booking commission and PB1 tax on revenue,
      a management fee on revenue after commission, fixed monthly running costs in rupiah, and 0.5% central tax on gross rental income. */
   var RATE = [160,175,190], OCC = [.75,.80,.85], PRICE = 298090, FX = 17800;
-  var OTA = .10, PB1 = .10, MGMT = .15, CTAX = .005, FIXED_IDR_MONTH = 12065000;
+  var OTA = .10, PB1 = .10, MGMT = .15, CTAX = .005, FIXED_IDR_MONTH = 13565000;
   function usd(v){ return '$' + Math.round(v).toLocaleString('en-US'); }
   /* each line is rounded to whole dollars before it is added up, so every column sums exactly as printed */
   function roiCalc(c){
@@ -1776,7 +1926,7 @@ body.narrow .price-t td{ font-size:.8em; }
     mgmt: ['Management Fee', 'The management company’s fee for reservations, marketing and reception: 15% of rental income after commission.',
       function(c){ var x = roiCalc(c); return '15% × ' + usd(x.g - x.ota) + ' = ' + usd(x.m); }],
     opex: ['Operating Cost', 'Fixed running costs, the same in every scenario: three staff, operations, utilities, internet, laundry, maintenance, insurance, guest supplies and the banjar.',
-      function(){ return 'Rp 12.065.000 a month × 12 ÷ 17.800 = ' + usd(FIXED_IDR_MONTH*12/FX); }],
+      function(){ return 'Rp 13.565.000 a month × 12 ÷ 17.800 = ' + usd(FIXED_IDR_MONTH*12/FX); }],
     ctax: ['Central Tax', 'Central government tax of 0.5%, charged on gross rental income.',
       function(c){ var x = roiCalc(c); return '0.5% × ' + usd(x.g) + ' = ' + usd(x.t); }],
     exp:  ['Total Expense', 'Selling cost, management fee, operating cost and central tax together.',
