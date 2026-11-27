@@ -124,6 +124,10 @@
   .tool:hover{ background:#f1ede2; color:var(--ink); }
   .tool[disabled]{ color:#cfc8b8; cursor:default; background:none; }
   .tool-sep{ border-left:1px solid #e6e0d2; }
+  /* sound toggle: speaker with waves when on, with a cross when off */
+  #soundTool .off{ display:none; }
+  #soundTool[aria-pressed="false"] .on{ display:none; }
+  #soundTool[aria-pressed="false"] .off{ display:inline; }
   .counter{ display:flex; align-items:center; padding:0 14px; min-width:44px; justify-content:center; background:#f3efe5;
     font-size:13px; letter-spacing:.06em; color:#5d564a; font-variant-numeric:tabular-nums; }
   .nav-arrow:focus-visible,.tool:focus-visible,.toc-item:focus-visible,.wordmark:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
@@ -589,6 +593,7 @@ body.narrow .price-t td{ font-size:.8em; }
         <span class="counter" id="counter" aria-live="polite">1/18</span>
         <button class="tool" id="nextTool" type="button" aria-label="Next page"><svg viewBox="0 0 18 18"><path d="M6.5 3.5 12 9l-5.5 5.5"/></svg></button>
         <button class="tool tool-sep" id="tocTool" type="button" aria-label="Contents" title="Contents"><svg viewBox="0 0 18 18"><path d="M3 4.5h12M3 9h12M3 13.5h8"/></svg></button>
+        <button class="tool" id="soundTool" type="button" aria-label="Page-turn sound" aria-pressed="true" title="Page-turn sound: on"><svg viewBox="0 0 18 18"><path d="M3 7h2.5L9 4v10l-3.5-3H3z"/><path class="on" d="M11.5 6.5a3.5 3.5 0 0 1 0 5M13.5 4.5a6.4 6.4 0 0 1 0 9"/><path class="off" d="M12 7l4 4M16 7l-4 4"/></svg></button>
         <button class="tool" id="fsBtn" type="button" aria-label="Fullscreen" title="Fullscreen"><svg viewBox="0 0 18 18"><path d="M3 7V3h4M15 7V3h-4M3 11v4h4M15 11v4h-4"/></svg></button>
       </div>
     </div>
@@ -1362,6 +1367,71 @@ body.narrow .price-t td{ font-size:.8em; }
   var TURN_MS = 1000;
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ----- page-turn sound -----
+     A soft paper sound on each turn, made in the browser (no audio file to load).
+     On by default at low volume, off if the reader prefers reduced motion; the speaker
+     button in the toolbar turns it on or off, and the choice is kept in this browser
+     ("auraya_sound"). Browsers only allow sound after the reader clicks, taps or presses
+     a key, which is always the case here: the sound only ever follows a page turn.
+     To use a recorded sound instead, set SOUND_URL to a short file, e.g. "vid/page-turn.mp3". */
+  var SOUND_URL = "", SOUND_VOLUME = 0.5;
+  var pageSound = (function(){
+    var on = !still, ctx = null, noise = null, clip = null, last = 0;
+    try { var saved = localStorage.getItem('auraya_sound'); if (saved) on = saved === 'on'; } catch(e){}
+    var btn = document.getElementById('soundTool');
+    function show(){ btn.setAttribute('aria-pressed', on ? 'true' : 'false'); btn.title = 'Page-turn sound: ' + (on ? 'on' : 'off'); }
+    show();
+    btn.addEventListener('click', function(){
+      on = !on; show();
+      try { localStorage.setItem('auraya_sound', on ? 'on' : 'off'); } catch(e){}
+      if (on) play(0.8);                                   /* a quiet sample, so the reader hears what they turned on */
+      track('brochure_sound', { sound:on ? 'on' : 'off' });
+    });
+    function setup(){
+      if (ctx) return true;
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+      ctx = new AC();
+      noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+      var d = noise.getChannelData(0), b = 0;
+      for (var i = 0; i < d.length; i++){ b = 0.6*b + 0.4*(Math.random()*2 - 1); d[i] = b; }   /* softened noise: paper, not hiss */
+      if (SOUND_URL) fetch(SOUND_URL).then(function(r){ return r.arrayBuffer(); }).then(function(a){ return ctx.decodeAudioData(a); }).then(function(buf){ clip = buf; }).catch(function(){});
+      return true;
+    }
+    function rnd(a, b){ return a + Math.random()*(b - a); }
+    /* one burst of filtered noise: start time, length, centre frequency sweep, peak level */
+    function burst(t, len, f0, f1, peak, attack){
+      var src = ctx.createBufferSource(); src.buffer = noise;
+      var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.8;
+      bp.frequency.setValueAtTime(f0, t); bp.frequency.exponentialRampToValueAtTime(f1, t + len);
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(peak, t + attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+      src.start(t, Math.random()*0.4, len + 0.05);
+    }
+    function play(level){
+      if (!on) return;
+      if (navigator.userActivation && !navigator.userActivation.isActive) return;   /* only right after a tap, click or key */
+      if (!setup()) return;
+      var now = Date.now(); if (now - last < 350) return;  /* fast flipping: one sound, not a rattle */
+      last = now;
+      if (ctx.state === 'suspended') ctx.resume();
+      var t = ctx.currentTime + 0.01, v = SOUND_VOLUME * (level || 1) * rnd(0.85, 1.1);
+      if (clip){
+        var src = ctx.createBufferSource(), g = ctx.createGain();
+        src.buffer = clip; src.playbackRate.value = rnd(0.92, 1.08); g.gain.value = v;
+        src.connect(g); g.connect(ctx.destination); src.start(t);
+        return;
+      }
+      var len = rnd(0.42, 0.55);
+      burst(t, len, rnd(2600, 3400), rnd(900, 1200), 0.36*v, 0.07);          /* the sheet sweeping over */
+      burst(t + len*0.55, 0.12, rnd(1400, 1800), 700, 0.24*v, 0.01);      /* edge catching the air */
+      burst(t + len*0.92, 0.09, rnd(500, 650), 300, 0.32*v, 0.006);       /* landing on the page */
+    }
+    return play;
+  })();
+
   var cur = 0, layer = null, busy = false;
   var spread = null, leafEls = [], state = 0;      /* spread: number of sheets turned to the left */
   var N = pages.length, MAXSTATE = Math.floor(N/2);
@@ -1426,6 +1496,7 @@ body.narrow .price-t td{ font-size:.8em; }
     target = Math.max(0, Math.min(MAXSTATE, target));
     if (busy || target === state) return;
     var from = state, fwd = target > from;
+    pageSound();
     state = target;
     cur = Math.max(0, 2*state - 1);
     if (Math.abs(target - from) !== 1 || still){
@@ -1565,6 +1636,7 @@ body.narrow .price-t td{ font-size:.8em; }
     if (spread){ turnTo(Math.floor((i+1)/2)); return; }
     if (busy || i === cur) return;
     busy = true;
+    pageSound();
     render(i, dir || (i > cur ? 'next' : 'prev'));
   }
   function next(){ if (spread) turnTo(state+1); else go(cur+1, 'next'); }
