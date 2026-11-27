@@ -12,12 +12,18 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=3">
 <!-- Analytics: IDs live in /assets/analytics.js, shared with the landing page and the ROI model -->
 <script src="/assets/analytics.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="image" href="img/01.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="img/logo-cream.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&display=swap">
+<link rel="preload" as="image" href="img/01.webp" fetchpriority="high">
+<link rel="preload" as="image" href="img/logo-cream.webp">
+<!-- Fonts are self-hosted (/assets/fonts): no extra connections to Google, and no visitor data sent there -->
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/cinzel-latin.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/jost-latin.woff2" crossorigin>
 <style>
+@font-face{font-family:'Cinzel';font-style:normal;font-weight:400 600;font-display:swap;src:url(/assets/fonts/cinzel-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Cinzel';font-style:normal;font-weight:400 600;font-display:swap;src:url(/assets/fonts/cinzel-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Jost';font-style:italic;font-weight:400 500;font-display:swap;src:url(/assets/fonts/jost-italic-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Jost';font-style:italic;font-weight:400 500;font-display:swap;src:url(/assets/fonts/jost-italic-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/assets/fonts/jost-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/assets/fonts/jost-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
   img{ max-width:100%; } [hidden]{ display:none!important; }
   /* ============================================================
      AURAYA VILLAS — live brochure (Uluwatu draft design)
@@ -529,7 +535,7 @@ body.narrow .price-t td{ font-size:.8em; }
 <body>
 <div class="viewer" id="viewer">
   <div class="bar">
-    <a class="wordmark" href="/" aria-label="Auraya Villas home"><img src="img/logo-ink.png" alt="" width="520" height="516">Auraya</a>
+    <a class="wordmark" href="/" aria-label="Auraya Villas home"><img src="img/logo-ink.webp" alt="" width="96" height="95">Auraya</a>
     <span class="bar-label">Brochure</span>
   </div>
   <div class="desk">
@@ -553,10 +559,10 @@ body.narrow .price-t td{ font-size:.8em; }
 <div id="pageStore" hidden>
 
   <!-- 1 · COVER -->
-  <section class="page photo-page cover" data-title="Cover" data-video="vid/facade.mp4?v=3" style="background-image:url(img/01.jpg)">
+  <section class="page photo-page cover" data-title="Cover" data-video="vid/facade.mp4?v=3" style="background-image:url(img/01.webp)">
     <div class="shade-grad"></div>
     <div class="page-inner">
-      <img class="monogram" src="img/logo-cream.png" alt="Auraya Villas logo" width="520" height="516">
+      <img class="monogram" src="img/logo-cream.webp" alt="Auraya Villas logo" width="260" height="258">
       <h1 class="serif-title cover-title">Auraya Villas</h1>
       <p class="caps-para">Own one of four exclusive villas in Uluwatu, featuring panoramic ocean views, a private infinity pool, and a luxury rooftop jacuzzi.</p>
     </div>
@@ -564,7 +570,7 @@ body.narrow .price-t td{ font-size:.8em; }
   </section>
 
   <!-- 2 · CONTENTS -->
-  <section class="page photo-page" data-title="Contents" style="background-image:url(img/02.jpg)">
+  <section class="page photo-page" data-title="Contents" style="background-image:url(img/02.webp)">
     <div class="shade"></div>
     <div class="page-inner">
       <h2 class="serif-title toc-title">Table of Contents</h2>
@@ -587,7 +593,7 @@ body.narrow .price-t td{ font-size:.8em; }
     <div class="page-inner">
       <h2 class="fat-title intro-title">Introduction</h2>
       <p class="caps-para">Nestled in the heart of Bali's premier clifftop destination, Auraya features a private infinity pool and an exclusive rooftop jacuzzi, with two ways to own: a 30+20 year leasehold with the option to convert to freehold, or freehold‑equivalent HGB title through your own PT PMA.</p>
-      <div class="intro-band" data-video="vid/complex.mp4?v=3" style="background-image:url(img/03.jpg)"></div>
+      <div class="intro-band" data-video="vid/complex.mp4?v=3" style="background-image:url(img/03.webp)"></div>
     </div>
     <span class="pnum">03</span>
   </section>
@@ -610,7 +616,7 @@ body.narrow .price-t td{ font-size:.8em; }
           <li><b>Zoning:</b> pink tourism zone</li>
         </ul>
       </div>
-      <div class="half-photo" data-video="vid/rooftop.mp4?v=3" style="background-image:url(img/04.jpg)"></div>
+      <div class="half-photo" data-video="vid/rooftop.mp4?v=3" style="background-image:url(img/04.webp)"></div>
     </div>
     <span class="pnum" style="color:#3b362c;">04</span>
   </section>
@@ -630,7 +636,7 @@ body.narrow .price-t td{ font-size:.8em; }
         <a class="loc-link" href="https://maps.google.com/?q=Pecatu,+Uluwatu,+Bali" target="_blank" rel="noopener">Open in Google Maps →</a>
       </div>
       <div class="mapwrap">
-        <img src="img/05.jpg" alt="Map of the Bukit peninsula">
+        <img src="img/05.webp" alt="Map of the Bukit peninsula" loading="lazy" decoding="async">
         <div class="poi" style="left:56%; top:22%;"><span class="d"></span><span class="t">Dreamland<small>Beach</small></span></div>
         <div class="poi" style="left:44%; top:46%;"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></div>
         <div class="poi" style="left:30%; top:54%;"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></div>
@@ -704,7 +710,7 @@ body.narrow .price-t td{ font-size:.8em; }
   </section>
 
   <!-- 9 · VILLA DETAILS divider -->
-  <section class="page photo-page divider" data-title="Villa Details" style="background-image:url(img/11.jpg)">
+  <section class="page photo-page divider" data-title="Villa Details" style="background-image:url(img/11.webp)">
     <div class="shade"></div>
     <div class="page-inner">
       <h2 class="serif-title div-title">Villa Details</h2>
@@ -730,7 +736,7 @@ body.narrow .price-t td{ font-size:.8em; }
           <li><b>Leasehold 30+20 or freehold‑equivalent HGB</b></li>
         </ul>
       </div>
-      <div class="half-photo" data-video="vid/facade.mp4?v=3" style="background-image:url(img/12.jpg)"></div>
+      <div class="half-photo" data-video="vid/facade.mp4?v=3" style="background-image:url(img/12.webp)"></div>
     </div>
     <span class="pnum" style="color:#3b362c;">10</span>
   </section>
@@ -742,7 +748,7 @@ body.narrow .price-t td{ font-size:.8em; }
       <h2 class="fat-title sec-title">The villa, in section</h2>
       <p class="sec-lede">Living opens straight onto the pool, the bedrooms sit above it, and the roof is a terrace of its own. Choose a level to see what is on it.</p>
       <div class="sec-fig">
-        <img src="img/13.jpg" alt="Cut-away section of the villa: living, kitchen and pool on the ground floor, a bedroom and bathroom above, and a roof terrace with a jacuzzi on top" width="1600" height="893" loading="lazy" decoding="async">
+        <img src="img/13.webp" alt="Cut-away section of the villa: living, kitchen and pool on the ground floor, a bedroom and bathroom above, and a roof terrace with a jacuzzi on top" width="1600" height="893" loading="lazy" decoding="async">
         <!-- one band per level, top and height in % of the drawing -->
         <button type="button" class="sec-band" data-level="2" style="top:0;height:34%" aria-label="Roof terrace"><span class="sec-no">02</span></button>
         <button type="button" class="sec-band" data-level="1" style="top:34%;height:32.5%" aria-label="Upper floor"><span class="sec-no">01</span></button>
@@ -776,8 +782,8 @@ body.narrow .price-t td{ font-size:.8em; }
         <p class="caps-para">This timeless villa blends natural stone walls with lush tropical greenery, featuring a stunning infinity pool that merges with the endless ocean views.</p>
       </div>
       <div class="room-grid">
-        <div class="im" data-video="vid/complex.mp4?v=3" style="background-image:url(img/03.jpg)"></div>
-        <div class="im" data-video="vid/facade.mp4?v=3" style="background-image:url(img/12.jpg)"></div>
+        <div class="im" data-video="vid/complex.mp4?v=3" style="background-image:url(img/03.webp)"></div>
+        <div class="im" data-video="vid/facade.mp4?v=3" style="background-image:url(img/12.webp)"></div>
       </div>
     </div>
     <span class="pnum" style="color:#3b362c;">13</span>
@@ -791,10 +797,10 @@ body.narrow .price-t td{ font-size:.8em; }
         <p class="caps-para">Open‑plan living with a rustic kitchen heart, two serene en‑suite bedrooms with direct ocean views, and travertine bathrooms. Classic style with total comfort and privacy.</p>
       </div>
       <div class="room-grid">
-        <div class="im" data-video="vid/living.mp4?v=3" style="background-image:url(img/17.jpg)"></div>
-        <div class="im" data-video="vid/kitchen.mp4?v=3" style="background-image:url(img/18.jpg)"></div>
-        <div class="im" data-video="vid/bedroom.mp4?v=3" style="background-image:url(img/19.jpg)"></div>
-        <div class="im" style="background-image:url(img/20.jpg)"></div>
+        <div class="im" data-video="vid/living.mp4?v=3" style="background-image:url(img/17.webp)"></div>
+        <div class="im" data-video="vid/kitchen.mp4?v=3" style="background-image:url(img/18.webp)"></div>
+        <div class="im" data-video="vid/bedroom.mp4?v=3" style="background-image:url(img/19.webp)"></div>
+        <div class="im" style="background-image:url(img/20.webp)"></div>
       </div>
     </div>
     <span class="pnum" style="color:#3b362c;">14</span>
@@ -803,7 +809,7 @@ body.narrow .price-t td{ font-size:.8em; }
   <!-- 15 · MATERIALS -->
   <section class="page mat" data-title="Materials">
     <div class="split">
-      <div class="half-photo" style="background-image:url(img/21.jpg)"></div>
+      <div class="half-photo" style="background-image:url(img/21.webp)"></div>
       <div class="half-text tex-cream">
         <p class="mat-copy">We prioritize durability and design by selecting only the finest natural materials, including lime plaster, textured paint, natural stone, and Ulin wood. This commitment to premium craftsmanship ensures a home that is both raw and refined.<em>A timeless build designed to last forever.</em></p>
       </div>
@@ -813,7 +819,7 @@ body.narrow .price-t td{ font-size:.8em; }
 
   <!-- 16 · SOLAR -->
   <section class="page" data-title="Sustainability">
-    <div class="solar-photo" style="background-image:url(img/22.jpg)"></div>
+    <div class="solar-photo" style="background-image:url(img/22.webp)"></div>
     <div class="solar-band tex-cream">
       <h2 class="fat-title solar-title">Solar Panel</h2>
       <div>
@@ -848,7 +854,7 @@ body.narrow .price-t td{ font-size:.8em; }
   </section>
 
   <!-- 18 · PAYMENT -->
-  <section class="page photo-page pay" data-title="Payment Timeline" data-slug="payment" style="background-image:url(img/23.jpg)">
+  <section class="page photo-page pay" data-title="Payment Timeline" data-slug="payment" style="background-image:url(img/23.webp)">
     <div class="shade"></div>
     <div class="page-inner">
       <h2 class="serif-title pay-title">Payment Timeline</h2>
@@ -871,7 +877,7 @@ body.narrow .price-t td{ font-size:.8em; }
   </section>
 
   <!-- 19 · THANK YOU -->
-  <section class="page photo-page thanks" data-title="Enquiries" style="background-image:url(img/24.jpg)">
+  <section class="page photo-page thanks" data-title="Enquiries" style="background-image:url(img/24.webp)">
     <div class="shade"></div>
     <div class="page-inner">
       <h2 class="serif-title thanks-title">Thank You</h2>
@@ -892,6 +898,11 @@ body.narrow .price-t td{ font-size:.8em; }
   /* analytics: does nothing until an ID is set in /assets/analytics.js */
   function track(ev, params){ if (window.track) window.track(ev, null, params); }
   "use strict";
+
+  /* Speed: moving photos and look-ahead photos wait until the first page has fully loaded,
+     so they never compete with it; with the browser's data saver on, the photos stay still. */
+  var saveData = !!(navigator.connection && navigator.connection.saveData);
+  var mediaOK = false;
 
   /* ================= CONFIG =================
      Real walkthrough video for "The Film" page, once hosted on
@@ -922,15 +933,15 @@ body.narrow .price-t td{ font-size:.8em; }
      then hidden rather than showing a wrong number.                       */
   var PLACES = [
     { name:"Sundays Beach Club",       cat:"Beach Clubs",      type:"Beach club & restaurant", rating:4.5, reviews:5208,
-      img:"img/places/sundays.jpg",  video:"vid/places/sundays.mp4" },
+      img:"img/places/sundays.webp",  video:"vid/places/sundays.mp4" },
     { name:"Palmilla Bali Beach Club", cat:"Beach Clubs",      type:"Beach club & restaurant", rating:4.4, reviews:3941,
-      img:"img/places/palmilla.jpg", video:"vid/places/palmilla.mp4" },
+      img:"img/places/palmilla.webp", video:"vid/places/palmilla.mp4" },
     { name:"Melasti Beach",            cat:"Beaches",          type:"Beach",                   rating:4.7, reviews:3949,
-      img:"img/places/melasti.jpg",  video:"vid/places/melasti.mp4" },
+      img:"img/places/melasti.webp",  video:"vid/places/melasti.mp4" },
     { name:"Savaya Bali",              cat:"Nightlife",        type:"Club",                    rating:4.1, reviews:4945,
-      img:"img/places/savaya.jpg",   video:"vid/places/savaya.mp4" },
+      img:"img/places/savaya.webp",   video:"vid/places/savaya.mp4" },
     { name:"Island Padel Uluwatu",     cat:"Wellness",         type:"Padel club",              rating:4.7, reviews:337,
-      img:"img/places/padel.jpg",    video:"vid/places/padel.mp4" }
+      img:"img/places/padel.webp",    video:"vid/places/padel.mp4" }
     /* To add once photo, rating and reviews are in (see _notes/lifestyle-places.md):
     { name:"Single Fin",               cat:"Nightlife",        type:"Bar & restaurant",
       blurb:"Clifftop bar above the Uluwatu surf break, known for its sunset views and Sunday sessions." },
@@ -946,7 +957,7 @@ body.narrow .price-t td{ font-size:.8em; }
     var page = document.querySelector('#pageStore .life');
     if (!page) return;
     var tabsEl = page.querySelector('.life-tabs'), grid = page.querySelector('.life-grid'), inner = page.querySelector('.page-inner');
-    var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches || saveData;
     var shown = false;          /* is this page on screen? set from syncClips() */
     var cats = [];
     PLACES.forEach(function(p){ if (cats.indexOf(p.cat) < 0) cats.push(p.cat); });
@@ -1098,7 +1109,7 @@ body.narrow .price-t td{ font-size:.8em; }
     { id:0, no:'00', name:'Ground floor', tab:'Ground',
       rooms:'Living and kitchen · Infinity pool · Outdoor shower · Powder room',
       line:'Open-plan living and kitchen with full-height glass onto the pool deck; the infinity pool runs along the cliff edge.',
-      img:'img/13.jpg', w:1600, h:893, crop:[240,400,1600,893], veilTo:610, cap:'Shown in section', drawn:true,
+      img:'img/13.webp', w:1600, h:893, crop:[240,400,1600,893], veilTo:610, cap:'Shown in section', drawn:true,
       key:[ { t:'Entrance',          p:[[1398,742]] },
             { t:'Stairway',          p:[[1232,665]] },
             { t:'Powder room',       p:[[1212,790]] },
@@ -1109,7 +1120,7 @@ body.narrow .price-t td{ font-size:.8em; }
     { id:1, no:'01', name:'Upper floor', tab:'Upper',
       rooms:'Two ocean-facing bedrooms, each with its own bathroom',
       line:'Two mirror-image suites side by side, each with an ocean-facing bedroom, a walk-in shower, WC and vanity.',
-      img:'img/15.jpg', w:624, h:605, screen:true,
+      img:'img/15.webp', w:624, h:605, screen:true,
       key:[ { t:'Stairway',            p:[[157,450]] },
             { t:'Walk-in shower',      p:[[218,312]] },
             { t:'WC',                  p:[[288,312]] },
@@ -1122,7 +1133,7 @@ body.narrow .price-t td{ font-size:.8em; }
     { id:2, no:'02', name:'Roof terrace', tab:'Roof',
       rooms:'Jacuzzi · Outdoor kitchen · Dining · Sun deck',
       line:'An open-air floor of its own: a raised jacuzzi over the ocean, an outdoor kitchen and a table for eight.',
-      img:'img/16.jpg', w:668, h:534, screen:true,
+      img:'img/16.webp', w:668, h:534, screen:true,
       key:[ { t:'Stairway',            p:[[176,383]] },
             { t:'Storage',             p:[[302,310]], check:true },
             { t:'Outdoor dining',      p:[[292,207]] },
@@ -1244,7 +1255,7 @@ body.narrow .price-t td{ font-size:.8em; }
   });
 
   /* Photos load when their page is shown, so fetch the next two pages' photos ahead of time */
-  var pageImgs = pages.map(function(p){ return (p.outerHTML.match(/img\/[\w\/-]+\.jpg/g) || []); });
+  var pageImgs = pages.map(function(p){ return (p.outerHTML.match(/img\/[\w\/-]+\.webp/g) || []); });
   function preload(i){ (pageImgs[i] || []).forEach(function(u){ var im = new Image(); im.src = u; }); }
 
   var sheetBox= document.getElementById('sheetBox');
@@ -1386,9 +1397,10 @@ body.narrow .price-t td{ font-size:.8em; }
   var clipHosts = Array.prototype.slice.call(store.querySelectorAll('[data-video]'));
   function pageIndexOf(el){ return pages.indexOf(el.classList.contains('page') ? el : el.closest('.page')); }
   function syncClips(){
+    if (!mediaOK) return;
     var lp = document.querySelector('.life');
     if (lp && lp.setShown) lp.setShown((spread ? [2*state - 1, 2*state] : [cur]).indexOf(pages.indexOf(lp)) >= 0);
-    if (still) return;
+    if (still || saveData) return;
     var shown = spread ? [2*state - 1, 2*state] : [cur];
     clipHosts.forEach(function(host){
       var on = shown.indexOf(pageIndexOf(host)) >= 0;
@@ -1412,7 +1424,7 @@ body.narrow .price-t td{ font-size:.8em; }
     var lp = document.querySelector('.life');
     if (lp && lp.closeSpot) lp.closeSpot();
     try{ history.replaceState(null, '', '#p' + (cur+1)); }catch(e){}
-    preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4);
+    if (mediaOK){ preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4); }
     updateChrome();
     syncClips();
     reportPages();
@@ -1606,6 +1618,15 @@ body.narrow .price-t td{ font-size:.8em; }
   }
   fit();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+
+  function startMedia(){
+    if (mediaOK) return;
+    mediaOK = true;
+    syncClips();
+    preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4);
+  }
+  if (document.readyState === 'complete') setTimeout(startMedia, 300);
+  else window.addEventListener('load', function(){ setTimeout(startMedia, 300); });
 })();
 </script>
 
