@@ -5,8 +5,15 @@
    Paste your IDs between the quotes. While an ID is empty, that
    tracker is not loaded at all; with both empty, no cookie banner
    is shown either, because nothing would be tracked.
+     GTM_ID   = Google Tag Manager container ID, e.g. "GTM-XXXXXXX"
      GA_ID    = Google Analytics 4 measurement ID, e.g. "G-XXXXXXXXXX"
+                (leave empty if Google Analytics runs inside the GTM container)
      PIXEL_ID = Meta (Facebook) Pixel ID, e.g. "123456789012345"
+
+   Tag Manager loads once the visitor allows Analytics or Marketing. Their
+   choice reaches it through Google Consent Mode, so tags in the container
+   follow it. Every event below is also pushed to the dataLayer as
+   { event: "<name>", ...params } for use as Custom Event triggers in GTM.
 
    Consent: nothing is loaded and no cookie is set until the visitor
    agrees in the banner. "Analytics" loads Google Analytics;
@@ -42,6 +49,7 @@
    Setup and the fields sent: _notes/crm-activity.md
    ============================================================ */
 (function(){
+  var GTM_ID = "GTM-P2XJ3FJL";
   var GA_ID = "";
   var PIXEL_ID = "";
   /* n8n production webhook for activity, e.g. "https://valenira.app.n8n.cloud/webhook/...".
@@ -49,17 +57,26 @@
   var CRM_URL = "";
 
   var KEY = 'auraya_consent', VERSION = 2, MAX_AGE = 182 * 24 * 3600 * 1000;
-  var configured = !!(GA_ID || PIXEL_ID || CRM_URL);
+  var configured = !!(GTM_ID || GA_ID || PIXEL_ID || CRM_URL);
 
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
   /* Consent Mode v2: everything denied until the visitor chooses */
   gtag('consent', 'default', { analytics_storage:'denied', ad_storage:'denied', ad_user_data:'denied', ad_personalization:'denied' });
 
-  var gaLoaded = false, pixelLoaded = false, consent = { analytics:false, marketing:false, followup:false };
+  var gtmLoaded = false, gaLoaded = false, pixelLoaded = false, consent = { analytics:false, marketing:false, followup:false };
   /* events from before the visitor chose: held in memory, sent only if they agree, dropped otherwise */
   var decided = false, pending = [];
 
+  /* standard Tag Manager start: the gtm.js event fires the container's page-view triggers */
+  function loadGTM(){
+    if (gtmLoaded || !GTM_ID) return;
+    gtmLoaded = true;
+    window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+    var t = document.createElement('script');
+    t.async = true; t.src = 'https://www.googletagmanager.com/gtm.js?id=' + GTM_ID;
+    document.head.appendChild(t);
+  }
   function loadGA(){
     if (gaLoaded || !GA_ID) return;
     gaLoaded = true;
@@ -99,6 +116,7 @@
       ad_user_data:       consent.marketing ? 'granted' : 'denied',
       ad_personalization: consent.marketing ? 'granted' : 'denied'
     });
+    if (consent.analytics || consent.marketing) loadGTM();
     if (consent.analytics) loadGA(); else clearGACookies();
     if (consent.marketing) loadPixel();
     else if (pixelLoaded && window.fbq) fbq('consent', 'revoke');
@@ -127,6 +145,10 @@
     params = params || {};
     if (!('site_area' in params)) params.site_area = area;
     if (!decided && configured){ if (pending.length < 100) pending.push([gaEvent, pixelEvent, params]); return; }
+    if (gtmLoaded && (consent.analytics || consent.marketing)){
+      var ev = { event: gaEvent }; for (var k in params) ev[k] = params[k];
+      window.dataLayer.push(ev);
+    }
     if (GA_ID && consent.analytics) gtag('event', gaEvent, params);
     if (PIXEL_ID && consent.marketing && pixelEvent && window.fbq) fbq('track', pixelEvent, params);
     if (CRM_URL && consent.followup) toCRM(gaEvent, params);
