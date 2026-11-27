@@ -474,13 +474,32 @@
   .mat-copy{ margin:auto 0; font-size:1.0em; line-height:1.7; text-align:center; font-weight:500; }
   .mat-copy em{ display:block; margin-top:1.2em; font-weight:600; }
 
-  /* solar */
-  .solar-photo{ flex:1.15; background-size:cover; background-position:center; min-height:0; }
-  .solar-band{ flex:1; display:flex; gap:3em; padding:2.2em 3em; align-items:flex-start; box-sizing:border-box; min-height:0; overflow:hidden; }
-  .solar-title{ font-size:2.8em; flex:0 0 auto; }
-  .solar-copy{ flex:1; font-size:.8em; line-height:1.6; text-align:justify; }
-  .solar-copy b{ font-weight:600; }
-  .solar-note{ font-size:.72em; font-style:italic; margin-top:.9em; }
+  /* add-ons: three roof options and a rough solar savings calculator */
+  .addons .page-inner{ padding:2.4em 2.6em 2em; color:#2b2218; }
+  .ao-kicker{ color:#6d675a; }
+  .ao-title{ font-size:2.5em; margin-top:.3em; }
+  .ao-lede{ margin:.6em 0 0; max-width:36em; font-size:.78em; line-height:1.6; color:#3b362c; }
+  .ao-cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:1em; margin-top:1.2em; }
+  .ao-img{ aspect-ratio:1/1; background-size:cover; background-position:center; border-radius:2px; }
+  .ao-txt h3{ margin:.7em 0 0; font-size:.64em; font-weight:600; letter-spacing:.18em; text-transform:uppercase; }
+  .ao-price{ margin:.25em 0 0; font-family:var(--serif); font-size:.88em; }
+  .ao-free{ display:block; margin-top:.3em; font-family:var(--sans); font-size:.66em; line-height:1.35; font-weight:600; letter-spacing:.08em; color:#5d6b2a; }
+  .ao-desc{ margin:.4em 0 0; font-size:.64em; line-height:1.55; color:#5d564a; }
+  .ao-sim{ margin-top:1.4em; padding:1em 1.2em .9em; background:rgba(255,255,255,.55); border:1px solid rgba(22,19,14,.14); border-radius:3px; }
+  .ao-sim-head{ display:flex; justify-content:space-between; align-items:baseline; gap:1em; flex-wrap:wrap; }
+  .ao-sim-head h3{ margin:0; font-family:var(--serif); font-weight:500; font-size:.95em; letter-spacing:.06em; }
+  .ao-sim-head span{ font-size:.62em; color:#6d675a; }
+  .ao-sim-body{ display:grid; grid-template-columns:1.1fr 1fr; gap:1.4em; margin-top:.5em; align-items:center; }
+  .ao-field{ display:block; margin-top:.25em; }
+  .ao-field .lb{ display:flex; justify-content:space-between; gap:.6em; font-size:.64em; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#5d564a; }
+  .ao-field output{ font-size:1.15em; letter-spacing:.02em; text-transform:none; color:#2b2218; font-variant-numeric:tabular-nums; }
+  .ao-field input{ width:100%; margin:.2em 0 0; accent-color:#4a4238; height:1.4em; }
+  .ao-outs{ display:grid; grid-template-columns:repeat(3,1fr); gap:.6em; text-align:center; }
+  .ao-outs b{ display:block; font-family:var(--serif); font-weight:500; font-size:1.25em; font-variant-numeric:tabular-nums; }
+  .ao-outs span{ display:block; margin-top:.3em; font-size:.58em; letter-spacing:.1em; text-transform:uppercase; color:#6d675a; line-height:1.4; }
+  .ao-note{ margin:.7em 0 0; font-size:.6em; line-height:1.5; color:#6d675a; }
+  .ao-more{ margin-top:auto; align-self:flex-start; padding-top:1em; font-size:.64em; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#3b362c; text-decoration:none; }
+  .ao-more:hover{ color:var(--ink); }
 
   /* payment */
   .price-t{ margin-top:2.4em; }
@@ -559,9 +578,9 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .plan-col{ flex-direction:row; align-items:center; gap:1.2em; min-height:0; }
   body.narrow .plan-col .im{ height:100%; }
   body.narrow .plan-col .lb{ flex:0 0 6.5em; margin-top:0; line-height:1.5; }
-  body.narrow .solar-band{ flex-direction:column; gap:1.1em; padding:2.2em 2em; }
-  body.narrow .solar-title{ font-size:2.6em; }
-  body.narrow .solar-copy{ font-size:.86em; }
+  body.narrow .addons .page-inner{ padding:2em 1.6em 1.6em; }
+  body.narrow .ao-cards{ gap:.8em; margin-top:1em; }
+  body.narrow .ao-sim-body{ grid-template-columns:1fr; gap:.7em; }
   body.narrow .pay-title{ font-size:2.3em; text-align:center; }
   body.narrow .timeline{ width:auto; margin-top:2.2em; }
   body.narrow .tl-line{ left:.99em; right:auto; top:.9em; bottom:.9em; width:2px; height:auto; }
@@ -627,7 +646,7 @@ body.narrow .price-t td{ font-size:.8em; }
         <button class="toc-item" data-goto="6"><span class="no">06</span><span class="lb">Island Lifestyle</span></button>
         <button class="toc-item" data-goto="12"><span class="no">12</span><span class="lb">Floorplan</span></button>
         <button class="toc-item" data-goto="7"><span class="no">07</span><span class="lb">The Film</span></button>
-        <button class="toc-item" data-goto="16"><span class="no">16</span><span class="lb">Sustainability</span></button>
+        <button class="toc-item" data-goto="16"><span class="no">16</span><span class="lb">Add-ons</span></button>
         <button class="toc-item" data-goto="8"><span class="no">08</span><span class="lb">ROI Projection</span></button>
         <button class="toc-item" data-goto="17"><span class="no">17</span><span class="lb">Price List &amp; Payment Plan</span></button>
       </div>
@@ -873,15 +892,56 @@ body.narrow .price-t td{ font-size:.8em; }
     <span class="pnum" style="color:#3b362c;">15</span>
   </section>
 
-  <!-- 16 · SOLAR -->
-  <section class="page" data-title="Sustainability">
-    <div class="solar-photo" style="background-image:url(img/22.webp)"></div>
-    <div class="solar-band tex-cream">
-      <h2 class="fat-title solar-title">Solar Panel</h2>
-      <div>
-        <p class="solar-copy">We offer sustainable power solutions, starting with high‑efficiency panels that deliver a robust up to <b>1.200 kWh/kWp</b> daily yield to cover your entire estate's climate control and lighting. Our seamless integration includes smart battery storage, providing a <b>15 kWh</b> backup capacity to ensure your home remains fully powered long after the sun sets or if there's any blackout.</p>
-        <p class="solar-note">Additional Price Rp 200.000.000 | Projected Bill Offset <b>up to 60% of Monthly Electricity Bill</b></p>
+  <!-- 16 · ADD-ONS: three roof options, with a rough solar savings calculator (script: ADD-ONS) -->
+  <section class="page tex-cream addons" data-title="Add-ons" data-slug="addons">
+    <div class="page-inner">
+      <div class="kicker ao-kicker">Make the roof yours</div>
+      <h2 class="fat-title ao-title">Add-ons</h2>
+      <p class="ao-lede">Three options for the roof terrace, chosen when you reserve and paid in the same instalments as the villa.</p>
+      <div class="ao-cards">
+        <article class="ao-card">
+          <div class="ao-img" style="background-image:url(img/04.webp);background-size:330%;background-position:4% 52%"></div>
+          <div class="ao-txt">
+            <h3>Rooftop jacuzzi</h3>
+            <p class="ao-price">Rp 250.000.000 <span class="ao-free">Free if you reserve by 31 Dec 2026</span></p>
+            <p class="ao-desc">Raised at the edge of the roof terrace, facing the ocean.</p>
+          </div>
+        </article>
+        <article class="ao-card">
+          <div class="ao-img" style="background-image:url(img/22.webp)"></div>
+          <div class="ao-txt">
+            <h3>Solar package</h3>
+            <p class="ao-price">Rp 200.000.000</p>
+            <p class="ao-desc">Panels with a 15 kWh battery: up to 60% off the electricity bill, and power through a blackout.</p>
+          </div>
+        </article>
+        <article class="ao-card">
+          <div class="ao-img" style="background-image:url(img/pergola.webp);background-position:50% 40%"></div>
+          <div class="ao-txt">
+            <h3>Rooftop pergola</h3>
+            <p class="ao-price">Rp 100.000.000</p>
+            <p class="ao-desc">Slatted shade over the outdoor kitchen and dining table.</p>
+          </div>
+        </article>
       </div>
+      <div class="ao-sim" data-noswipe>
+        <div class="ao-sim-head"><h3>Solar savings, roughly</h3><span>Move the sliders to match how the villa is used</span></div>
+        <div class="ao-sim-body">
+          <div class="ao-inputs">
+            <label class="ao-field"><span class="lb">Electricity bill a month <output id="aoBillOut"></output></span>
+              <input type="range" id="aoBill" min="1000000" max="8000000" step="250000" value="2500000"></label>
+            <label class="ao-field"><span class="lb">Share covered by solar <output id="aoShareOut"></output></span>
+              <input type="range" id="aoShare" min="20" max="60" step="5" value="50"></label>
+          </div>
+          <div class="ao-outs">
+            <div><b id="aoMonth"></b><span>saved a month</span></div>
+            <div><b id="aoYear"></b><span>saved a year</span></div>
+            <div><b id="aoPay"></b><span>to earn back Rp 200 M</span></div>
+          </div>
+        </div>
+        <p class="ao-note">A rough guide at today's tariffs, before any price rises. Rp 2,5 M a month is the electricity line in our ROI model; actual savings depend on use and sunshine.</p>
+      </div>
+      <a class="ao-more" href="/plan/?add=jacuzzi,solar,pergola">Add them to your payment plan <span aria-hidden="true">&rarr;</span></a>
     </div>
     <span class="pnum" style="color:#3b362c;">16</span>
   </section>
@@ -1247,6 +1307,30 @@ body.narrow .price-t td{ font-size:.8em; }
             { t:'Planters',            p:[[427,67],[360,442]] } ] }
   ];
   /* ================================================ */
+
+  /* ================= ADD-ONS: rough solar savings =================
+     Saving = monthly electricity bill x share covered by solar; payback = package price / yearly saving.
+     No tariff rises and no battery value: a rough guide, as the page says. */
+  (function solarSavings(){
+    var page = document.querySelector('#pageStore .addons'); if (!page) return;
+    var PRICE = 200000000;
+    var bill = page.querySelector('#aoBill'), share = page.querySelector('#aoShare');
+    function m(v){ return 'Rp ' + (v/1e6).toFixed(v < 1e7 ? 1 : 0).replace('.', ',') + ' M'; }
+    function upd(){
+      var month = +bill.value * +share.value / 100, year = month * 12;
+      page.querySelector('#aoBillOut').textContent = m(+bill.value);
+      page.querySelector('#aoShareOut').textContent = share.value + '%';
+      page.querySelector('#aoMonth').textContent = m(month);
+      page.querySelector('#aoYear').textContent = m(year);
+      page.querySelector('#aoPay').textContent = '≈ ' + Math.round(PRICE / year) + ' yrs';
+    }
+    var sent = false;
+    [bill, share].forEach(function(el){
+      el.addEventListener('input', upd);
+      el.addEventListener('change', function(){ if (!sent){ sent = true; track('solar_savings_used', {}); } });
+    });
+    upd();
+  })();
 
   (function villaLevels(){
     var secPage = document.querySelector('#pageStore .sectionpg'), planPage = document.querySelector('#pageStore .plan');
@@ -1661,11 +1745,14 @@ body.narrow .price-t td{ font-size:.8em; }
   prevTool.addEventListener('click', via('toolbar', prev)); nextTool.addEventListener('click', via('toolbar', next));
   document.getElementById('tocTool').addEventListener('click', via('contents_button', function(){ go(1); }));
   document.addEventListener('keydown', function(e){
+    if (e.target && e.target.tagName === 'INPUT') return;          /* arrow keys move a focused slider, not the page */
     if (e.key === 'ArrowRight' || e.key === 'PageDown') via('keyboard', next)();
     if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   via('keyboard', prev)();
   });
   var tx = null, ty = null;
-  stage.addEventListener('touchstart', function(e){ tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY; }, {passive:true});
+  stage.addEventListener('touchstart', function(e){
+    if (e.target.closest && e.target.closest('input, [data-noswipe]')){ tx = null; return; }   /* dragging a slider is not a page turn */
+    tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY; }, {passive:true});
   stage.addEventListener('touchend', function(e){
     if (tx === null) return;
     var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; tx = null;
