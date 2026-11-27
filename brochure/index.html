@@ -233,7 +233,7 @@
   .mapwrap{ flex:1; position:relative; min-width:0; container-type:size; }
   /* the picture and its pins share one box with the picture's own shape (1500 x 1171), fitted inside the column,
      so a pin's left/top % is a true point on the map at any screen size */
-  .mapbox{ position:absolute; inset:0; margin:auto; width:min(100%, calc(100cqh * 1500 / 1171)); height:auto; aspect-ratio:1500 / 1171; max-height:100%; }
+  .mapbox{ position:absolute; inset:0; margin:auto 0 auto auto; width:min(100%, calc(100cqh * 1500 / 1171)); height:auto; aspect-ratio:1500 / 1171; max-height:100%; }
   .mapbox img{ position:absolute; inset:0; width:100%; height:100%; display:block; mix-blend-mode:screen; opacity:.96; }
   .poi{ position:absolute; width:0; height:0; z-index:2; }
   .poi .d{ position:absolute; left:0; top:0; transform:translate(-50%,-50%); width:.7em; height:.7em; border-radius:50%; background:#5d564a; border:.14em solid #f4f1ea; box-shadow:0 0 0 1px rgba(0,0,0,.25); box-sizing:border-box; }
@@ -244,6 +244,7 @@
   .poi.lb-right .t{ left:1.25em; top:0; transform:translateY(-50%); text-align:left; }
   .poi.lb-above-l .t{ bottom:.95em; right:.5em; text-align:right; }
   .poi.lb-above-r .t{ bottom:.95em; left:.5em; text-align:left; }
+  .poi.lb-right-up .t{ left:1.25em; bottom:-.1em; text-align:left; }   /* right of the dot, raised so a second line stays above the coast */
   .poi.lb-below-r .t{ top:.95em; left:.5em; text-align:left; }
   .poi.lb-left .t{ right:1.25em; top:0; transform:translateY(-50%); text-align:right; }
   .poi.lb-left-up .t{ right:1.25em; bottom:-.45em; text-align:right; }   /* left of the dot, sitting a little higher */
@@ -606,6 +607,9 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .loc .page-inner{ gap:1.2em; }
   body.narrow .loc-text{ flex:0 0 auto; }
   body.narrow .mapwrap{ flex:1; min-height:8em; }
+  /* the map picture's right side is a straight cut (the land carries on): run it to the page's right edge, no gap */
+  .loc .mapwrap{ margin-right:-3em; }
+  body.narrow .loc .mapwrap{ margin-right:-1.6em; }
   body.narrow .split > .half-photo{ min-height:9em; }
   body.narrow .plan-row{ gap:.8em; }
   body.narrow .room-grid{ flex-wrap:wrap; }
@@ -795,8 +799,8 @@ body.narrow .price-t td{ font-size:.8em; }
           <button type="button" class="poi lb-right" style="left:19.97%; top:48.42%;" data-min="18" data-km="6.3" data-ll="-8.8112154,115.1036370"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></button>
           <button type="button" class="poi lb-below-r" style="left:4.8%; top:53.56%;" data-min="25" data-km="8.6" data-ll="-8.8151548,115.0885661"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></button>
           <button type="button" class="poi lb-right" style="left:0.55%; top:72.11%;" data-min="21" data-km="7.2" data-ll="-8.8293693,115.0843428"><span class="d"></span><span class="t">Pura Luhur Uluwatu<small>Hindu Temple</small></span></button>
-          <button type="button" class="poi lb-above" style="left:10.6%; top:85.66%;" data-min="18" data-km="6.0" data-ll="-8.8397509,115.0943268"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></button>
-          <button type="button" class="poi lb-above-r" style="left:24.27%; top:91.57%;" data-min="14" data-km="4.6" data-ll="-8.8442782,115.1079083"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></button>
+          <button type="button" class="poi lb-above-r" style="left:10.6%; top:85.66%;" data-min="18" data-km="6.0" data-ll="-8.8397509,115.0943268"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></button>
+          <button type="button" class="poi lb-right-up" style="left:24.27%; top:91.57%;" data-min="14" data-km="4.6" data-ll="-8.8442782,115.1079083"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></button>
           <div class="poi poi-auraya lb-above" style="left:53.5%; top:86.67%;"><span class="d"></span><span class="t">AURAYA<br>VILLAS</span></div>
           <button type="button" class="poi lb-left-mid" style="left:57.24%; top:94.35%;" data-min="4" data-km="1.4" data-ll="-8.8464133,115.1406518"><span class="d"></span><span class="t">Savaya<small>Beach Club</small></span></button>
           <button type="button" class="poi lb-above" style="left:68.18%; top:95.72%;" data-min="9" data-km="3.1" data-ll="-8.8474651,115.1515232"><span class="d"></span><span class="t">Sundays<small>Beach Club</small></span></button>
