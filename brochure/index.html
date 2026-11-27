@@ -771,7 +771,7 @@ body.narrow .price-t td{ font-size:.8em; }
           <li>Beach clubs within 10 minutes; Uluwatu's other beaches and the temple within about 15 to 25 minutes</li>
         </ul>
         <p class="loc-tip">Tap a place on the map for the scooter time from the villa.</p>
-        <a class="loc-link" href="https://maps.google.com/?q=Pecatu,+Uluwatu,+Bali" target="_blank" rel="noopener">Open in Google Maps →</a>
+        <a class="loc-link" id="exactLoc" href="/#leadForm" target="_blank" rel="noopener">Get the exact location →</a>
       </div>
       <!-- Scooter times: road distance from the villa (data-villa, lat,lon) to each place,
            measured on OpenStreetMap (OSRM), turned into minutes at the pace Google Maps gave
@@ -1437,6 +1437,15 @@ body.narrow .price-t td{ font-size:.8em; }
   /* ================= ADD-ONS: rough solar savings =================
      Saving = monthly electricity bill x share covered by solar (bill fixed at Rp 4 M a month, share 50% to start); payback = package price / yearly saving.
      No tariff rises and no battery value: a rough guide, as the page says. */
+  /* "Get the exact location": opens the investor-pack form on the landing page, or on an agent's link
+     (see /assets/ref.js) a WhatsApp message to that agent, so their client stays with them */
+  (function exactLocation(){
+    var a = document.querySelector('#pageStore #exactLoc'); if (!a) return;
+    var R = window.AurayaRef, ag = R && R.agent;
+    if (ag) a.href = R.wa('Hi ' + ag.name.split(' ')[0] + ', could you send me the exact location of Auraya Villas?', ag);
+    a.addEventListener('click', function(){ track('exact_location_request', { via:ag ? 'agent_whatsapp' : 'form' }); });
+  })();
+
   (function solarSavings(){
     var page = document.querySelector('#pageStore .addons'); if (!page) return;
     var PRICE = 200000000;
