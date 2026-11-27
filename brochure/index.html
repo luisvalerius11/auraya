@@ -230,6 +230,8 @@
   .poi.lb-above-l .t{ bottom:.6em; right:.35em; text-align:right; }
   .poi.lb-above-r .t{ bottom:.6em; left:.35em; text-align:left; }
   .poi.lb-below-r .t{ top:.6em; left:.35em; text-align:left; }
+  .poi.lb-left .t{ right:.95em; top:0; transform:translateY(-50%); text-align:right; }
+  .poi.lb-left-up .t{ right:.95em; bottom:-.45em; text-align:right; }   /* left of the dot, sitting a little higher */
   .poi .t small{ display:block; font-weight:400; }
   .poi-auraya .d{ width:1.05em; height:1.05em; background:var(--ink); box-shadow:0 0 0 .3em rgba(22,19,14,.18); }
   .poi-auraya.lb-above .t{ bottom:1em; }
@@ -674,7 +676,7 @@ body.narrow .price-t td{ font-size:.8em; }
         <div class="kicker" style="margin-top:.8em;">Highlights</div>
         <ul class="loc-hl">
           <li>Situated next to the famous Savaya club</li>
-          <li>The stunning Melasti Beach is a quick 12‑minute drive away</li>
+          <li>The stunning Melasti Beach is a quick 11‑minute drive away</li>
           <li>All major leisure and wellness activities within a 15‑minute drive</li>
         </ul>
         <p class="loc-tip">Tap a place on the map for the scooter time from the villa.</p>
@@ -683,23 +685,23 @@ body.narrow .price-t td{ font-size:.8em; }
       <!-- Scooter times: road routes from the villa (data-villa, lat,lon) to each place,
            measured on OpenStreetMap (OSRM), rounded up to whole minutes. Tapping a place
            shows its data-min. data-km and data-ll keep the distance and position for reference. -->
-      <div class="mapwrap" data-villa="-8.8342304,115.1365031">
+      <div class="mapwrap" data-villa="-8.8405234,115.136943">
         <!-- The picture is matched to OpenStreetMap's coastline, so each pin's left/top is its real
              position: left = 15101.37 * (lon - 115.083798) / 1500 * 100 %,
              top  = 15282.1 * (-8.774115 - lat) / 1171 * 100 %.
              data-ll is the place's lat,lon; data-min / data-km the scooter route from the villa. -->
         <div class="mapbox">
           <img src="img/05.webp" alt="Map of the Bukit peninsula" loading="lazy" decoding="async">
-          <button type="button" class="poi lb-right" style="left:34.07%; top:33.21%;" data-min="11" data-km="6.3" data-ll="-8.7995624,115.1176363"><span class="d"></span><span class="t">Dreamland<small>Beach</small></span></button>
-          <button type="button" class="poi lb-right" style="left:19.97%; top:48.42%;" data-min="8" data-km="5.5" data-ll="-8.8112154,115.1036370"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></button>
-          <button type="button" class="poi lb-below-r" style="left:4.8%; top:53.56%;" data-min="11" data-km="8.3" data-ll="-8.8151548,115.0885661"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></button>
-          <button type="button" class="poi lb-right" style="left:0.55%; top:72.11%;" data-min="11" data-km="7.1" data-ll="-8.8293693,115.0843428"><span class="d"></span><span class="t">Pura Luhur Uluwatu<small>Hindu Temple</small></span></button>
-          <button type="button" class="poi lb-above" style="left:10.6%; top:85.66%;" data-min="9" data-km="5.6" data-ll="-8.8397509,115.0943268"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></button>
-          <button type="button" class="poi lb-above" style="left:24.27%; top:91.57%;" data-min="8" data-km="4.6" data-ll="-8.8442782,115.1079083"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></button>
-          <div class="poi poi-auraya lb-above" style="left:53.06%; top:78.45%;"><span class="d"></span><span class="t">AURAYA<br>VILLAS</span></div>
-          <button type="button" class="poi lb-above-l" style="left:57.24%; top:94.35%;" data-min="5" data-km="1.9" data-ll="-8.8464133,115.1406518"><span class="d"></span><span class="t">Savaya<small>Beach Club</small></span></button>
-          <button type="button" class="poi lb-above" style="left:68.18%; top:95.72%;" data-min="9" data-km="3.5" data-ll="-8.8474651,115.1515232"><span class="d"></span><span class="t">Sundays<small>Beach Club</small></span></button>
-          <button type="button" class="poi lb-above-r" style="left:74.27%; top:96.8%;" data-min="12" data-km="4.7" data-ll="-8.8482915,115.1575716"><span class="d"></span><span class="t">Melasti<small>Beach</small></span></button>
+          <button type="button" class="poi lb-right" style="left:34.07%; top:33.21%;" data-min="13" data-km="7.1" data-ll="-8.7995624,115.1176363"><span class="d"></span><span class="t">Dreamland<small>Beach</small></span></button>
+          <button type="button" class="poi lb-right" style="left:19.97%; top:48.42%;" data-min="10" data-km="6.3" data-ll="-8.8112154,115.1036370"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></button>
+          <button type="button" class="poi lb-below-r" style="left:4.8%; top:53.56%;" data-min="13" data-km="8.6" data-ll="-8.8151548,115.0885661"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></button>
+          <button type="button" class="poi lb-right" style="left:0.55%; top:72.11%;" data-min="13" data-km="7.2" data-ll="-8.8293693,115.0843428"><span class="d"></span><span class="t">Pura Luhur Uluwatu<small>Hindu Temple</small></span></button>
+          <button type="button" class="poi lb-above" style="left:10.6%; top:85.66%;" data-min="11" data-km="6.0" data-ll="-8.8397509,115.0943268"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></button>
+          <button type="button" class="poi lb-above" style="left:24.27%; top:91.57%;" data-min="10" data-km="4.6" data-ll="-8.8442782,115.1079083"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></button>
+          <div class="poi poi-auraya lb-above" style="left:53.5%; top:86.67%;"><span class="d"></span><span class="t">AURAYA<br>VILLAS</span></div>
+          <button type="button" class="poi lb-left-up" style="left:57.24%; top:94.35%;" data-min="4" data-km="1.4" data-ll="-8.8464133,115.1406518"><span class="d"></span><span class="t">Savaya<small>Beach Club</small></span></button>
+          <button type="button" class="poi lb-above" style="left:68.18%; top:95.72%;" data-min="8" data-km="3.1" data-ll="-8.8474651,115.1515232"><span class="d"></span><span class="t">Sundays<small>Beach Club</small></span></button>
+          <button type="button" class="poi lb-above-r" style="left:74.27%; top:96.8%;" data-min="11" data-km="4.2" data-ll="-8.8482915,115.1575716"><span class="d"></span><span class="t">Melasti<small>Beach</small></span></button>
         </div>
       </div>
     </div>
