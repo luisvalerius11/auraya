@@ -132,3 +132,53 @@ The same review box works for every place. Add some here if you like.
 - [ ] Padang Padang Beach: rating, reviews, photo
 - [ ] Uluwatu Temple: rating, reviews, photo
 - [ ] Melasti Beach: reviews
+
+---
+
+# New places (researched 27 Nov 2026)
+
+These are already in the brochure but switched off (`hold:true` in `brochure/index.html`).
+Each one appears as soon as it has a **photo** and its **Google rating + number of reviews**.
+Reviews are optional. Research came from web search: Google Maps ratings could not be
+read, so please copy them from Google Maps as in "How to collect" above.
+
+For each place, fill in:
+`Rating: … | Reviews: … | Maps link: … | Photo: …`
+
+## Lifestyle
+
+| # | Place (tab) | What to look up / notes |
+|---|---|---|
+| 5 | **Monster Padel Social Club** (Wellness) | Jalan Belimbing Sari I, Pecatu. 10 courts, pool, sauna, ice baths, yoga studio. monsterpadel.id |
+| 6 | **Karma Beach Bali** (Beach Clubs) | The beach club below Karma Kandara resort, Ungasan. Use the *Karma Beach* listing, not the resort |
+| 7 | **Ulu Cliffhouse** (Beach Clubs) | Jl. Labuansait, Pecatu. Includes the new Burnt restaurant. @ulucliffhouse |
+| 8 | **OneEighty at The Edge** (Beach Clubs) | Day club with the glass-bottomed cliff pool, Pecatu. oneeightybali.com |
+| 9 | **El Kabron** (Nightlife) | Spanish restaurant & cliff club, Jl. Pantai Cemongkak, Pecatu. @elkabronbali |
+| 10 | **Motel Mexicola Uluwatu** (Nightlife) | Jl. Pantai Bingin, opened July 2026. New, so few reviews yet |
+| 11 | **Saltwood** (Dining) | Cliffside restaurant & bar, Jl. Petra Bingin, opened June 2026 |
+| 12 | **Suluban Beach** (Beaches) | Cave beach at the Uluwatu surf break (Blue Point) |
+
+Single Fin, Padang Padang Beach and Uluwatu Temple (above) are also switched off the same way.
+
+## Weddings tab
+
+| # | Venue | What to look up / notes |
+|---|---|---|
+| W1 | **Villa Plenilunio** | Jl. Batu Nunggalan No.8, Pecatu. 10-bedroom clifftop estate, up to 200 seated (bali.love). Some sites wrongly place it in Seminyak |
+| W2 | **Tirtha Uluwatu** | Glass chapel + Dining Pavilion, Jl Raya Uluwatu. @tirthabali |
+| W3 | **Bvlgari Resort Bali** | Stone-and-glass chapel near Uluwatu Temple |
+| W4 | **Alila Villas Uluwatu** | Clifftop resort, Pecatu |
+| W5 | **Six Senses Uluwatu** | Clifftop ceremonies + ballroom |
+| W6 | **Khayangan Estate** | Private clifftop estate, exclusive buyout. Please confirm it is still taking bookings |
+| W7 | **Wonderland Uluwatu** | Clifftop event venue on Jl Batu Nunggalan. Please confirm it is still taking bookings |
+| W8 | **Anantara Uluwatu** | Dewa Dewi glass chapel, Jl Pemutih |
+
+Alternates if you want more: The Ungasan Clifftop Resort (with Sundays), The Edge, Karma Kandara,
+Jumeirah Bali. Left out: Hilton (Nusa Dua, too far), Ulu Cliffhouse (events, not weddings).
+
+## Not recommended
+
+- **Bingin Beach cafés**: the beachfront buildings were demolished from July 2025; don't promote the beach-café scene
+  (the new clifftop venues above are unaffected).
+- **The Istana**: private event villa, not open to visitors.
+- **Rock Bar (AYANA)**: iconic but in Jimbaran, outside the Uluwatu area.

@@ -1110,7 +1110,10 @@ body.narrow .price-t td{ font-size:.8em; }
                quotes:[ { text:"Best sunset in Bali.", by:"Sarah K.", stars:5 } ]
      A place with no "img" yet gets a plain tile until a photo is added.
      rating / reviews: leave out until checked on Google Maps; the line is
-     then hidden rather than showing a wrong number.                       */
+     then hidden rather than showing a wrong number.
+       hold    true keeps a researched place out of the brochure until its
+               photo and Google rating are in (see _notes/lifestyle-places.md);
+               delete hold:true to show it. Tabs appear for shown places only. */
   var PLACES = [
     { name:"Sundays Beach Club",       cat:"Beach Clubs",      type:"Beach club & restaurant", rating:4.5, reviews:5208,
       img:"img/places/sundays.webp",  video:"vid/places/sundays.mp4" },
@@ -1121,16 +1124,51 @@ body.narrow .price-t td{ font-size:.8em; }
     { name:"Savaya Bali",              cat:"Nightlife",        type:"Club",                    rating:4.1, reviews:4945,
       img:"img/places/savaya.webp",   video:"vid/places/savaya.mp4" },
     { name:"Island Padel Uluwatu",     cat:"Wellness",         type:"Padel club",              rating:4.7, reviews:337,
-      img:"img/places/padel.webp",    video:"vid/places/padel.mp4" }
-    /* To add once photo, rating and reviews are in (see _notes/lifestyle-places.md):
-    { name:"Single Fin",               cat:"Nightlife",        type:"Bar & restaurant",
+      img:"img/places/padel.webp",    video:"vid/places/padel.mp4" },
+
+    /* ---- researched, waiting for photo + Google rating (hold:true keeps them hidden) ---- */
+    { hold:true, name:"Monster Padel Social Club", cat:"Wellness",    type:"Padel & wellness club",
+      blurb:"Padel club on Jalan Belimbing Sari, close to Auraya, with ten courts, a pool, sauna, ice baths and a yoga studio." },
+    { hold:true, name:"Karma Beach Bali",          cat:"Beach Clubs", type:"Beach club",
+      blurb:"Beach club in a cove below the Karma Kandara resort in Ungasan, reached by a funicular down the cliff." },
+    { hold:true, name:"Ulu Cliffhouse",            cat:"Beach Clubs", type:"Cliff club & restaurant",
+      blurb:"Clifftop club above Uluwatu's surf breaks, with pools, sunset views and the Burnt fire‑cooking restaurant." },
+    { hold:true, name:"OneEighty at The Edge",     cat:"Beach Clubs", type:"Clifftop day club",
+      blurb:"Day club at The Edge in Pecatu, known for its glass‑bottomed pool on the cliff edge." },
+    { hold:true, name:"El Kabron",                 cat:"Nightlife",   type:"Spanish restaurant & cliff club",
+      blurb:"Spanish restaurant and cliff club in Pecatu, known for its sunset sessions above the ocean." },
+    { hold:true, name:"Motel Mexicola Uluwatu",    cat:"Nightlife",   type:"Mexican restaurant & bar",
+      blurb:"The Uluwatu home of Motel Mexicola, opened in 2026 on the Bingin clifftop." },
+    { hold:true, name:"Saltwood",                  cat:"Dining",      type:"Cliffside restaurant & bar",
+      blurb:"All‑day cliffside restaurant and bar in Bingin, opened in 2026." },
+    { hold:true, name:"Suluban Beach",             cat:"Beaches",     type:"Beach & surf break",
+      blurb:"A cave beach below the cliffs at the Uluwatu surf break, reached through the rocks at low tide." },
+    { hold:true, name:"Single Fin",                cat:"Nightlife",   type:"Bar & restaurant",
       blurb:"Clifftop bar above the Uluwatu surf break, known for its sunset views and Sunday sessions." },
-    { name:"Padang Padang Beach",      cat:"Beaches",          type:"Beach",
+    { hold:true, name:"Padang Padang Beach",       cat:"Beaches",     type:"Beach",
       blurb:"A small cove reached by steps through a gap in the rocks, home to one of Bali's best-known surf breaks." },
-    { name:"Uluwatu Temple",           cat:"Culture",          type:"Sea temple",
-      blurb:"Pura Luhur Uluwatu, an 11th-century Balinese sea temple on a cliff some 70 m above the ocean. The Kecak fire dance is performed here at sunset." }
-    */
+    { hold:true, name:"Uluwatu Temple",            cat:"Culture",     type:"Sea temple",
+      blurb:"Pura Luhur Uluwatu, an 11th-century Balinese sea temple on a cliff some 70 m above the ocean. The Kecak fire dance is performed here at sunset." },
+
+    /* Weddings tab */
+    { hold:true, name:"Villa Plenilunio",          cat:"Weddings",    type:"Clifftop villa estate",
+      blurb:"Ten‑bedroom clifftop estate above Nunggalan Beach in Pecatu, mixing antique Javanese joglos with modern buildings; hosts weddings of up to 200 seated guests." },
+    { hold:true, name:"Tirtha Uluwatu",            cat:"Weddings",    type:"Glass wedding chapel",
+      blurb:"Purpose‑built wedding venue in Pecatu with a glass chapel above the ocean and a dining pavilion for receptions." },
+    { hold:true, name:"Bvlgari Resort Bali",       cat:"Weddings",    type:"Resort & chapel",
+      blurb:"Clifftop resort near Uluwatu Temple with a stone‑and‑glass chapel set about 150 m above the sea." },
+    { hold:true, name:"Alila Villas Uluwatu",      cat:"Weddings",    type:"Clifftop resort",
+      blurb:"Architect‑designed clifftop resort in Pecatu, often chosen for open‑air ceremonies above the ocean." },
+    { hold:true, name:"Six Senses Uluwatu",        cat:"Weddings",    type:"Clifftop resort",
+      blurb:"Clifftop resort in Uluwatu hosting ocean‑view ceremonies and larger receptions in its ballroom." },
+    { hold:true, name:"Khayangan Estate",          cat:"Weddings",    type:"Private clifftop estate",
+      blurb:"Private estate on a cliff some 140 m above the ocean, booked exclusively for weddings of up to about 250 guests." },
+    { hold:true, name:"Wonderland Uluwatu",        cat:"Weddings",    type:"Clifftop event venue",
+      blurb:"Large clifftop event venue on Jalan Batu Nunggalan, set up for weddings of 300 guests and more." },
+    { hold:true, name:"Anantara Uluwatu",          cat:"Weddings",    type:"Resort & glass chapel",
+      blurb:"Clifftop resort in Pecatu with the Dewa Dewi glass chapel for ceremonies of around 50 guests." }
   ];
+  PLACES = PLACES.filter(function(p){ return !p.hold; });   /* researched places wait here until ready */
   /* ==================================================== */
 
   (function lifestyle(){
