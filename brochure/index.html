@@ -140,6 +140,18 @@
     .tools{ padding-top:8px; }
     .tool{ height:32px; }
   }
+  /* phones held sideways: too short for a whole portrait page at a readable size, so one page is shown
+     at a readable width and scrolls down inside the stage (swipe sideways still turns pages) */
+  @media (orientation:landscape) and (max-height:500px) and (pointer:coarse){
+    .bar{ display:none; }
+    .viewer{ padding:0 max(8px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
+    .desk{ padding:6px 0 0; border-radius:0; }
+    .stage{ align-items:flex-start; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+    .sheet-box{ margin:0 auto 10px; }
+    .nav-arrow{ display:none; }
+    .tools{ padding-top:6px; }
+    .tool{ height:34px; }
+  }
   /* upright tablets: drop the side arrows (swipe or use the toolbar) so both pages get the full width */
   @media (max-width:1100px) and (orientation:portrait){ .nav-arrow{ display:none; } }
   @media (max-width:700px){
@@ -1684,6 +1696,8 @@ body.narrow .price-t td{ font-size:.8em; }
   /* Every page is one portrait sheet, like a printed booklet, on any screen size */
   document.body.classList.add('narrow');
 
+  var sideways = window.matchMedia('(orientation:landscape) and (max-height:500px) and (pointer:coarse)');
+  if (sideways.addEventListener) sideways.addEventListener('change', function(){ fit(); });
   /* Size the book to the screen. Wide screens get an open two-page spread, narrow ones a single page. */
   function fit(){
     var ar = 3/4.1;
@@ -1697,6 +1711,10 @@ body.narrow .price-t td{ font-size:.8em; }
     /* Phones held upright: a printed page shape would leave half the screen empty, so the page takes
        the full width and grows taller (down to 1:2), and the type is set larger to match. */
     var tall = !wantSpread && w < h*ar*0.97 && w < 600;     /* phones only; tablets keep the printed shape */
+    if (sideways.matches){                                   /* phone on its side: one readable page that scrolls */
+      wantSpread = false; tall = false;
+      pw = Math.min(w, Math.max(h*1.5, 420), 600); ph = pw/ar; fs = pw * 0.026;
+    }
     if (tall){ pw = Math.max(w, 120); ph = Math.min(h, pw*2); fs = Math.min(pw * 0.034, ph * 0.0195); }
     document.body.classList.toggle('tall', tall);
     sheetBox.style.width  = (wantSpread ? 2*pw : pw) + 'px';
@@ -1887,6 +1905,7 @@ body.narrow .price-t td{ font-size:.8em; }
     if (spread){ turnTo(Math.floor((i+1)/2)); return; }
     if (busy || i === cur) return;
     busy = true;
+    if (sideways.matches) stage.scrollTop = 0;                 /* each page starts at its top */
     pageSound();
     render(i, dir || (i > cur ? 'next' : 'prev'));
   }
