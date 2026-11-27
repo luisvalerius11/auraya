@@ -10,7 +10,9 @@
      brochure's last page shows the agent first (Auraya as a small developer
      line), and leads and activity sent to the CRM are tagged agent=putu.
      The link keeps working as the reader moves between brochure, ROI model
-     and simulator. An agent ID that is not in the list below is still tagged
+     and simulator. The simulator (/plan/) opens only for a known lead: a
+     /plan/ link without ?lid= first shows the investor-pack form on the
+     landing page, then opens the simulator once it is sent. An agent ID that is not in the list below is still tagged
      in the CRM, but the contact buttons stay Auraya's.
 
    KNOWN LEADS
