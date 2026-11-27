@@ -11,6 +11,7 @@
 <link rel="icon" href="/assets/favicon.ico?v=3" sizes="any">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=3">
 <!-- Analytics: IDs live in /assets/analytics.js, shared with the landing page and the brochure -->
+<script src="/assets/fx.js"></script>
 <script src="/assets/ref.js"></script>
 <script src="/assets/analytics.js"></script>
 <!-- Fonts are self-hosted (/assets/fonts): no extra connections to Google, and no visitor data sent there -->
@@ -263,7 +264,7 @@
       <div class="result" aria-live="polite">
         <div class="result-top">
           <span class="eyebrow" id="resultLabel"></span>
-          <div class="cur" role="group" aria-label="Currency"><button type="button" data-cur="idr">IDR</button><button type="button" data-cur="usd">USD</button></div>
+          <div class="cur" id="curSeg" role="group" aria-label="Currency"></div>
         </div>
         <div class="figs">
           <div class="fig big"><div class="v" id="fTotal"></div><div class="l">Total you pay</div></div>
@@ -294,7 +295,7 @@
       <section class="blk" aria-labelledby="h-assume">
         <h2 id="h-assume">How the plan is worked out</h2>
         <ul class="assume">
-          <li><b>Rupiah first.</b> All transactions are in IDR. USD figures are indicative only, at IDR 17.800 per USD, as in the price list of 17 November 2026.</li>
+          <li><b>Rupiah first.</b> All transactions are in IDR. Other currencies are indicative only: USD at IDR 17.800, as in the price list of 17 November 2026; AUD, EUR and GBP at fixed rates set on <span id="fxAsOf"></span>.</li>
           <li><b>Add‑ons are paid in instalments.</b> No separate upfront payment: their price is spread over the same milestones as the villa (10 / 30 / 10 / 20 / 20 / 10%).</li>
           <li><b>BPHTB on freehold only.</b> Choosing freehold adds the 5% land and building acquisition duty, worked out on the villa price and usually settled at notarial signing. Leasehold has no BPHTB.</li>
           <li><b>Milestones, not dates.</b> Progress payments fall due as construction reaches each stage, so only the reservation and handover have fixed dates.</li>
@@ -367,7 +368,7 @@
     { name:'Progress 85%',        pct:0.20, when:'When construction reaches 85%' },
     { name:'Project finished',    pct:0.10, when:'Handover, 1 March 2028' }
   ];
-  var DEFAULTS = { villa:3, tenure:0, cur:'idr' };
+  var DEFAULTS = { villa:3, tenure:0, cur:'IDR' };   /* currencies and rates: /assets/fx.js */
   /* Notary fee, estimated as a share of the villa price (both ownership options), paid at notarial signing */
   var NOTARY_PCT = 0.01;
   /* ========================================== */
@@ -380,14 +381,9 @@
   function daysBetween(a, b){ var pa = a.split('-'), pb = b.split('-'); return Math.round((Date.UTC(pb[0], pb[1]-1, pb[2]) - Date.UTC(pa[0], pa[1]-1, pa[2])) / 864e5); }
   function idr(v){ return (v < 0 ? '−' : '') + 'Rp ' + Math.round(Math.abs(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
   function usd(v){ return (v < 0 ? '−' : '') + '$' + Math.round(Math.abs(v) / FX).toLocaleString('en-US'); }
-  function money(v){ return st.cur === 'usd' ? usd(v) : idr(v); }
-  function short(v){   /* compact figure for the headline tiles */
-    if (st.cur === 'usd') return usd(v);
-    var a = Math.abs(v);
-    if (a >= 1e9) return 'Rp ' + (v/1e9).toFixed(2).replace('.', ',') + ' B';
-    if (a >= 1e6) return 'Rp ' + Math.round(v/1e6) + ' M';
-    return idr(v);
-  }
+  var FXL = window.AurayaFX;
+  function money(v){ return FXL.fromIDR(v, st.cur); }
+  function short(v){ return FXL.short(v, st.cur); }   /* compact figure for the headline tiles */
   function firstFree(){ for (var i = 0; i < VILLAS.length; i++) if (!VILLAS[i].reserved) return i; return 0; }
 
   /* Is a promotion live for this reservation date, villa and code? */
@@ -455,8 +451,13 @@
     $('addonList').appendChild(l);
   });
   $('resDate').addEventListener('change', function(){ st.date = this.value || todayISO(); update('date', st.date); });
+  $('fxAsOf').textContent = FXL.asOf;
+  FXL.list.forEach(function(c){
+    var b = document.createElement('button'); b.type = 'button'; b.dataset.cur = c.code; b.textContent = c.code; b.title = c.name;
+    $('curSeg').appendChild(b);
+  });
   document.querySelectorAll('.cur button').forEach(function(b){
-    b.addEventListener('click', function(){ st.cur = b.dataset.cur; update('currency', st.cur); });
+    b.addEventListener('click', function(){ st.cur = b.dataset.cur; FXL.remember(st.cur); update('currency', st.cur); });
   });
   if (PROMOS.some(function(p){ return p.code; })) $('codeField').hidden = false;
   function applyCode(){
@@ -477,7 +478,7 @@
 
   /* ----- render ----- */
   function render(){
-    var r = calc(), sameCur = st.cur === 'usd';
+    var r = calc(), inIDR = st.cur === 'IDR';
 
     document.querySelectorAll('#villaSeg button').forEach(function(b, i){ b.setAttribute('aria-pressed', i === st.villa); });
     document.querySelectorAll('#tenureSeg button').forEach(function(b, i){ b.setAttribute('aria-pressed', i === st.tenure); });
@@ -504,7 +505,7 @@
     if (r.discount) parts.push('promotions ' + money(-r.discount));
     if (r.bphtb) parts.push('BPHTB ' + money(r.bphtb));
     if (r.notary) parts.push('notary ' + money(r.notary));
-    $('resultSub').textContent = parts.join(' · ') + (sameCur ? ' · USD indicative at IDR 17.800' : ' · ≈ ' + usd(r.total));
+    $('resultSub').textContent = parts.join(' · ') + (inIDR ? ' · ≈ ' + usd(r.total) : ' · ' + st.cur + ' indicative at ' + FXL.rateNote(st.cur));
 
     /* promotions */
     $('promoList').innerHTML = PROMOS.map(function(p){
@@ -524,7 +525,7 @@
     h += row('total', 'Contract price', money(r.contract), 'Paid in instalments, as in the schedule below');
     if (r.bphtb) h += row('sub', 'BPHTB (5%)', '+' + money(r.bphtb), 'Land and building acquisition duty on the freehold option: 5% of ' + idr(r.v.idr));
     if (r.notary) h += row('sub', 'Notary fee (est. ' + NOTARY_PCT*100 + '%)', '+' + money(r.notary), 'Estimated at ' + NOTARY_PCT*100 + '% of ' + idr(r.v.idr) + ', paid at notarial signing; the notary confirms the exact fee');
-    h += row('final', 'Total you pay', money(r.total), sameCur ? '' : '≈ ' + usd(r.total) + ', indicative');
+    h += row('final', 'Total you pay', money(r.total), inIDR ? '≈ ' + usd(r.total) + ', indicative' : idr(r.total) + ' in rupiah; ' + st.cur + ' indicative at ' + FXL.rateNote(st.cur));
     $('ledger').innerHTML = h;
 
     /* schedule */
@@ -564,7 +565,7 @@
     q.set('villa', VILLAS[st.villa].id); q.set('own', TENURES[st.tenure].id);
     q.set('add', ADDONS.filter(function(a){ return st.addons[a.id]; }).map(function(a){ return a.id; }).join(','));
     if (st.date !== todayISO()) q.set('date', st.date);
-    if (st.cur !== 'idr') q.set('cur', st.cur);
+    if (st.cur !== 'IDR') q.set('cur', st.cur.toLowerCase());
     if (st.codes.length) q.set('code', st.codes.join(','));
     var ref = window.AurayaRef ? window.AurayaRef.params() : '';   /* keep the agent / lead tag in a shared link */
     try { history.replaceState(null, '', '?' + q.toString() + (ref ? '&' + ref : '')); } catch(e){}
@@ -575,11 +576,11 @@
     TENURES.forEach(function(t, i){ if (q.get('own') === t.id) st.tenure = i; });
     if (q.has('add')) { var on = q.get('add').split(','); ADDONS.forEach(function(a){ st.addons[a.id] = on.indexOf(a.id) >= 0; }); }
     if (/^\d{4}-\d{2}-\d{2}$/.test(q.get('date') || '')) st.date = q.get('date');
-    if (q.get('cur') === 'usd') st.cur = 'usd';
+    if (FXL.find(q.get('cur'))) st.cur = FXL.find(q.get('cur')).code;
     if (q.get('code')) st.codes = q.get('code').toUpperCase().split(',');
   }
   function reset(){
-    st = { villa:VILLAS[DEFAULTS.villa].reserved ? firstFree() : DEFAULTS.villa, tenure:DEFAULTS.tenure, cur:DEFAULTS.cur, date:todayISO(), addons:{}, codes:[] };
+    st = { villa:VILLAS[DEFAULTS.villa].reserved ? firstFree() : DEFAULTS.villa, tenure:DEFAULTS.tenure, cur:FXL.initial(DEFAULTS.cur), date:todayISO(), addons:{}, codes:[] };
     ADDONS.forEach(function(a){ st.addons[a.id] = !!a.on; });
     $('code').value = ''; $('codeHint').textContent = '';
   }
