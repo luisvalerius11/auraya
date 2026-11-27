@@ -209,9 +209,8 @@
     var cur = saved() || { analytics:false, marketing:false, followup:false };
     box = el('section', 'ck'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Cookie choices');
     box.appendChild(el('h2', null, 'Cookies'));
-    var intro = el('p', null, 'We would like to use cookies to see how visitors use this site and to measure our advertising. Nothing is tracked unless you agree. ');
-    var pol = el('a', null, 'Privacy policy'); pol.href = '/privacy/#cookies';
-    intro.appendChild(pol);
+    var intro = el('p', null, 'We would like to use cookies to see how visitors use this site and to measure our advertising. Nothing is tracked unless you agree.');
+    /* link to the privacy policy (/privacy/#cookies) taken out while the policy is still a draft; add it back here once it is final */
     box.appendChild(intro);
 
     var opts = el('div', 'ck-opts'); opts.hidden = !showOptions;
