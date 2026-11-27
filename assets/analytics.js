@@ -26,22 +26,37 @@
      - roi_line_explain:   ROI table line opened for its explanation
      - roi_model_open:     "See the full calculation" clicked
      - roi_model_change:   an input changed on the ROI model page
+     - plan_open / plan_view: simulator opened from a link / simulator page shown
+     - plan_change:        an input changed in the payment plan simulator
+     - plan_built:         the plan a visitor settled on (sent after a pause in changes)
      - lifestyle_filter / lifestyle_place_open / lifestyle_map_open:
                            the Island Lifestyle page in the brochure
+
+   CRM activity (CRM_URL): with the visitor's "Follow-up" consent, key moments
+   are sent to your own n8n webhook, which adds them to the Google Sheet. Only
+   for visitors we can name (a lead ID from the investor-pack form) or who came
+   through an agent link (see /assets/ref.js); anonymous visitors send nothing.
+   Events sent: brochure_open, brochure_key_page (Price List, Payment Timeline,
+   ROI Projection, Floorplan), brochure_complete, roi_model_open, plan_open,
+   plan_built (the plan they settled on), plan_print, contact.
+   Setup and the fields sent: _notes/crm-activity.md
    ============================================================ */
 (function(){
   var GA_ID = "";
   var PIXEL_ID = "";
+  /* n8n production webhook for activity, e.g. "https://valenira.app.n8n.cloud/webhook/...".
+     Use a NEW webhook, not the investor-pack one, or every event would be treated as a new lead. */
+  var CRM_URL = "";
 
-  var KEY = 'auraya_consent', VERSION = 1, MAX_AGE = 182 * 24 * 3600 * 1000;
-  var configured = !!(GA_ID || PIXEL_ID);
+  var KEY = 'auraya_consent', VERSION = 2, MAX_AGE = 182 * 24 * 3600 * 1000;
+  var configured = !!(GA_ID || PIXEL_ID || CRM_URL);
 
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
   /* Consent Mode v2: everything denied until the visitor chooses */
   gtag('consent', 'default', { analytics_storage:'denied', ad_storage:'denied', ad_user_data:'denied', ad_personalization:'denied' });
 
-  var gaLoaded = false, pixelLoaded = false, consent = { analytics:false, marketing:false };
+  var gaLoaded = false, pixelLoaded = false, consent = { analytics:false, marketing:false, followup:false };
   /* events from before the visitor chose: held in memory, sent only if they agree, dropped otherwise */
   var decided = false, pending = [];
 
@@ -77,7 +92,7 @@
   }
 
   function apply(c){
-    consent = { analytics:!!c.analytics, marketing:!!c.marketing };
+    consent = { analytics:!!c.analytics, marketing:!!c.marketing, followup:!!c.followup };
     gtag('consent', 'update', {
       analytics_storage: consent.analytics ? 'granted' : 'denied',
       ad_storage:         consent.marketing ? 'granted' : 'denied',
@@ -99,12 +114,12 @@
     return null;
   }
   function save(c){
-    try{ localStorage.setItem(KEY, JSON.stringify({ v:VERSION, at:Date.now(), analytics:!!c.analytics, marketing:!!c.marketing })); }catch(e){}
+    try{ localStorage.setItem(KEY, JSON.stringify({ v:VERSION, at:Date.now(), analytics:!!c.analytics, marketing:!!c.marketing, followup:!!c.followup })); }catch(e){}
     apply(c);
   }
 
-  /* Which part of the site this is: "landing", "brochure" or "roi" */
-  var area = (location.pathname.match(/\/(brochure|roi)(\/|$)/) || [, 'landing'])[1];
+  /* Which part of the site this is: "landing", "brochure", "roi" or "plan" */
+  var area = (location.pathname.match(/\/(brochure|roi|plan)(\/|$)/) || [, 'landing'])[1];
 
   /* track(gaEvent, pixelEvent, params): one call reports to whichever trackers the visitor allowed.
      pixelEvent may be null for events the Pixel does not need. */
@@ -114,7 +129,37 @@
     if (!decided && configured){ if (pending.length < 100) pending.push([gaEvent, pixelEvent, params]); return; }
     if (GA_ID && consent.analytics) gtag('event', gaEvent, params);
     if (PIXEL_ID && consent.marketing && pixelEvent && window.fbq) fbq('track', pixelEvent, params);
+    if (CRM_URL && consent.followup) toCRM(gaEvent, params);
   };
+
+  /* ---------------- CRM activity ---------------- */
+  var KEY_PAGES = { 'Price List':1, 'Payment Timeline':1, 'ROI Projection':1, 'Floorplan':1 };
+  var crmOnce = {};
+  function toCRM(ev, params){
+    var ref = window.AurayaRef;
+    if (!ref || !(ref.lid || ref.agentId)) return;          /* only leads we know, or agent links */
+    var name = ev, d = {};
+    if (ev === 'brochure_page_view'){
+      if (!crmOnce.open){ crmOnce.open = 1; send('brochure_open', {}); }
+      if (!KEY_PAGES[params.page_name] || crmOnce['p' + params.page_name]) return;
+      crmOnce['p' + params.page_name] = 1; name = 'brochure_key_page'; d.detail = params.page_name;
+    }
+    else if (ev === 'plan_view'){ if (crmOnce.plan) return; crmOnce.plan = 1; name = 'plan_open'; }
+    else if (ev === 'brochure_complete' || ev === 'roi_model_open' || ev === 'plan_print'){ if (crmOnce[ev]) return; crmOnce[ev] = 1; }
+    else if (ev === 'contact') d.detail = params.method;
+    else if (ev === 'plan_built'){ for (var k in params) if (k !== 'site_area') d[k] = params[k]; }
+    else return;
+    send(name, d);
+  }
+  function send(name, d){
+    var ref = window.AurayaRef, body = new URLSearchParams();
+    var row = { event:name, lid:ref.lid, agent:ref.agentId, session:ref.sid, area:area,
+      page:location.pathname, sent_at:new Date().toISOString() };
+    for (var k in d) row[k] = d[k];
+    for (var j in row) body.append(j, row[j] == null ? '' : String(row[j]));
+    try { if (navigator.sendBeacon && navigator.sendBeacon(CRM_URL, body)) return; } catch(e){}
+    try { fetch(CRM_URL, { method:'POST', mode:'no-cors', body:body, keepalive:true }); } catch(e){}
+  }
 
   /* Contact links anywhere on the site */
   document.addEventListener('click', function(e){
@@ -161,7 +206,7 @@
     if (!configured) return;
     close();
     if (!document.getElementById('ck-css')){ var st = el('style'); st.id = 'ck-css'; st.textContent = CSS; document.head.appendChild(st); }
-    var cur = saved() || { analytics:false, marketing:false };
+    var cur = saved() || { analytics:false, marketing:false, followup:false };
     box = el('section', 'ck'); box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Cookie choices');
     box.appendChild(el('h2', null, 'Cookies'));
     var intro = el('p', null, 'We would like to use cookies to see how visitors use this site and to measure our advertising. Nothing is tracked unless you agree. ');
@@ -180,6 +225,7 @@
     opt('Essential', 'Remembers this choice. Always on.', true, true);
     var an = GA_ID ? opt('Analytics', 'Google Analytics: visits, pages viewed and how the site is used.', cur.analytics) : null;
     var mk = PIXEL_ID ? opt('Marketing', 'Meta Pixel and Google ad signals: measure and improve our ads.', cur.marketing) : null;
+    var fu = CRM_URL ? opt('Follow-up', 'If you came through your agent or our investor pack: share which brochure pages and payment plans you look at with them, so they can follow up on what matters to you.', cur.followup) : null;
     box.appendChild(opts);
 
     var btns = el('div', 'ck-btns');
@@ -187,15 +233,15 @@
     var accept = el('button', 'ck-btn solid', 'Accept all'); accept.type = 'button';
     var saveBtn = el('button', 'ck-btn solid', 'Save choices'); saveBtn.type = 'button'; saveBtn.hidden = !showOptions;
     if (showOptions) accept.hidden = true;
-    reject.addEventListener('click', function(){ save({ analytics:false, marketing:false }); close(); });
-    accept.addEventListener('click', function(){ save({ analytics:true, marketing:true }); close(); });
-    saveBtn.addEventListener('click', function(){ save({ analytics:an ? an.checked : false, marketing:mk ? mk.checked : false }); close(); });
+    reject.addEventListener('click', function(){ save({ analytics:false, marketing:false, followup:false }); close(); });
+    accept.addEventListener('click', function(){ save({ analytics:true, marketing:true, followup:true }); close(); });
+    saveBtn.addEventListener('click', function(){ save({ analytics:an ? an.checked : false, marketing:mk ? mk.checked : false, followup:fu ? fu.checked : false }); close(); });
     btns.appendChild(reject); btns.appendChild(accept); btns.appendChild(saveBtn);
     box.appendChild(btns);
 
     if (!showOptions){
       var choose = el('button', 'ck-link', 'Choose which cookies'); choose.type = 'button';
-      choose.addEventListener('click', function(){ opts.hidden = false; choose.remove(); accept.hidden = true; saveBtn.hidden = false; (an || mk || saveBtn).focus(); });
+      choose.addEventListener('click', function(){ opts.hidden = false; choose.remove(); accept.hidden = true; saveBtn.hidden = false; (an || mk || fu || saveBtn).focus(); });
       box.appendChild(choose);
     }
     document.body.appendChild(box);
@@ -207,7 +253,7 @@
     if (!t) return;
     e.preventDefault(); open(true);
   });
-  window.aurayaConsent = { open:function(){ open(true); }, get:function(){ return { analytics:consent.analytics, marketing:consent.marketing }; } };
+  window.aurayaConsent = { open:function(){ open(true); }, get:function(){ return { analytics:consent.analytics, marketing:consent.marketing, followup:consent.followup }; } };
 
   /* start: apply a saved choice, or ask */
   var s = saved();
