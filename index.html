@@ -595,7 +595,7 @@
   /* ======= CLICK TRACKING ======= */
   document.getElementById('openBrochure').addEventListener('click',()=>track('view_item','ViewContent',{content_name:'brochure'}));
   /* ======= PAYMENT SIMULATOR: only after the investor-pack form =======
-     Without a lead ID for this visit (see /assets/ref.js), the simulator button opens the form
+     Without a lead ID for this visit and not on an agent link (see /assets/ref.js), the simulator button opens the form
      instead, and the simulator opens once the form is sent. /plan/ itself sends visitors without
      a lead ID here with ?next=plan (keeping ?add=... for add-ons picked in the brochure). */
   let wantsPlan=false;
@@ -615,7 +615,7 @@
     track('plan_gate',null,{from});
   }
   document.getElementById('planLink').addEventListener('click',e=>{
-    if(window.AurayaRef&&AurayaRef.lid){track('plan_open',null,{from:'landing'});return;}
+    if(window.AurayaRef&&AurayaRef.canPlan){track('plan_open',null,{from:'landing'});return;}
     e.preventDefault(); gatePlan('landing');
   });
   /* WhatsApp and email clicks are tracked by assets/analytics.js on every page */
