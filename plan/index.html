@@ -284,7 +284,7 @@
 
       <section class="blk" aria-labelledby="h-sched">
         <h2 id="h-sched">Your payment schedule</h2>
-        <p class="blk-note">Payments follow construction milestones, with handover on 1 March 2028. Each instalment is a share of your total contract price (villa plus add‑ons, after promotions).</p>
+        <p class="blk-note">Payments follow construction milestones, with handover on 1 March 2028. Add‑ons are paid in instalments together with the villa: each instalment is a share of your contract price (villa plus add‑ons, after promotions), split below the amount.</p>
         <div class="stack" id="stack" aria-hidden="true"></div>
         <div class="tbl-scroll"><table class="sched" id="schedTable"></table></div>
       </section>
@@ -293,7 +293,7 @@
         <h2 id="h-assume">How the plan is worked out</h2>
         <ul class="assume">
           <li><b>Rupiah first.</b> All transactions are in IDR. USD figures are indicative only, at IDR 17.800 per USD, as in the price list of 17 November 2026.</li>
-          <li><b>Add‑ons follow the same schedule.</b> Their price is added to the villa and paid in the same milestone shares.</li>
+          <li><b>Add‑ons are paid in instalments.</b> No separate upfront payment: their price is spread over the same milestones as the villa (10 / 30 / 10 / 20 / 20 / 10%).</li>
           <li><b>BPHTB on freehold only.</b> Choosing freehold adds the 5% land and building acquisition duty, worked out on the villa price and usually settled at notarial signing. Leasehold has no BPHTB.</li>
           <li><b>Milestones, not dates.</b> Progress payments fall due as construction reaches each stage, so only the reservation and handover have fixed dates.</li>
           <li><b>Not included:</b> notary fees, PT PMA set‑up costs (for the HGB option), bank transfer charges and currency movements.</li>
@@ -403,12 +403,13 @@
   function calc(){
     var v = VILLAS[st.villa], t = TENURES[st.tenure];
     var lines = [], promos = [];
-    var addonsTotal = 0, discount = 0;
+    var addonsTotal = 0, discount = 0, addonFree = 0;
     ADDONS.forEach(function(a){ if (st.addons[a.id]) { addonsTotal += a.idr; lines.push(a); } });
     PROMOS.forEach(function(p){
       var s = promoState(p); if (!s.ok) return;
       var amt = p.freeAddon ? addonById(p.freeAddon).idr : p.pct ? Math.round(v.idr * p.pct) : (p.idr || 0);
       discount += amt; promos.push({ p:p, amt:amt });
+      if (p.freeAddon) addonFree += amt;
     });
     var contract = v.idr + addonsTotal - discount;
     var bphtb = Math.round(v.idr * t.bphtb);
@@ -419,8 +420,14 @@
       var a = i === last ? contract - paid : Math.round(contract * s.pct);
       paid += a; return a;
     });
+    /* add-ons are paid in the same instalments: the add-on part of each one, after free add-ons */
+    var addonNet = addonsTotal - addonFree, aPaid = 0;
+    var instAddon = SCHEDULE.map(function(s, i){
+      var a = i === last ? addonNet - aPaid : Math.round(addonNet * s.pct);
+      aPaid += a; return a;
+    });
     return { v:v, t:t, addons:lines, addonsTotal:addonsTotal, promos:promos, discount:discount, contract:contract, bphtb:bphtb,
-      total:contract + bphtb, inst:inst };
+      total:contract + bphtb, inst:inst, instAddon:instAddon, addonNet:addonNet };
   }
 
   /* ----- controls ----- */
@@ -527,7 +534,7 @@
       var a = r.inst[i]; cum += a;
       var when = i === 0 ? 'On ' + fmtDate(st.date) : s.when;
       t += '<tr' + (a ? '' : ' class="zero"') + '><td><span class="no">' + (i + 1) + '</span></td><td>' + s.name + '<small>' + when + '</small></td>'
-        + '<td>' + (s.pct ? Math.round(s.pct*100) + '%' : '—') + '</td><td>' + (a ? money(a) : '—') + '</td><td class="cum">' + money(cum) + '</td></tr>';
+        + '<td>' + (s.pct ? Math.round(s.pct*100) + '%' : '—') + '</td><td>' + (a ? money(a) + (r.addonNet && r.instAddon[i] ? '<small>Villa ' + money(a - r.instAddon[i]) + '<br>Add‑ons ' + money(r.instAddon[i]) + '</small>' : '') : '—') + '</td><td class="cum">' + money(cum) + '</td></tr>';
       if (s.bphtb && r.bphtb){
         cum += r.bphtb;
         t += '<tr class="extra"><td></td><td>BPHTB (5%)<small>Paid to the tax office, usually before the deed is signed</small></td><td>—</td><td>' + money(r.bphtb) + '</td><td class="cum">' + money(cum) + '</td></tr>';
@@ -543,6 +550,7 @@
       + (r.promos.length ? '• Promotions: ' + r.promos.map(function(x){ return x.p.name; }).join(', ') + '\n' : '')
       + '• Total: ' + idr(r.total) + ' (≈ ' + usd(r.total) + ')\n'
       + '• Reservation fee: ' + idr(r.inst[0]) + '\n'
+      + (r.addonNet ? '• Add-ons (' + idr(r.addonNet) + ') paid in instalments with the villa\n' : '')
       + location.href;
     $('waBtn').href = 'https://api.whatsapp.com/send?phone=6285899530004&text=' + encodeURIComponent(msg);
     $('mailBtn').href = 'mailto:sales@auraya-villas.com?subject=' + encodeURIComponent('Payment plan: Villa ' + r.v.id) + '&body=' + encodeURIComponent(msg);
