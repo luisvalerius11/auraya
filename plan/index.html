@@ -304,13 +304,11 @@
 
       <div class="cta">
         <div>
-          <h2>Reserve or ask about this plan</h2>
-          <p>Send us this plan as it stands and we'll confirm availability, the promotions and the exact figures for your contract.</p>
+          <h2>Keep a copy of this plan</h2>
+          <p>Print it or save it as a PDF, with every figure and instalment as you set them, to compare options or discuss with your advisor.</p>
         </div>
         <div class="btns">
-          <a class="btn solid" id="waBtn" href="#" target="_blank" rel="noopener">Send on WhatsApp</a>
-          <a class="btn" id="mailBtn" href="#">Email</a>
-          <button class="btn" id="printBtn" type="button">Print / save PDF</button>
+          <button class="btn solid" id="printBtn" type="button">Print / save PDF</button>
         </div>
       </div>
 
@@ -544,19 +542,6 @@
     t += '</tbody><tfoot><tr><td></td><td>Total</td><td>100%</td><td>' + money(r.total) + '</td><td class="cum"></td></tr></tfoot>';
     $('schedTable').innerHTML = t;
 
-    /* hand-off links carry the plan as it stands */
-    var msg = 'Hi, I simulated a payment plan for Auraya Villas:\n'
-      + '• Villa ' + r.v.id + ', ' + r.t.name + '\n'
-      + (r.addons.length ? '• Add-ons: ' + r.addons.map(function(a){ return a.name; }).join(', ') + '\n' : '')
-      + (r.promos.length ? '• Promotions: ' + r.promos.map(function(x){ return x.p.name; }).join(', ') + '\n' : '')
-      + '• Total: ' + idr(r.total) + ' (≈ ' + usd(r.total) + ')\n'
-      + '• Reservation fee: ' + idr(r.inst[0]) + '\n'
-      + (r.addonNet ? '• Add-ons (' + idr(r.addonNet) + ') paid in instalments with the villa\n' : '')
-      + location.href;
-    /* to the agent on an agent link (see /assets/ref.js), otherwise to Auraya */
-    var R = window.AurayaRef;
-    $('waBtn').href = R ? R.wa(msg) : 'https://api.whatsapp.com/send?phone=6285899530004&text=' + encodeURIComponent(msg);
-    $('mailBtn').href = R ? R.mail('Payment plan: Villa ' + r.v.id, msg) : 'mailto:sales@auraya-villas.com?subject=' + encodeURIComponent('Payment plan: Villa ' + r.v.id) + '&body=' + encodeURIComponent(msg);
     return r;
   }
   function row(cls, name, val, what){
@@ -613,8 +598,6 @@
       if (document.referrer && new URL(document.referrer).pathname.indexOf('/brochure') === 0 && history.length > 1){ e.preventDefault(); history.back(); }
     }catch(err){}
   });
-  $('waBtn').addEventListener('click', function(){ sendBuilt(); track('plan_whatsapp', {}); });
-  $('mailBtn').addEventListener('click', function(){ sendBuilt(); track('plan_email', {}); });
   document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden' && builtTimer) sendBuilt(); });
 
   reset();

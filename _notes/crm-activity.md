@@ -80,7 +80,7 @@ Each event is sent at most once per visit, except `plan_built` (once per differe
 | `brochure_complete` | Reached the last page |
 | `roi_model_open` | Opened the full ROI calculation from the brochure |
 | `plan_open` | Opened the payment simulator |
-| `plan_built` | Settled on a plan (5 s without changes) or sent / printed it |
+| `plan_built` | Settled on a plan (5 s without changes) or printed / saved it as PDF |
 | `plan_print` | Printed or saved the plan as PDF |
 | `contact` | Tapped a WhatsApp or email button |
 
