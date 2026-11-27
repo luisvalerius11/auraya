@@ -248,6 +248,14 @@
     .gal-grid{grid-template-columns:1fr}
     section{padding:74px 0}
   }
+  /* tablets: a soft dark wash behind the left of the hero photo, where the text sits, so the paragraph
+     reads against the bright wall; and a wider intro photo when it stacks above the text */
+  @media(min-width:601px) and (max-width:1180px){
+    .hero-photo::after{background:linear-gradient(90deg,rgba(40,29,19,.62),rgba(40,29,19,.3) 55%,rgba(40,29,19,0) 85%),linear-gradient(180deg,rgba(62,45,30,.12) 25%,rgba(62,45,30,.78))}
+  }
+  @media(min-width:601px) and (max-width:900px){
+    .intro-photo{aspect-ratio:3/2}
+  }
   @media(max-width:600px){
     nav .nav-cta{display:none}
     .hero-stats{gap:28px}.price-row .price{font-size:2.2rem}
