@@ -11,6 +11,7 @@
 <link rel="icon" href="/assets/favicon.ico?v=3" sizes="any">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=3">
 <!-- Analytics: IDs live in /assets/analytics.js, shared with the landing page and the brochure -->
+<script src="/assets/ref.js"></script>
 <script src="/assets/analytics.js"></script>
 <!-- Fonts are self-hosted (/assets/fonts): no extra connections to Google, and no visitor data sent there -->
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/cinzel-latin.woff2" crossorigin>
@@ -470,7 +471,7 @@
   $('codeBtn').addEventListener('click', applyCode);
   $('code').addEventListener('keydown', function(e){ if (e.key === 'Enter') applyCode(); });
   $('reset').addEventListener('click', function(){ reset(); update('reset', ''); });
-  $('printBtn').addEventListener('click', function(){ track('plan_print', {}); window.print(); });
+  $('printBtn').addEventListener('click', function(){ sendBuilt(); track('plan_print', {}); window.print(); });
 
   /* ----- render ----- */
   function render(){
@@ -544,7 +545,7 @@
     $('schedTable').innerHTML = t;
 
     /* hand-off links carry the plan as it stands */
-    var msg = 'Hi Auraya, I simulated a payment plan:\n'
+    var msg = 'Hi, I simulated a payment plan for Auraya Villas:\n'
       + '• Villa ' + r.v.id + ', ' + r.t.name + '\n'
       + (r.addons.length ? '• Add-ons: ' + r.addons.map(function(a){ return a.name; }).join(', ') + '\n' : '')
       + (r.promos.length ? '• Promotions: ' + r.promos.map(function(x){ return x.p.name; }).join(', ') + '\n' : '')
@@ -552,8 +553,10 @@
       + '• Reservation fee: ' + idr(r.inst[0]) + '\n'
       + (r.addonNet ? '• Add-ons (' + idr(r.addonNet) + ') paid in instalments with the villa\n' : '')
       + location.href;
-    $('waBtn').href = 'https://api.whatsapp.com/send?phone=6285899530004&text=' + encodeURIComponent(msg);
-    $('mailBtn').href = 'mailto:sales@auraya-villas.com?subject=' + encodeURIComponent('Payment plan: Villa ' + r.v.id) + '&body=' + encodeURIComponent(msg);
+    /* to the agent on an agent link (see /assets/ref.js), otherwise to Auraya */
+    var R = window.AurayaRef;
+    $('waBtn').href = R ? R.wa(msg) : 'https://api.whatsapp.com/send?phone=6285899530004&text=' + encodeURIComponent(msg);
+    $('mailBtn').href = R ? R.mail('Payment plan: Villa ' + r.v.id, msg) : 'mailto:sales@auraya-villas.com?subject=' + encodeURIComponent('Payment plan: Villa ' + r.v.id) + '&body=' + encodeURIComponent(msg);
     return r;
   }
   function row(cls, name, val, what){
@@ -568,7 +571,8 @@
     if (st.date !== todayISO()) q.set('date', st.date);
     if (st.cur !== 'idr') q.set('cur', st.cur);
     if (st.codes.length) q.set('code', st.codes.join(','));
-    try { history.replaceState(null, '', '?' + q.toString()); } catch(e){}
+    var ref = window.AurayaRef ? window.AurayaRef.params() : '';   /* keep the agent / lead tag in a shared link */
+    try { history.replaceState(null, '', '?' + q.toString() + (ref ? '&' + ref : '')); } catch(e){}
   }
   function load(){
     var q; try { q = new URLSearchParams(location.search); } catch(e){ return; }
@@ -587,6 +591,17 @@
   function update(control, value){
     var r = render(); save();
     track('plan_change', { control:control, value:String(value), villa:r.v.id, tenure:r.t.id, total_idr:r.total });
+    clearTimeout(builtTimer); builtTimer = setTimeout(sendBuilt, 5000);
+  }
+  /* the plan a visitor settles on: sent after 5 seconds without changes, or when they share it */
+  var builtTimer = 0, lastBuilt = '';
+  function sendBuilt(){
+    clearTimeout(builtTimer);
+    var r = calc();
+    var p = { villa:r.v.id, tenure:r.t.id, addons:r.addons.map(function(a){ return a.id; }).join(',') || 'none',
+      promos:r.promos.map(function(x){ return x.p.id; }).join(',') || 'none', total_idr:r.total, reserve_idr:r.inst[0], reserve_date:st.date, plan_url:location.href };
+    var key = JSON.stringify(p); if (key === lastBuilt) return; lastBuilt = key;
+    track('plan_built', p);
   }
   /* analytics: does nothing until an ID is set in /assets/analytics.js */
   function track(ev, params){ if (window.track) window.track(ev, null, params); }
@@ -598,12 +613,16 @@
       if (document.referrer && new URL(document.referrer).pathname.indexOf('/brochure') === 0 && history.length > 1){ e.preventDefault(); history.back(); }
     }catch(err){}
   });
-  $('waBtn').addEventListener('click', function(){ track('plan_whatsapp', {}); });
-  $('mailBtn').addEventListener('click', function(){ track('plan_email', {}); });
+  $('waBtn').addEventListener('click', function(){ sendBuilt(); track('plan_whatsapp', {}); });
+  $('mailBtn').addEventListener('click', function(){ sendBuilt(); track('plan_email', {}); });
+  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden' && builtTimer) sendBuilt(); });
 
   reset();
   load();
   render();
+  var from = 'direct';
+  try { if (document.referrer){ var u = new URL(document.referrer); from = u.host === location.host ? (u.pathname.split('/')[1] || 'landing') : 'external'; } } catch(e){}
+  track('plan_view', { from:from });
 })();
 </script>
 </body>

@@ -11,6 +11,7 @@
 <link rel="icon" href="/assets/favicon.ico?v=3" sizes="any">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v=3">
 <!-- Analytics: IDs live in /assets/analytics.js, shared with the landing page and the ROI model -->
+<script src="/assets/ref.js"></script>
 <script src="/assets/analytics.js"></script>
 <link rel="preload" as="image" href="img/01.webp" fetchpriority="high">
 <link rel="preload" as="image" href="img/logo-cream.webp">
@@ -485,6 +486,11 @@ body.narrow .price-t td{ font-size:.8em; }
   .thanks-sub{ margin-top:1em; font-size:.85em; letter-spacing:.06em; line-height:1.8; max-width:36em; text-shadow:0 1px 10px rgba(0,0,0,.6); }
   .contact{ list-style:none; padding:0; margin:1.6em 0 0; font-size:.85em; line-height:2; letter-spacing:.1em; text-transform:uppercase; text-shadow:0 1px 10px rgba(0,0,0,.6); }
   .contact a{ color:inherit; text-decoration:none; border-bottom:1px solid rgba(239,233,217,.5); }
+  .agent-lb{ margin-top:1.8em; font-size:.62em; font-weight:600; letter-spacing:.3em; text-transform:uppercase; color:#e2c28a; text-shadow:0 1px 10px rgba(0,0,0,.6); }
+  .agent-lb + .contact{ margin-top:.4em; }
+  .contact .agent-name{ font-family:var(--serif); font-size:1.25em; letter-spacing:.08em; }
+  .dev-line{ margin-top:1.6em; font-size:.6em; letter-spacing:.08em; color:rgba(239,233,217,.75); text-shadow:0 1px 10px rgba(0,0,0,.6); }
+  .dev-line a{ color:inherit; text-decoration:none; border-bottom:1px solid rgba(239,233,217,.35); }
   .legal{ position:absolute; bottom:1.6em; left:0; right:0; text-align:center; font-size:.6em; letter-spacing:.06em; color:rgba(239,233,217,.75); z-index:1; padding:0 4em; }
 
   /* narrow (phone) adjustments */
@@ -892,12 +898,31 @@ body.narrow .price-t td{ font-size:.8em; }
     <div class="page-inner">
       <h2 class="serif-title thanks-title">Thank You</h2>
       <p class="thanks-sub">Auraya Villas is not for everyone. With limited units available,<br>ensure you are among the few.</p>
-      <ul class="contact">
+      <ul class="contact" id="contactList">
         <li><a href="mailto:sales@auraya-villas.com">sales@auraya-villas.com</a></li>
-        <li><a href="https://api.whatsapp.com/send?phone=6285899530004&text=Hi%20Auraya%2C%20I%27ve%20read%20the%20brochure" target="_blank" rel="noopener">+62 858 9953 0004 · WhatsApp</a></li>
+        <li><a href="https://api.whatsapp.com/send?phone=6285899530004&text=Hi%2C%20I%27ve%20read%20the%20Auraya%20Villas%20brochure" target="_blank" rel="noopener">+62 858 9953 0004 · WhatsApp</a></li>
         <li>Viewings by appointment</li>
       </ul>
     </div>
+    <script>
+    /* On an agent link (?agent=..., see /assets/ref.js) the agent is the contact, with Auraya as a small developer line */
+    (function(){
+      var R = window.AurayaRef, a = R && R.agent; if (!a) return;
+      function esc(t){ var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+      var text = 'Hi ' + a.name.split(' ')[0] + ', I\u2019ve read the Auraya Villas brochure';
+      var h = '<li class="agent-name">' + esc(a.name) + (a.agency ? ' · ' + esc(a.agency) : '') + '</li>'
+        + '<li><a href="' + R.wa(text, a) + '" target="_blank" rel="noopener">+' + esc(a.wa) + ' · WhatsApp</a></li>'
+        + (a.email ? '<li><a href="mailto:' + esc(a.email) + '">' + esc(a.email) + '</a></li>' : '')
+        + '<li>Viewings by appointment</li>';
+      var ul = document.getElementById('contactList');
+      ul.innerHTML = h;
+      ul.insertAdjacentHTML('beforebegin', '<p class="agent-lb">Your agent</p>');
+      if (R.showDeveloper){
+        var d = R.developer;
+        ul.insertAdjacentHTML('afterend', '<p class="dev-line">Developer · ' + d.name + ' · <a data-developer href="mailto:' + d.email + '">' + d.email + '</a> · <a data-developer href="' + R.wa('Hi, I\u2019ve read the Auraya Villas brochure', d) + '" target="_blank" rel="noopener">WhatsApp</a></p>');
+      }
+    })();
+    </script>
     <p class="legal">Illustrative material, not an offer capable of acceptance. Tenure is either a 30+20 year leasehold with the option to convert to freehold, or freehold‑equivalent HGB title held through the buyer's own PT PMA; terms per the notarial deed and building contract prepared for each buyer. · <a href="/privacy/" style="color:inherit">Privacy policy</a> · <a href="#" data-cookie-settings style="color:inherit">Cookie settings</a></p>
   </section>
 
