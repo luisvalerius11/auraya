@@ -925,11 +925,9 @@ body.narrow .price-t td{ font-size:.8em; }
         </article>
       </div>
       <div class="ao-sim" data-noswipe>
-        <div class="ao-sim-head"><h3>Solar savings, roughly</h3><span>Move the sliders to match how the villa is used</span></div>
+        <div class="ao-sim-head"><h3>Solar savings, roughly</h3><span>On an electricity bill of Rp 4 M a month</span></div>
         <div class="ao-sim-body">
           <div class="ao-inputs">
-            <label class="ao-field"><span class="lb">Electricity bill a month <output id="aoBillOut"></output></span>
-              <input type="range" id="aoBill" min="1000000" max="8000000" step="250000" value="2500000"></label>
             <label class="ao-field"><span class="lb">Share covered by solar <output id="aoShareOut"></output></span>
               <input type="range" id="aoShare" min="20" max="60" step="5" value="50"></label>
           </div>
@@ -939,7 +937,7 @@ body.narrow .price-t td{ font-size:.8em; }
             <div><b id="aoPay"></b><span>to earn back Rp 200 M</span></div>
           </div>
         </div>
-        <p class="ao-note">A rough guide at today's tariffs, before any price rises. Rp 2,5 M a month is the electricity line in our ROI model; actual savings depend on use and sunshine.</p>
+        <p class="ao-note">A rough guide at today's tariffs, before any price rises; actual savings depend on use and sunshine.</p>
       </div>
       <a class="ao-more" href="/plan/?add=jacuzzi,solar,pergola">Add them to your payment plan <span aria-hidden="true">&rarr;</span></a>
     </div>
@@ -1309,23 +1307,22 @@ body.narrow .price-t td{ font-size:.8em; }
   /* ================================================ */
 
   /* ================= ADD-ONS: rough solar savings =================
-     Saving = monthly electricity bill x share covered by solar; payback = package price / yearly saving.
+     Saving = monthly electricity bill x share covered by solar (bill fixed at Rp 4 M a month, share 50% to start); payback = package price / yearly saving.
      No tariff rises and no battery value: a rough guide, as the page says. */
   (function solarSavings(){
     var page = document.querySelector('#pageStore .addons'); if (!page) return;
     var PRICE = 200000000;
-    var bill = page.querySelector('#aoBill'), share = page.querySelector('#aoShare');
+    var BILL = 4000000, share = page.querySelector('#aoShare');   /* electricity bill a month, IDR */
     function m(v){ return 'Rp ' + (v/1e6).toFixed(v < 1e7 ? 1 : 0).replace('.', ',') + ' M'; }
     function upd(){
-      var month = +bill.value * +share.value / 100, year = month * 12;
-      page.querySelector('#aoBillOut').textContent = m(+bill.value);
+      var month = BILL * +share.value / 100, year = month * 12;
       page.querySelector('#aoShareOut').textContent = share.value + '%';
       page.querySelector('#aoMonth').textContent = m(month);
       page.querySelector('#aoYear').textContent = m(year);
       page.querySelector('#aoPay').textContent = '≈ ' + Math.round(PRICE / year) + ' yrs';
     }
     var sent = false;
-    [bill, share].forEach(function(el){
+    [share].forEach(function(el){
       el.addEventListener('input', upd);
       el.addEventListener('change', function(){ if (!sent){ sent = true; track('solar_savings_used', {}); } });
     });
