@@ -26,7 +26,7 @@
   };
   /* With an agent link, also show Auraya's own contact as a small line on the brochure's
      last page. Set to false to show the agent only. */
-  var SHOW_DEVELOPER_WITH_AGENT = true;
+  var SHOW_DEVELOPER_WITH_AGENT = false;
   var DEVELOPER = { name:'Auraya Villas', wa:'6285899530004', email:'sales@auraya-villas.com' };
 
   var KEY = 'auraya_ref';
