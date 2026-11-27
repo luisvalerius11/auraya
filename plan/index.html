@@ -58,10 +58,7 @@
   .num{ font-variant-numeric:tabular-nums; }
 
   /* top bar */
-  .bar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:20px; padding-bottom:20px; }
-  .wordmark{ display:inline-flex; align-items:center; gap:12px; text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
-  .wordmark img{ width:30px; height:auto; display:block; }
-  .back{ font-size:12px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft); text-decoration:none; padding:10px 0; }
+  .back{ display:table; margin:-10px 0 14px; font-size:12px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft); text-decoration:none; padding:10px 0; }
   .back:hover{ color:var(--ink); }
 
   /* intro */
@@ -197,8 +194,6 @@
   }
   @media (max-width:640px){
     .wrap{ padding:0 16px; }
-    .bar{ padding-top:14px; padding-bottom:14px; }
-    .wordmark{ font-size:14px; letter-spacing:.3em; }
     .back{ font-size:11px; letter-spacing:.14em; }
     .hero{ padding:24px 0 26px; }
     .panel{ padding:22px 16px; }
@@ -221,7 +216,7 @@
     .sched th:first-child, .sched td:first-child{ padding-left:0; padding-right:2px; }
   }
   @media print{
-    .bar .back, .panel, .cta, footer, .cur{ display:none !important; }
+    .back, .panel, .cta, footer, .cur{ display:none !important; }
     .model{ grid-template-columns:1fr; padding-top:16px; }
     .result{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     section.blk{ break-inside:avoid; }
@@ -230,13 +225,10 @@
 </head>
 <body>
 
-<header class="wrap bar">
-  <a class="wordmark" href="/" aria-label="Auraya Villas home"><img src="/brochure/img/logo-ink.webp" alt="" width="96" height="95">Auraya</a>
-  <a class="back" id="backLink" href="/brochure/#prices">← Back to brochure</a>
-</header>
 
 <main class="wrap">
   <div class="hero">
+    <a class="back" id="backLink" href="/brochure/#prices">← Back to brochure</a>
     <span class="eyebrow">Auraya Villas · Payment plan</span>
     <h1>Simulate your payment plan</h1>
     <p class="lead">Choose a villa, how you'd like to own it and the add‑ons you want. The simulator applies the promotions you qualify for and shows what you pay at each construction milestone.</p>
