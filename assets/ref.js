@@ -41,6 +41,7 @@
   if (agentId && /^[a-z0-9-]{1,40}$/i.test(agentId)) store.agent = agentId.toLowerCase();
   if (lid && /^[\w-]{6,64}$/.test(lid)) store.lid = lid;
   if (!store.sid) store.sid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  if (/^\/brochure(\/|$)/.test(location.pathname)) store.brochure = 1;   /* has read the brochure this visit */
   function persist(){ try { sessionStorage.setItem(KEY, JSON.stringify(store)); } catch(e){} }
   persist();
 
@@ -56,7 +57,8 @@
     /* the person to contact: the agent on an agent link, otherwise Auraya */
     get contact(){ return agent() || DEVELOPER; },
     /* the payment simulator opens for a known lead or anyone on an agent link; others fill in the form first */
-    get canPlan(){ return !!(store.lid || store.agent); },
+    /* the payment simulator opens for leads, agent links and anyone who came through the brochure */
+    get canPlan(){ return !!(store.lid || store.agent || store.brochure); },
     setLead: function(id){ if (id){ store.lid = id; persist(); } },
     /* ?agent=..&lid=.. for links to other Auraya pages */
     params: function(){
