@@ -259,6 +259,9 @@
     background:var(--bone); color:var(--ink); border-radius:.5em; padding:.55em .8em .6em; font-size:.66em; line-height:1.3;
     box-shadow:0 .4em 1.2em rgba(0,0,0,.35); animation:minIn .2s ease both; }
   .map-read[hidden]{ display:none; }
+  /* phones held sideways scroll the page inside the stage: the readout then follows the visible part of the
+     map on its right side (no pins there), so it is never scrolled out of view */
+  .map-read.float{ left:auto; right:2%; animation:none; transition:top .15s ease-out; }
   .map-read b{ font-weight:600; letter-spacing:.04em; }
   .map-read .min{ display:inline-flex; align-items:center; gap:.35em; font-weight:600; font-size:1.15em; }
   .map-read .min small{ font-weight:400; font-size:.78em; color:#5d564a; }
@@ -1388,10 +1391,26 @@ body.narrow .price-t td{ font-size:.8em; }
           read.innerHTML = '<b></b><span class="min">' + SCOOTER + b.dataset.min + ' min <small>by scooter</small></span>';
           read.querySelector('b').textContent = b.dataset.name;
           read.hidden = false;
+          placeRead();
         }
       });
     });
     function close(){ pins.forEach(function(p){ p.classList.remove('on'); p.setAttribute('aria-pressed', 'false'); }); read.hidden = true; }
+    /* sideways phones: keep the readout inside the visible part of the map */
+    var stageEl = document.getElementById('stage'), mapbox = wrap.querySelector('.mapbox');
+    var sidewaysQ = window.matchMedia('(orientation:landscape) and (max-height:500px) and (pointer:coarse)');
+    function placeRead(){
+      if (read.hidden) return;
+      if (!sidewaysQ.matches){ read.classList.remove('float'); read.style.top = ''; return; }
+      read.classList.add('float');
+      var st = stageEl.getBoundingClientRect(), mb = mapbox.getBoundingClientRect();
+      var top = Math.max(0, st.top - mb.top) + 8;                       /* top edge of what is on screen */
+      var seen = Math.min(mb.bottom, st.bottom) - mb.top - read.offsetHeight - 8;   /* bottom edge of what is on screen */
+      var max = mb.height * 0.78 - read.offsetHeight;                   /* stay above the southern labels */
+      read.style.top = Math.max(8, Math.min(top, max, seen)) + 'px';
+    }
+    if (stageEl) stageEl.addEventListener('scroll', placeRead, { passive:true });
+    window.addEventListener('resize', placeRead);
     wrap.addEventListener('click', close);
     wrap.closest('.page').closeMap = close;
   })();
