@@ -219,6 +219,32 @@
   .poi .t small{ display:block; font-weight:400; }
   .poi-auraya .d{ width:1.05em; height:1.05em; background:var(--ink); box-shadow:0 0 0 .3em rgba(22,19,14,.18); }
   .poi-auraya .t{ font-family:var(--serif); font-size:.78em; letter-spacing:.14em; }
+  /* tappable places with scooter times */
+  button.poi{ background:none; border:0; padding:0; margin:0; font:inherit; color:inherit; cursor:pointer; }
+  button.poi::before{ content:""; position:absolute; inset:-.5em -.4em; }          /* bigger tap target */
+  button.poi .d{ transition:transform .2s, background .2s; }
+  button.poi:hover .d, button.poi.on .d{ background:var(--ink); transform:scale(1.35); }
+  button.poi:focus-visible{ outline:2px solid var(--ink); outline-offset:3px; border-radius:.3em; }
+  .poi .t .min{ display:inline-flex; align-items:center; gap:.3em; margin-top:.2em; font-weight:600; color:#5a4f3c;
+    background:rgba(255,255,255,.55); border-radius:1em; padding:.05em .5em .1em; }
+  .poi .t .min svg{ width:1.15em; height:1.15em; }
+  button.poi.on .t .min{ background:var(--ink); color:var(--bone); }
+  .map-line{ position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none; overflow:visible; }
+  .map-line line{ stroke:var(--ink); stroke-width:2; stroke-dasharray:5 5; vector-effect:non-scaling-stroke; opacity:0; transition:opacity .25s; }
+  .map-line.on line{ opacity:.8; }
+  .map-card.right{ left:auto; right:0; }
+  .map-card{ position:absolute; left:0; top:0; z-index:4; width:min(17em, 70%); box-sizing:border-box; padding:1em 1.1em 1.05em;
+    background:#f6f2e7; color:var(--ink); border-radius:.5em; box-shadow:0 10px 30px rgba(0,0,0,.35); text-align:left; animation:spotIn .25s ease both; }
+  .map-card .k{ font-size:.58em; font-weight:600; letter-spacing:.26em; text-transform:uppercase; color:#857f6e; }
+  .map-card .n{ font-family:var(--serif); font-size:1.15em; font-weight:500; letter-spacing:.04em; margin:.25em 1.6em .45em 0; line-height:1.15; }
+  .map-card .big{ display:flex; align-items:center; gap:.45em; font-size:1.05em; font-weight:600; }
+  .map-card .big svg{ width:1.4em; height:1.4em; }
+  .map-card .sub{ font-size:.72em; color:#5f5a4e; margin-top:.2em; }
+  .map-card a{ display:inline-block; margin-top:.8em; font-size:.66em; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--ink); border-bottom:1px solid currentColor; text-decoration:none; }
+  .map-card .x{ position:absolute; top:.5em; right:.5em; width:1.8em; height:1.8em; border:0; border-radius:50%; background:rgba(22,19,14,.08); color:var(--ink); font:400 1em/1 var(--sans); cursor:pointer; }
+  .map-card .fine{ font-size:.56em; color:#857f6e; margin-top:.8em; line-height:1.45; }
+  .loc-tip{ font-size:.75em; color:#b3ab96; margin:auto 0 .6em; font-style:italic; }
+  .loc-tip + .loc-link{ margin-top:0; }
 
   /* lifestyle: category tabs, a scrolling grid of places, and a detail panel per place */
   .life .page-inner{ align-items:center; text-align:center; padding:2.6em 3em 2.2em; }
@@ -649,20 +675,26 @@ body.narrow .price-t td{ font-size:.8em; }
           <li>The stunning Melasti Beach is a quick 10‑minute drive away</li>
           <li>All major leisure and wellness activities within a 15‑minute drive</li>
         </ul>
+        <p class="loc-tip">Tap a place on the map for the scooter time from the villa.</p>
         <a class="loc-link" href="https://maps.google.com/?q=Pecatu,+Uluwatu,+Bali" target="_blank" rel="noopener">Open in Google Maps →</a>
       </div>
-      <div class="mapwrap">
+      <!-- Scooter times: road routes from the villa (data-villa, lat,lon) to each place,
+           measured on OpenStreetMap (OSRM), rounded up to whole minutes. To update,
+           change data-min / data-km and the coordinates; nothing else needs to change. -->
+      <div class="mapwrap" data-villa="-8.8342304,115.1365031">
         <img src="img/05.webp" alt="Map of the Bukit peninsula" loading="lazy" decoding="async">
-        <div class="poi" style="left:56%; top:22%;"><span class="d"></span><span class="t">Dreamland<small>Beach</small></span></div>
-        <div class="poi" style="left:44%; top:46%;"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></div>
-        <div class="poi" style="left:30%; top:54%;"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></div>
-        <div class="poi" style="left:27%; top:70%;"><span class="d"></span><span class="t">Pura Luhur Uluwatu<small>Hindu Temple</small></span></div>
-        <div class="poi" style="left:38%; top:80%;"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></div>
-        <div class="poi" style="left:50%; top:86%;"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></div>
-        <div class="poi" style="left:61%; top:88%;"><span class="d"></span><span class="t">Savaya<small>Beach Club</small></span></div>
+        <svg class="map-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="70" y1="78" x2="70" y2="78"/></svg>
+        <button type="button" class="poi" style="left:56%; top:22%;" data-min="11" data-km="6.3" data-ll="-8.7995624,115.1176363"><span class="d"></span><span class="t">Dreamland<small>Beach</small></span></button>
+        <button type="button" class="poi" style="left:44%; top:46%;" data-min="8" data-km="5.5" data-ll="-8.8112154,115.1036370"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></button>
+        <button type="button" class="poi" style="left:30%; top:54%;" data-min="11" data-km="8.3" data-ll="-8.8186980,115.0884690"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></button>
+        <button type="button" class="poi" style="left:27%; top:70%;" data-min="11" data-km="7.1" data-ll="-8.8293693,115.0843428"><span class="d"></span><span class="t">Pura Luhur Uluwatu<small>Hindu Temple</small></span></button>
+        <button type="button" class="poi" style="left:38%; top:80%;" data-min="9" data-km="5.6" data-ll="-8.8399499,115.0951841"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></button>
+        <button type="button" class="poi" style="left:50%; top:86%;" data-min="8" data-km="4.6" data-ll="-8.8442782,115.1079083"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></button>
+        <button type="button" class="poi" style="left:61%; top:88%;" data-min="5" data-km="1.9" data-ll="-8.8464133,115.1406518"><span class="d"></span><span class="t">Savaya<small>Beach Club</small></span></button>
         <div class="poi poi-auraya" style="left:70%; top:78%;"><span class="d"></span><span class="t">AURAYA<br>VILLAS</span></div>
-        <div class="poi" style="left:79%; top:88%;"><span class="d"></span><span class="t">Sundays<small>Beach Club</small></span></div>
-        <div class="poi" style="left:89%; top:90%;"><span class="d"></span><span class="t">Melasti<small>Beach</small></span></div>
+        <button type="button" class="poi" style="left:79%; top:88%;" data-min="9" data-km="3.5" data-ll="-8.8474651,115.1515232"><span class="d"></span><span class="t">Sundays<small>Beach Club</small></span></button>
+        <button type="button" class="poi" style="left:89%; top:90%;" data-min="12" data-km="4.7" data-ll="-8.8482915,115.1575716"><span class="d"></span><span class="t">Melasti<small>Beach</small></span></button>
+        <div class="map-card" hidden role="dialog" aria-live="polite"></div>
       </div>
     </div>
     <span class="pnum">05</span>
@@ -1134,6 +1166,58 @@ body.narrow .price-t td{ font-size:.8em; }
     drawTabs(); drawGrid();
   })();
 
+  /* ================= LOCATION MAP =================
+     Each place on the map shows its scooter time from the villa; tapping one
+     draws the route line and opens a card with the distance and directions.
+     The numbers live on the pins in the HTML (data-min, data-km, data-ll).  */
+  (function locationMap(){
+    var wrap = document.querySelector('#pageStore .mapwrap');
+    if (!wrap) return;
+    var card = wrap.querySelector('.map-card'), line = wrap.querySelector('.map-line'), seg = line.querySelector('line');
+    var villa = wrap.dataset.villa, home = wrap.querySelector('.poi-auraya');
+    var SCOOTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<circle cx="5.5" cy="17" r="2.5"/><circle cx="18.5" cy="17" r="2.5"/><path d="M8 17h7.5l2-6.5H20"/><path d="M15 7h2.5l.5 3.5"/><path d="M3 13.5h6.5L11 17"/></svg>';
+    function pct(el, k){ return parseFloat(el.style[k]); }
+    var pins = Array.prototype.slice.call(wrap.querySelectorAll('button.poi'));
+    pins.forEach(function(b){
+      var t = b.querySelector('.t'), m = document.createElement('span');
+      m.className = 'min'; m.innerHTML = SCOOTER + b.dataset.min + ' min';
+      t.appendChild(m);
+      var name = t.firstChild.textContent.trim(), kind = t.querySelector('small').textContent;
+      b.setAttribute('aria-label', name + ', ' + kind + ': ' + b.dataset.min + ' minutes by scooter, ' + b.dataset.km + ' kilometres');
+      b.addEventListener('click', function(e){ e.stopPropagation(); if (b.classList.contains('on')) close(); else open(b, name, kind); });
+    });
+    function open(b, name, kind){
+      close(true);
+      b.classList.add('on');
+      seg.setAttribute('x1', pct(home, 'left')); seg.setAttribute('y1', pct(home, 'top'));
+      seg.setAttribute('x2', pct(b, 'left'));    seg.setAttribute('y2', pct(b, 'top'));
+      line.classList.add('on');
+      card.innerHTML = '';
+      function add(tag, cls, html){ var x = document.createElement(tag); if (cls) x.className = cls; if (html != null) x.innerHTML = html; card.appendChild(x); return x; }
+      var x = add('button', 'x', '&times;'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', function(e){ e.stopPropagation(); close(); });
+      add('div', 'k').textContent = kind;
+      add('div', 'n').textContent = name;
+      add('div', 'big', SCOOTER + '<span>' + b.dataset.min + ' min by scooter</span>');
+      add('div', 'sub').textContent = b.dataset.km + ' km by road from Auraya Villas';
+      var a = add('a'); a.textContent = 'Directions in Google Maps \u2192'; a.target = '_blank'; a.rel = 'noopener';
+      a.href = 'https://www.google.com/maps/dir/?api=1&origin=' + villa + '&destination=' + b.dataset.ll + '&travelmode=driving';
+      add('div', 'fine').textContent = 'Estimated road time, rounded up. Allow extra at sunset and on busy evenings.';
+      card.setAttribute('aria-label', name);
+      card.classList.toggle('right', pct(b, 'left') < 50);   /* open on the side away from the place */
+      card.hidden = false;
+    }
+    function close(keepCard){
+      pins.forEach(function(p){ p.classList.remove('on'); });
+      line.classList.remove('on');
+      if (!keepCard) card.hidden = true;
+    }
+    card.addEventListener('click', function(e){ e.stopPropagation(); });
+    wrap.addEventListener('click', function(){ close(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+    wrap.closest('.page').closeMap = function(){ close(); };
+  })();
+
   /* ================= VILLA LEVELS =================
      Drives the "In section" and "Floorplan" pages together: choosing a level on
      either page shows it on both. Pins sit over the numbers printed on the plan
@@ -1458,6 +1542,8 @@ body.narrow .price-t td{ font-size:.8em; }
   function afterMove(){
     var lp = document.querySelector('.life');
     if (lp && lp.closeSpot) lp.closeSpot();
+    var mp = document.querySelector('.loc');
+    if (mp && mp.closeMap) mp.closeMap();
     try{ history.replaceState(null, '', '#p' + (cur+1)); }catch(e){}
     if (mediaOK){ preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4); }
     updateChrome();
