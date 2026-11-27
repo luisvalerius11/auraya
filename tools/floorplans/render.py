@@ -58,6 +58,12 @@ def classify(d):
     return "fine"
 
 
+# French pattern: for each lattice class (x + 3y mod 13), the slab index and the cell's position in it.
+# Slabs in 30 cm units: 0 = 3x2, 1 = 2x2, 2 = 2x1, 3 = 1x1.
+FRENCH_PATTERN = [(0, 0, 0), (0, 1, 0), (0, 2, 0), (0, 0, 1), (0, 1, 1), (0, 2, 1), (1, 0, 0),
+                  (1, 1, 0), (3, 0, 0), (1, 0, 1), (1, 1, 1), (2, 0, 0), (2, 1, 0)]
+
+
 class Plan:
     def __init__(self, page, clip):
         self.clip = fitz.Rect(*clip)
@@ -146,22 +152,26 @@ class Plan:
         if name == "stair":
             return rgb("#cdc8bd")[None, None, :] * (1 + self.noise(3, 0.01)[..., None])
         m = PT_PER_M * S  # pixels per metre at 1:100
-        if name in ("travertine", "travertine_out"):
-            # honed cream travertine, 60x120 cm (indoor) / 60x60 cm (outdoor), staggered joints
-            indoor = name == "travertine"
-            base = rgb("#e8dcc5") if indoor else rgb("#e2d4ba")
-            tw, th = (int(1.2 * m), int(0.6 * m)) if indoor else (int(0.6 * m), int(0.6 * m))
-            row = yy // th
-            xo = xx + (row % 2) * (tw // 2)
-            tid = (row * 7919 + (xo // tw) * 104729) % 23 / 23.0 - 0.5
-            vein = np.sin(xx * 0.012 + np.sin(yy * 0.02 + tid * 9) * 2.5) * 0.5 + 0.5
-            img = base[None, None, :] * (1 + 0.03 * tid[..., None] - 0.025 * (vein ** 6)[..., None]
-                                         + self.noise(2, 0.012)[..., None] + self.noise(9, 0.012)[..., None])
-            if not indoor:
-                pits = ndi.binary_dilation(self.rng.random((H, W)) > 0.9985, iterations=1)
-                img[pits] *= 0.93
-            joint = ((yy % th) < 2) | ((xo % tw) < 2)
-            img[joint] *= 0.92
+        if name in ("marble", "marble_out"):
+            # cream marble in French (Versailles) pattern: 30x30, 30x60, 60x60 and 60x90 cm slabs.
+            # One set of the four slabs (13 units of 30 cm) repeats on the lattice a*x + b*y = 0 (mod 13).
+            indoor = name == "marble"
+            u = int(round(0.3 * m))
+            cx, cy = xx // u, yy // u
+            cls = (cx + 3 * cy) % 13
+            tab = np.array(FRENCH_PATTERN)
+            k, ox, oy = tab[cls, 0], cx - tab[cls, 1], cy - tab[cls, 2]
+            iid = ox * 7919 + oy * 104729 + k * 13
+            tone = (iid * 2654435761 % 97) / 97.0 - 0.5
+            ang = (iid % 7) * 0.45
+            vein = np.sin((xx * np.cos(ang) + yy * np.sin(ang)) * 0.035 + np.sin(yy * 0.021 + xx * 0.013 + tone * 8) * 2.2)
+            base = rgb("#ebe2d0") if indoor else rgb("#e4d8c1")
+            img = base[None, None, :] * (1 + 0.035 * tone[..., None] - 0.03 * (np.abs(vein) < 0.05)[..., None]
+                                         - 0.012 * (np.abs(vein) < 0.2)[..., None]
+                                         + self.noise(2, 0.008)[..., None] + self.noise(14, 0.012)[..., None])
+            joint = (iid != np.roll(iid, 1, 1)) | (iid != np.roll(iid, 1, 0))
+            joint = ndi.binary_dilation(joint, iterations=1) if not indoor else joint
+            img[joint] *= 0.9
             return img
         if name == "terrazzo":
             img = rgb("#d8d1c3")[None, None, :] * (1 + self.noise(2, 0.012)[..., None])

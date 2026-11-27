@@ -22,8 +22,8 @@ Output per villa (A1–A4, as in the brochure and price list): `villa-aN-{ground
 ## Materials
 
 Matched to the Auraya renders and brochure ("lime plaster, textured paint, natural stone and Ulin wood",
-"travertine bathrooms"): cream travertine floors inside (60x120) and on the terrace, sunbed and roof
-(60x60, continuous with inside), greige terrazzo in bathrooms, shower and powder room, pale aqua pool and
+"travertine bathrooms"): cream marble in French (Versailles) pattern, 30x30 / 30x60 / 60x60 / 60x90 cm,
+inside and on the terrace, sunbed and roof (honed outside), greige terrazzo in bathrooms, shower and powder room, pale aqua pool and
 jacuzzi, grey stone stairs, grey pavers at the parking, tropical planting in the gardens, walnut kitchen
 units and wardrobes, a teak table on the roof. Materials are defined in `Plan.material()` in `render.py`
 and assigned per room in `plans.py`.
