@@ -151,6 +151,7 @@
   .sched th:nth-child(-n+2), .sched td:nth-child(-n+2){ text-align:left; }
   .sched td:nth-child(2){ white-space:normal; }
   .sched td small{ display:block; color:var(--stone); font-size:.76rem; white-space:normal; }
+  .sched td:nth-child(4) small{ white-space:nowrap; }
   .sched .no{ display:inline-flex; width:26px; height:26px; border-radius:50%; align-items:center; justify-content:center; background:var(--taupe); color:var(--bone); font-size:.78rem; font-weight:500; }
   .sched tr.zero td{ color:var(--stone); }
   .sched tr.zero .no{ background:var(--cream-2); color:var(--ink-soft); }
@@ -297,7 +298,7 @@
           <li><b>Add‑ons are paid in instalments.</b> No separate upfront payment: their price is spread over the same milestones as the villa (10 / 30 / 10 / 20 / 20 / 10%).</li>
           <li><b>BPHTB on freehold only.</b> Choosing freehold adds the 5% land and building acquisition duty, worked out on the villa price and usually settled at notarial signing. Leasehold has no BPHTB.</li>
           <li><b>Milestones, not dates.</b> Progress payments fall due as construction reaches each stage, so only the reservation and handover have fixed dates.</li>
-          <li><b>Not included:</b> notary fees, PT PMA set‑up costs (for the HGB option), bank transfer charges and currency movements.</li>
+          <li><b>Notary fee included.</b> Estimated at 1% of the villa price, for both leasehold and freehold, and paid at notarial signing. The notary confirms the exact fee.</li>
           <li><b>Promotions</b> are applied as stated on each offer and only while it runs; one villa per offer.</li>
         </ul>
       </section>
@@ -367,6 +368,8 @@
     { name:'Project finished',    pct:0.10, when:'Handover, 1 March 2028' }
   ];
   var DEFAULTS = { villa:3, tenure:0, cur:'idr' };
+  /* Notary fee, estimated as a share of the villa price (both ownership options), paid at notarial signing */
+  var NOTARY_PCT = 0.01;
   /* ========================================== */
 
   var $ = function(id){ return document.getElementById(id); };
@@ -412,6 +415,7 @@
     });
     var contract = v.idr + addonsTotal - discount;
     var bphtb = Math.round(v.idr * t.bphtb);
+    var notary = Math.round(v.idr * NOTARY_PCT);
     /* instalments: round each to the rupiah; the last one takes the remainder so they add up exactly */
     var paid = 0, last = -1;
     SCHEDULE.forEach(function(s, i){ if (s.pct > 0) last = i; });
@@ -425,8 +429,8 @@
       var a = i === last ? addonNet - aPaid : Math.round(addonNet * s.pct);
       aPaid += a; return a;
     });
-    return { v:v, t:t, addons:lines, addonsTotal:addonsTotal, promos:promos, discount:discount, contract:contract, bphtb:bphtb,
-      total:contract + bphtb, inst:inst, instAddon:instAddon, addonNet:addonNet };
+    return { v:v, t:t, addons:lines, addonsTotal:addonsTotal, promos:promos, discount:discount, contract:contract, bphtb:bphtb, notary:notary,
+      total:contract + bphtb + notary, inst:inst, instAddon:instAddon, addonNet:addonNet };
   }
 
   /* ----- controls ----- */
@@ -499,6 +503,7 @@
     if (r.addonsTotal) parts.push('add‑ons ' + money(r.addonsTotal));
     if (r.discount) parts.push('promotions ' + money(-r.discount));
     if (r.bphtb) parts.push('BPHTB ' + money(r.bphtb));
+    if (r.notary) parts.push('notary ' + money(r.notary));
     $('resultSub').textContent = parts.join(' · ') + (sameCur ? ' · USD indicative at IDR 17.800' : ' · ≈ ' + usd(r.total));
 
     /* promotions */
@@ -518,13 +523,14 @@
     r.promos.forEach(function(x){ h += row('sub promo', x.p.name, money(-x.amt), ''); });
     h += row('total', 'Contract price', money(r.contract), 'Paid in instalments, as in the schedule below');
     if (r.bphtb) h += row('sub', 'BPHTB (5%)', '+' + money(r.bphtb), 'Land and building acquisition duty on the freehold option: 5% of ' + idr(r.v.idr));
+    if (r.notary) h += row('sub', 'Notary fee (est. ' + NOTARY_PCT*100 + '%)', '+' + money(r.notary), 'Estimated at ' + NOTARY_PCT*100 + '% of ' + idr(r.v.idr) + ', paid at notarial signing; the notary confirms the exact fee');
     h += row('final', 'Total you pay', money(r.total), sameCur ? '' : '≈ ' + usd(r.total) + ', indicative');
     $('ledger').innerHTML = h;
 
     /* schedule */
     var shades = ['#4a4238','#6a5d4c','#a78b5f','#8d8270','#5f5446','#b9a57d','#37312a'];
     $('stack').innerHTML = SCHEDULE.map(function(s, i){
-      var a = r.inst[i] + (s.bphtb ? r.bphtb : 0);
+      var a = r.inst[i] + (s.bphtb ? r.bphtb + r.notary : 0);
       return a > 0 ? '<span style="flex:' + a + ';background:' + shades[i % shades.length] + '" title="' + s.name + '"></span>' : '';
     }).join('');
     var cum = 0;
@@ -537,6 +543,10 @@
       if (s.bphtb && r.bphtb){
         cum += r.bphtb;
         t += '<tr class="extra"><td></td><td>BPHTB (5%)<small>Paid to the tax office, usually before the deed is signed</small></td><td>—</td><td>' + money(r.bphtb) + '</td><td class="cum">' + money(cum) + '</td></tr>';
+      }
+      if (s.bphtb && r.notary){
+        cum += r.notary;
+        t += '<tr class="extra"><td></td><td>Notary fee (est. ' + NOTARY_PCT*100 + '%)<small>Paid to the notary at signing; exact fee confirmed by the notary</small></td><td>—</td><td>' + money(r.notary) + '</td><td class="cum">' + money(cum) + '</td></tr>';
       }
     });
     t += '</tbody><tfoot><tr><td></td><td>Total</td><td>100%</td><td>' + money(r.total) + '</td><td class="cum"></td></tr></tfoot>';
