@@ -50,13 +50,8 @@
     margin:0; background:var(--surround); color:var(--ink);
     font-family:var(--sans); overflow:hidden; -webkit-font-smoothing:antialiased;
   }
-  .viewer{ height:100%; height:100dvh; display:flex; flex-direction:column; padding:0 max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); box-sizing:border-box; background:var(--surround); }
+  .viewer{ height:100%; height:100dvh; display:flex; flex-direction:column; padding:max(20px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); box-sizing:border-box; background:var(--surround); }
 
-  .bar{ flex:none; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 4px 16px; }
-  .wordmark{ text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
-  .wordmark{ display:inline-flex; align-items:center; gap:12px; }
-  .wordmark img{ width:30px; height:auto; display:block; }
-  .bar-label{ font-size:11px; font-weight:500; letter-spacing:.26em; text-transform:uppercase; color:var(--faint); }
 
   /* the white card the book sits on */
   .desk{ flex:1; min-height:0; display:flex; flex-direction:column; background:var(--surround); border-radius:18px; padding:22px 14px 16px; box-sizing:border-box; }
@@ -130,12 +125,10 @@
   #soundTool[aria-pressed="false"] .off{ display:inline; }
   .counter{ display:flex; align-items:center; padding:0 14px; min-width:44px; justify-content:center; background:#f3efe5;
     font-size:13px; letter-spacing:.06em; color:#5d564a; font-variant-numeric:tabular-nums; }
-  .nav-arrow:focus-visible,.tool:focus-visible,.toc-item:focus-visible,.wordmark:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
+  .nav-arrow:focus-visible,.tool:focus-visible,.toc-item:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
 
   /* short screens (phones held sideways, small laptops): give the book the height */
   @media (max-height:560px){
-    .bar{ padding:8px 4px 8px; }
-    .wordmark{ font-size:13px; }
     .desk{ padding:10px 10px 8px; border-radius:12px; }
     .tools{ padding-top:8px; }
     .tool{ height:32px; }
@@ -143,11 +136,7 @@
   /* upright tablets: drop the side arrows (swipe or use the toolbar) so both pages get the full width */
   @media (max-width:1100px) and (orientation:portrait){ .nav-arrow{ display:none; } }
   @media (max-width:700px){
-    .viewer{ padding:0 8px max(10px, env(safe-area-inset-bottom)); }
-    .bar{ padding:10px 6px 6px; }
-    .wordmark{ font-size:14px; gap:10px; }
-    .wordmark img{ width:26px; }
-    .bar-label{ font-size:10px; }
+    .viewer{ padding:max(10px, env(safe-area-inset-top)) 8px max(10px, env(safe-area-inset-bottom)); }
     .desk{ padding:6px 0 4px; border-radius:0; }
     .nav-arrow{ display:none; }
     .tools{ padding-top:8px; }
@@ -675,10 +664,6 @@ body.narrow .price-t td{ font-size:.8em; }
 </head>
 <body>
 <div class="viewer" id="viewer">
-  <div class="bar">
-    <a class="wordmark" href="/" aria-label="Auraya Villas home"><img src="img/logo-ink.webp" alt="" width="96" height="95">Auraya</a>
-    <span class="bar-label">Brochure</span>
-  </div>
   <div class="desk">
     <div class="stage" id="stage">
       <button class="nav-arrow nav-prev" id="prevBtn" type="button" aria-label="Previous page"><svg viewBox="0 0 22 40"><path d="M17 3 4 20l13 17"/></svg></button>
@@ -1690,12 +1675,13 @@ body.narrow .price-t td{ font-size:.8em; }
     var arrows = getComputedStyle(prevBtn).display !== 'none';
     var w = stage.clientWidth - (arrows ? 150 : 14), h = stage.clientHeight - (arrows ? 14 : 8);
     var one = Math.min(w, h*ar), two = Math.min(w/2, h*ar);
-    /* two pages whenever they fit well, and always on tablet-width screens and up */
-    var wantSpread = two >= one*0.62 || stage.clientWidth >= 600;
+    /* two pages only when each comes out nearly as big as a single page would (landscape tablets,
+       the unfolded Find N3, laptops); upright tablets get one large page instead of a small spread */
+    var wantSpread = two >= one*0.75;
     var pw = Math.max(wantSpread ? two : one, 120), ph = pw/ar, fs = pw * 0.026;
     /* Phones held upright: a printed page shape would leave half the screen empty, so the page takes
        the full width and grows taller (down to 1:2), and the type is set larger to match. */
-    var tall = !wantSpread && w < h*ar*0.97;
+    var tall = !wantSpread && w < h*ar*0.97 && w < 600;     /* phones only; tablets keep the printed shape */
     if (tall){ pw = Math.max(w, 120); ph = Math.min(h, pw*2); fs = Math.min(pw * 0.034, ph * 0.0195); }
     document.body.classList.toggle('tall', tall);
     sheetBox.style.width  = (wantSpread ? 2*pw : pw) + 'px';
