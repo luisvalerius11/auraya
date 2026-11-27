@@ -130,6 +130,8 @@
   .price-row .from{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft)}
   .price-row .price{font-family:var(--font-head);font-size:2.8rem;color:var(--brown);letter-spacing:.01em}
   .price-row .note{color:var(--ink-soft);font-size:.94rem}
+  .plan-link{display:inline-flex;align-items:center;gap:10px;margin-top:26px;font-size:.78rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--brown);border:1px solid var(--brown);padding:14px 22px;border-radius:2px;transition:background .25s,color .25s}
+  .plan-link:hover,.plan-link:focus-visible{background:var(--brown);color:var(--cream)}
 
   .gallery{background:var(--paper)}
   .gal-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px}
@@ -392,6 +394,7 @@
       <span class="price">Rp 5.31 B</span>
       <span class="note">≈ USD 298,000 at 17,800 · all transactions are in Indonesian Rupiah (IDR), USD figures are indicative only · leasehold 30+20 or freehold-equivalent HGB via PT&nbsp;PMA · reserve by 31 December 2026 and your rooftop jacuzzi (worth Rp 250 M) is included free · full price list for both options in the investor pack</span>
     </div>
+    <a href="/plan/" class="plan-link" id="planLink">Simulate your payment plan, add-ons &amp; promotions <span aria-hidden="true">→</span></a>
   </div>
 </section>
 
@@ -556,7 +559,7 @@
     if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     const groups=[
       '.scarcity','.intro-photo','.intro-copy > *','.section-head > *','.compare-table tbody tr','.compare-foot',
-      '.spec','.price-row','.gal-item','.loc-hl li','.loc-link','.map','.proof','.roi-card','.roi-disclaimer',
+      '.spec','.price-row','.plan-link','.gal-item','.loc-hl li','.loc-link','.map','.proof','.roi-card','.roi-disclaimer',
       '.offer-copy > .eyebrow, .offer-copy > h2, .offer-copy > p','.gives li','.card-form','.foot-grid > *'
     ];
     const io=new IntersectionObserver(entries=>{
@@ -581,6 +584,7 @@
 
   /* ======= CLICK TRACKING ======= */
   document.getElementById('openBrochure').addEventListener('click',()=>track('view_item','ViewContent',{content_name:'brochure'}));
+  document.getElementById('planLink').addEventListener('click',()=>track('plan_open',null,{from:'landing'}));
   /* WhatsApp and email clicks are tracked by assets/analytics.js on every page */
   /* which sections people scroll to: one section_view per section per visit */
   (function(){
