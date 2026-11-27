@@ -143,12 +143,23 @@
   /* upright tablets: drop the side arrows (swipe or use the toolbar) so both pages get the full width */
   @media (max-width:1100px) and (orientation:portrait){ .nav-arrow{ display:none; } }
   @media (max-width:700px){
-    .viewer{ padding:0 12px max(12px, env(safe-area-inset-bottom)); }
-    .bar{ padding:14px 4px 12px; }
-    .desk{ padding:14px 8px 12px; border-radius:14px; }
+    .viewer{ padding:0 8px max(10px, env(safe-area-inset-bottom)); }
+    .bar{ padding:10px 6px 6px; }
+    .wordmark{ font-size:14px; gap:10px; }
+    .wordmark img{ width:26px; }
+    .bar-label{ font-size:10px; }
+    .desk{ padding:6px 0 4px; border-radius:0; }
     .nav-arrow{ display:none; }
-    .tools{ padding-top:12px; }
+    .tools{ padding-top:8px; }
+    .tool{ width:48px; height:44px; }
+    .counter{ white-space:nowrap; }
   }
+  /* touch tablets and unfolded foldables: slimmer margins so the open book is bigger */
+  @media (pointer:coarse) and (min-width:701px) and (max-width:1100px){
+    .viewer{ padding:0 10px max(12px, env(safe-area-inset-bottom)); }
+    .desk{ padding:10px 4px 8px; }
+  }
+  @media (max-width:360px){ .tool{ width:42px; } .counter{ padding:0 10px; } }
 
   /* ============ pages ============ */
   .page{ flex:1; min-width:0; position:relative; box-sizing:border-box; overflow:hidden;
@@ -410,6 +421,33 @@
     font-size:.66em; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#3b362c; }
   .sec-more:hover{ color:var(--ink); }
   body.spread .sec-more{ display:none; }          /* the floorplan is the facing page */
+  /* phones (tall single page): crop the empty fog on the left so the house is bigger, and list the levels
+     under the drawing instead of over it */
+  .sec-list{ display:none; }
+  body.tall .sec-tag{ display:none; }
+  body.tall .sec-fig{ margin:1.8em -2.6em 0; aspect-ratio:1150/893; }
+  body.tall .sec-fig img{ object-fit:cover; object-position:100% 50%; }
+  body.tall .sec-band::after{ left:0; right:0; }
+  body.tall .sec-list{ display:block; margin:1.2em 0 0; padding:0; list-style:none; }
+  .sec-list button{ display:grid; grid-template-columns:2.6em 1fr; align-items:center; gap:0 .6em; width:100%; margin:0; padding:.95em 0;
+    border:0; border-top:1px solid rgba(22,19,14,.14); background:none; cursor:pointer; font:inherit; color:inherit; text-align:left; transition:opacity .3s; }
+  .sec-list li:last-child button{ border-bottom:1px solid rgba(22,19,14,.14); }
+  .sec-list .sec-no{ font-size:2em; }
+  .sec-list .nm{ font-size:.8em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; }
+  .sec-list .rm{ grid-column:2; font-size:.78em; line-height:1.45; color:#3b362c; margin-top:.2em; }
+  .sec-list button.on .sec-no{ color:var(--ink); }
+  .sectionpg.has-level .sec-list button:not(.on){ opacity:.5; }
+  .sec-list button:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
+  body.tall .sectionpg .sec-lede{ font-size:.9em; }
+  /* shorter phones (iPhone SE and the like): a tighter list so the page still fits */
+  @media (max-height:740px){
+    body.tall .sectionpg .page-inner{ padding-top:2em; }
+    body.tall .sec-fig{ margin-top:1.2em; }
+    body.tall .sec-list{ margin-top:.6em; }
+    .sec-list button{ padding:.55em 0; }
+    .sec-list .sec-no{ font-size:1.7em; }
+    body.tall .sec-fig{ aspect-ratio:1250/893; }
+  }
 
   /* floorplan: tabs per level, one large plan, a numbered key; key and plan numbers light each other up */
   .plan .page-inner{ padding:2.4em 2.6em 2.2em; }
@@ -450,6 +488,13 @@
   .plan-key li.on{ background:rgba(239,233,217,.1); color:#fff; }
   .plan-key li.on .n{ background:var(--olive); color:#16130e; }
   body.narrow.spread .plan-key{ grid-template-columns:1fr 1fr; }
+  /* phones: the drawings run to the page edges, and the text under them is set larger */
+  body.tall .plan-stage{ margin:1.2em -2.6em 0; }
+  body.tall .plan-tabs{ gap:1.6em; }
+  body.tall .plan-tab{ font-size:.76em; }
+  body.tall .plan-cap{ left:2.6em; }
+  body.tall .plan-line{ font-size:.9em; }
+  body.tall .plan-key li{ font-size:.82em; padding:.4em .3em; }
 
   /* room pages (exterior / interiors) */
   .room .page-inner{ padding:2.4em 3em; }
@@ -830,6 +875,7 @@ body.narrow .price-t td{ font-size:.8em; }
         <button type="button" class="sec-band" data-level="1" style="top:34%;height:32.5%"></button>
         <button type="button" class="sec-band" data-level="0" style="top:66.5%;height:33.5%"></button>
       </div>
+      <ol class="sec-list" aria-label="Levels"></ol>
       <button type="button" class="sec-more" data-goto="12">Every level on the floorplan <span aria-hidden="true">&rarr;</span></button>
     </div>
     <span class="pnum" style="color:#3b362c;">11</span>
@@ -1346,6 +1392,12 @@ body.narrow .price-t td{ font-size:.8em; }
       tag.appendChild(el('span', 'sec-no', L.no)); tag.appendChild(el('span', 'nm', L.name)); tag.appendChild(el('span', 'rm', L.rooms));
       band.appendChild(tag);
     });
+    var secList = secPage.querySelector('.sec-list');                /* the same levels as a list, for phones (top floor first) */
+    if (secList) LEVELS.slice().reverse().forEach(function(L){
+      var li = el('li'), b = el('button'); b.type = 'button'; b.dataset.level = L.id;
+      b.appendChild(el('span', 'sec-no', L.no)); b.appendChild(el('span', 'nm', L.name)); b.appendChild(el('span', 'rm', L.rooms));
+      li.appendChild(b); secList.appendChild(li);
+    });
     LEVELS.forEach(function(L){
       var t = el('button', 'plan-tab'); t.type = 'button'; t.dataset.level = L.id;
       t.setAttribute('role', 'tab'); t.appendChild(el('span', 'no', L.no)); t.appendChild(document.createTextNode(L.tab));
@@ -1387,7 +1439,7 @@ body.narrow .price-t td{ font-size:.8em; }
     }
     function setLevel(id, source){
       level = +id;
-      Array.prototype.forEach.call(document.querySelectorAll('.sec-band'), function(b){ b.classList.toggle('on', picked && +b.dataset.level === level); });
+      Array.prototype.forEach.call(document.querySelectorAll('.sec-band, .sec-list button'), function(b){ b.classList.toggle('on', picked && +b.dataset.level === level); });
       secPage.classList.toggle('has-level', picked);
       Array.prototype.forEach.call(tabs.children, function(t){ t.setAttribute('aria-selected', +t.dataset.level === level ? 'true' : 'false'); });
       Array.prototype.forEach.call(stage.children, function(f){ f.classList.toggle('on', +f.dataset.level === level); });
@@ -1529,14 +1581,19 @@ body.narrow .price-t td{ font-size:.8em; }
   function fit(){
     var ar = 3/4.1;
     var arrows = getComputedStyle(prevBtn).display !== 'none';
-    var w = stage.clientWidth - (arrows ? 150 : 14), h = stage.clientHeight - 14;
+    var w = stage.clientWidth - (arrows ? 150 : 14), h = stage.clientHeight - (arrows ? 14 : 8);
     var one = Math.min(w, h*ar), two = Math.min(w/2, h*ar);
     /* two pages whenever they fit well, and always on tablet-width screens and up */
     var wantSpread = two >= one*0.62 || stage.clientWidth >= 600;
-    var pw = Math.max(wantSpread ? two : one, 120);
+    var pw = Math.max(wantSpread ? two : one, 120), ph = pw/ar, fs = pw * 0.026;
+    /* Phones held upright: a printed page shape would leave half the screen empty, so the page takes
+       the full width and grows taller (down to 1:2), and the type is set larger to match. */
+    var tall = !wantSpread && w < h*ar*0.97;
+    if (tall){ pw = Math.max(w, 120); ph = Math.min(h, pw*2); fs = Math.min(pw * 0.034, ph * 0.0195); }
+    document.body.classList.toggle('tall', tall);
     sheetBox.style.width  = (wantSpread ? 2*pw : pw) + 'px';
-    sheetBox.style.height = (pw/ar) + 'px';
-    sheetBox.style.fontSize = (pw * 0.026) + 'px';
+    sheetBox.style.height = ph + 'px';
+    sheetBox.style.fontSize = fs + 'px';
     if (wantSpread !== spread){ spread = wantSpread; rebuild(); }
   }
 
