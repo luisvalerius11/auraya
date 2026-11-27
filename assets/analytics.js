@@ -222,7 +222,18 @@
     '.ck-opt.fixed{cursor:default;opacity:.8;}',
     '.ck [hidden]{display:none!important;}',
     '.ck button:focus-visible,.ck input:focus-visible{outline:2px solid #b6c26a;outline-offset:2px;}',
-    '@media (max-width:520px){.ck{left:12px;right:12px;bottom:12px;width:auto;padding:18px 16px 14px;}}'
+    /* phones: a slim bar docked to the bottom edge instead of a card over half the screen */
+    '@media (max-width:520px){',
+    '.ck{left:0;right:0;bottom:0;width:auto;max-height:85vh;overflow-y:auto;border-radius:10px 10px 0 0;',
+    'padding:12px 14px calc(8px + env(safe-area-inset-bottom));font-size:12.5px;line-height:1.45;box-shadow:0 -8px 30px -10px rgba(20,14,6,.5);}',
+    '.ck h2{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}',
+    '.ck-btns{margin-top:10px;flex-wrap:nowrap;}',
+    '.ck-btn{min-width:0;min-height:40px;padding:0 8px;font-size:10.5px;letter-spacing:.12em;}',
+    '.ck-link{margin-top:4px;padding:6px 0 2px;font-size:12px;}',
+    '.ck-opts{margin-top:8px;}',
+    '.ck-opt{padding:9px 0;gap:10px;}',
+    '.ck-opt small{font-size:11.5px;line-height:1.4;}',
+    '}'
   ].join('');
 
   var box = null;

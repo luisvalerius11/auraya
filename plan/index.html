@@ -14,10 +14,11 @@
 <script src="/assets/fx.js"></script>
 <script src="/assets/ref.js"></script>
 <!-- The simulator is for visitors who have filled in the investor-pack form (their lead ID arrives
-     as ?lid= or is remembered for the visit by /assets/ref.js). Anyone else is sent to the form on
-     the landing page, which opens the simulator as soon as it is sent, keeping ?add=... and ?agent=... -->
+     as ?lid= or is remembered for the visit by /assets/ref.js) and for anyone on an agent link
+     (?agent=...). Anyone else is sent to the form on the landing page, which opens the simulator
+     as soon as it is sent, keeping ?add=... -->
 <script>
-  if (!(window.AurayaRef && AurayaRef.lid)){
+  if (!(window.AurayaRef && AurayaRef.canPlan)){
     var s = location.search.replace(/^\?/, '');
     location.replace('/?' + (s ? s + '&' : '') + 'next=plan#offer');
   }
