@@ -76,6 +76,81 @@ V2_RT = [
 V2_RT_LABELS = [L("Rooftop", 535, 330, "33 m²"), L("Jacuzzi", 406, 268, "Optional add-on", light=True), L("Skylight", 489, 418)]
 
 
+# ---------------- furniture (decor.py), Villa 2 module ----------------
+V2_GF_DECOR = [  # inside the 7.5 m module (same in every villa, Villa 4 shifted)
+    ("rug", 403, 270, 494, 348, "#d6cab2"),
+    ("console", 374, 270, 383, 340, "#5e4533"),
+    ("ottoman", 412, 320, 446, 341),
+    ("table_round", 459, 298.5, 11, "#8f6848"),
+    ("sofa", 481, 274, 501, 343, 90), ("sofa", 461, 321, 482, 343, 180),
+    ("tall_units", 374, 369, 391, 433, 4),
+    ("island", 416, 369, 463, 395),
+    ("chair", 428, 364, 10, 10, 0, "#9b7250"), ("chair", 449, 364, 10, 10, 0, "#9b7250"),
+    ("table", 463, 369, 510, 395, "#b48a62"),
+    ("chair", 476.5, 364, 13, 12, 0), ("chair", 498.5, 364, 13, 12, 0),
+    ("chair", 476.5, 400, 13, 12, 180), ("chair", 498.5, 400, 13, 12, 180),
+    ("tall_units", 421, 416, 445, 433, 1), ("tall_units", 492, 416, 514, 433, 1),
+    ("counter", 445, 416, 492, 433, 180, [("sink", 0.3), ("hob", 0.72)]),
+    ("basin_round", 386.5, 450, 6.5), ("toilet", 431, 450, 90),
+    ("shower", 378, 229, 404, 253, 0),
+    ("pot_plant", 576, 236, 8), ("pot_plant", 577, 350, 9),
+    ("scooter", 425, 486, 90), ("scooter", 520, 486, 90),
+]
+STRIP = [("shrub", 373, 128, 9, 0), ("palm", 372, 160, 20), ("shrub", 373, 192, 9, 2), ("shrub", 373, 214, 9, 1)]
+GF_OUTSIDE = {  # loungers on the sunbed deck and garden planting, per villa
+    1: [("lounger", 317.4, 176, 0), ("lounger", 340.4, 176, 0),
+        ("palm", 118, 140, 22), ("shrub", 98, 172, 10, 1), ("palm", 126, 214, 20), ("shrub", 132, 258, 10, 2),
+        ("shrub", 140, 298, 9, 0), ("palm", 146, 340, 16), ("shrub", 150, 392, 7, 1)],
+    2: [("lounger", 530, 176, 0), ("lounger", 553, 176, 0)] + STRIP,
+    3: [("lounger", 760, 207, 90), ("pot_plant", 787, 188, 7)],
+    4: [("lounger", 952, 279, 90), ("pot_plant", 993, 283, 8),
+        ("palm", 1022, 330, 18), ("shrub", 1026, 380, 12, 1), ("palm", 1030, 440, 20), ("shrub", 1030, 498, 12, 2),
+        ("palm", 1034, 546, 18), ("shrub", 812, 581, 10, 0), ("shrub", 852, 582, 10, 2), ("shrub", 892, 581, 10, 1),
+        ("shrub", 932, 582, 10, 0), ("shrub", 972, 581, 10, 2), ("shrub", 1012, 582, 10, 1)],
+}
+V2_2F_DECOR = [
+    ("rug", 392, 234, 452, 296, "#d3c6ac"), ("rug", 512, 234, 572, 296, "#d3c6ac"),
+    ("bed", 404, 244, 474, 286, 90), ("bed", 492, 244, 560, 286, 270),
+    ("nightstand", 462, 230, 474, 242), ("nightstand", 462, 288, 474, 300),
+    ("nightstand", 492, 230, 504, 242), ("nightstand", 492, 288, 504, 300),
+    ("desk", 374, 244, 382, 286, 270), ("chair", 388, 258, 13, 12, 90),
+    ("desk", 575, 244, 583, 286, 90), ("chair", 568, 258, 13, 12, 270),
+    ("tall_units", 399, 314, 425, 331, 2), ("tall_units", 527, 314, 552, 331, 2),
+    ("vanity", 433, 321, 460, 334, 0, 1), ("vanity", 492, 321, 519, 334, 0, 1),
+    ("shower", 405, 371, 444, 404, 180), ("shower", 507, 371, 546, 404, 180),
+    ("toilet", 463, 390, 180), ("toilet", 491.5, 390, 180),
+]
+V2_RT_DECOR = [
+    ("daybed", 437, 225, 487, 257, 0),
+    ("shrub", 500, 240, 11, 0), ("palm", 525, 241, 22), ("shrub", 552, 238, 11, 2), ("shrub", 575, 242, 10, 1),
+    ("lounge_chair", 516, 274, -25), ("lounge_chair", 553, 276, 25), ("table_round", 534, 288, 6, "#9b7250"),
+    ("table", 404, 338, 480, 366, "#9b7250"),
+    ("chair", 417, 332, 13, 12, 0, "#9b7250"), ("chair", 434, 332, 13, 12, 0, "#9b7250"),
+    ("chair", 451, 332, 13, 12, 0, "#9b7250"), ("chair", 468, 332, 13, 12, 0, "#9b7250"),
+    ("chair", 417, 372, 13, 12, 180, "#9b7250"), ("chair", 434, 372, 13, 12, 180, "#9b7250"),
+    ("chair", 451, 372, 13, 12, 180, "#9b7250"), ("chair", 468, 372, 13, 12, 180, "#9b7250"),
+    ("counter", 492, 387, 586, 403, 180, [("sink", 0.25), ("hob", 0.7)]),
+    ("pot_plant", 576, 330, 9), ("pot_plant", 376, 322, 8),
+]
+CENTRED = {"palm", "shrub", "pot_plant", "toilet", "lounger", "lounge_chair", "basin_round", "table_round", "chair", "scooter"}
+
+
+def shift_decor(items, dx, dy=0):
+    out = []
+    for it in items:
+        it = list(it)
+        it[1] += dx
+        it[2] += dy
+        if it[0] not in CENTRED:
+            it[3] += dx
+            it[4] += dy
+        out.append(tuple(it))
+    return out
+
+
+V4_SHIFT = (425.4, 68)  # Villa 4's rooms are the 7.5 m module moved by this much on the sheet
+
+
 def villa_123(n):
     dx = (n - 2) * MODULE
     gf, gfl = shift(V2_GF_HOUSE, V2_GF_HOUSE_LABELS, dx)
@@ -98,7 +173,10 @@ def villa_123(n):
         gfl = [L("Pool", 662, 180, "7 m²", light=True), L("Sunbed", 763, 190, "5 m²")] + gfl
     f2, f2l = shift(V2_2F, V2_2F_LABELS, dx)
     rt, rtl = shift(V2_RT, V2_RT_LABELS, dx)
-    return [(gf, gfl), (f2, f2l), (rt, rtl)]
+    strip = shift_decor(STRIP[1:], dx) if n == 3 else []
+    decor = [shift_decor(V2_GF_DECOR, dx) + GF_OUTSIDE[n] + strip,
+             shift_decor(V2_2F_DECOR, dx), shift_decor(V2_RT_DECOR, dx)]
+    return [(gf, gfl, decor[0]), (f2, f2l, decor[1]), (rt, rtl, decor[2])]
 
 
 def villa_4():
@@ -114,7 +192,7 @@ def villa_4():
     ]
     gfl = [L("Pool", 860, 256, "6 m²", light=True), L("Sunbed", 965, 268, "6 m²"),
            L("Shower", 815, 312), L("Terrace", 925, 314),
-           L("Living", 968, 378, "25 m²"), L("Dining", 972, 442, "+ Kitchen · 15 m²"),
+           L("Living", 968, 378, "25 m²"), L("Dining + Kitchen", 972, 442, "15 m²"),
            L("Powder", 834, 518, "3 m²"), L("Bike Parking", 900, 550)]
     f2 = [("furn", 864, 330), ("furn", 955, 330), ("marble", 864, 365), ("marble", 955, 365),
           ("furn", 824, 392, 852, 412), ("furn", 949, 392, 977, 412),
@@ -127,7 +205,9 @@ def villa_4():
           ("planting", 915, 288, 1006, 326), ("marble_out", 797, 288, 1006, 470),
           ("marble_out", 797, 470, 826, 500), ("stair", 797, 500, 1006, 532)]
     rtl = [L("Rooftop", 960, 410, "33 m²"), L("Jacuzzi", 830, 337, "Optional add-on", light=True), L("Skylight", 915, 486)]
-    return [(gf, gfl), (f2, f2l), (rt, rtl)]
+    rtd = [it if it[0] != "counter" else it[:3] + (1004,) + it[4:] for it in shift_decor(V2_RT_DECOR, *V4_SHIFT)]
+    decor = [shift_decor(V2_GF_DECOR, *V4_SHIFT) + GF_OUTSIDE[4], shift_decor(V2_2F_DECOR, *V4_SHIFT), rtd]
+    return [(gf, gfl, decor[0]), (f2, f2l, decor[1]), (rt, rtl, decor[2])]
 
 
 def fonts():
@@ -135,6 +215,8 @@ def fonts():
     return {
         "label": ImageFont.truetype(head, 28), "sub": ImageFont.truetype(body, 24),
         "title": ImageFont.truetype(head, 64), "subtitle": ImageFont.truetype(body, 36),
+        "num": ImageFont.truetype(body, 26), "numsmall": ImageFont.truetype(body, 20),
+        "legend": ImageFont.truetype(body, 26),
     }
 
 
@@ -147,10 +229,10 @@ def build(pdf, out, only=None):
             continue
         defs = villa_123(n) if n < 4 else villa_4()
         sheets = []
-        for (slug, fname, page), (zones, labels) in zip(FLOORS, defs):
-            img = Plan(doc[page], CLIPS[n]).render(zones, labels, F)
+        for (slug, fname, page), (zones, labels, decor) in zip(FLOORS, defs):
+            img, legend = Plan(doc[page], CLIPS[n]).render(zones, labels, F, decor)
             sheet = frame(img, f"Villa A{n}", fname,
-                          "Scale 1:100 at 300 dpi  ·  Indicative, design development 05.01.2026", F)
+                          "Scale 1:100 at 300 dpi  ·  Indicative, design development 05.01.2026", F, legend)
             sheets.append(sheet)
             base = f"villa-a{n}-{slug}"
             sheet.save(os.path.join(out, "hires", base + ".png"), optimize=True)

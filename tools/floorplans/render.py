@@ -55,6 +55,8 @@ def classify(d):
         return "slat"
     if lay == "ABOV":
         return "above"
+    if lay == "AFUR":
+        return "furnline"
     return "fine"
 
 
@@ -70,7 +72,7 @@ class Plan:
         self.W, self.H = int(self.clip.width * S), int(self.clip.height * S)
         c = self.clip
         hit = lambda r: r.x1 >= c.x0 and r.x0 <= c.x1 and r.y1 >= c.y0 and r.y0 <= c.y1
-        self.layers = {k: [] for k in ("struct", "site", "poche", "slat", "fine", "column", "above")}
+        self.layers = {k: [] for k in ("struct", "site", "poche", "slat", "fine", "column", "above", "furnline")}
         for d in page.get_drawings():
             if hit(d["rect"]):
                 k = classify(d)
@@ -181,9 +183,13 @@ class Plan:
             return img
         if name == "water":
             t = (yy / H)[..., None]
-            img = rgb("#b5dfd6") * (1 - t) + rgb("#79b9b2") * t
-            caust = np.sin(xx * 0.045 + np.sin(yy * 0.03) * 3) * np.sin(yy * 0.05 + np.sin(xx * 0.02) * 2)
-            return img * (1 + 0.05 * caust[..., None] + self.noise(8, 0.03)[..., None])
+            img = rgb("#a9dcd5") * (1 - t) + rgb("#6fb3ad") * t
+            wx = xx + 18 * np.sin(yy * 0.021) + 10 * np.sin(yy * 0.047 + 1.3)
+            wy = yy + 18 * np.sin(xx * 0.019 + 0.7) + 10 * np.sin(xx * 0.043)
+            v = np.sin(wx * 0.06) + np.sin(wy * 0.065) + np.sin((wx + wy) * 0.043)
+            web = np.exp(-(v ** 2) * 6)  # bright caustic network
+            depth = np.sin(wx * 0.011) * np.sin(wy * 0.013)
+            return img * (1 + 0.10 * web[..., None] + 0.03 * depth[..., None])
         if name == "planting":
             # dense tropical planting: layered leaf clusters, darker in the gaps
             img = np.broadcast_to(rgb("#4f6338"), (H, W, 3)).astype(np.float32).copy()
@@ -207,11 +213,17 @@ class Plan:
         return np.broadcast_to(rgb(PAL["paper"]), (H, W, 3)).astype(np.float32).copy()
 
     # ---------- render ----------
-    def render(self, zones, labels, fonts):
+    def render(self, zones, labels, fonts, decor=None):
+        """Returns (image, legend). With `decor`, CAD furniture lines are replaced by rendered
+        furniture and rooms are marked with numbers listed in the legend."""
         H, W = self.H, self.W
         m_struct = self.raster("struct", 0.9, 2)
         m_site = self.raster("site", 0.5, 1)
         m_fine = self.raster("fine", 1.0, 2)
+        if decor:  # rugs and furniture come from decor; their CAD regions no longer exist
+            zones = [z for z in zones if z[0] not in ("rug", "furn") and not z[0].startswith("furn:")]
+        if decor is None:
+            m_fine |= self.raster("furnline", 1.0, 2)
         m_poche = self.raster("poche", 1.0, 2)
         m_slat = self.raster("slat", 1.0, 1)
         m_above = self.raster("above", 1.0, 1)
@@ -314,11 +326,28 @@ class Plan:
         ink(m_site & ~walls, PAL["fine"], 0.5)
         ink(m_slat & ~walls & ~floor, PAL["fine"], 0.3)
         ink(m_fine & ~walls, PAL["fine"], 0.7)
+        if decor:
+            from decor import Painter
+            im = Image.fromarray(np.clip(canvas, 0, 255).astype(np.uint8)).convert("RGBA")
+            Painter(self).draw(im, decor)
+            canvas = np.array(im.convert("RGB"), np.float32)
         canvas[m_struct] = rgb(PAL["ink"])
         canvas[walls] = rgb(PAL["wall"])
 
         img = Image.fromarray(np.clip(canvas, 0, 255).astype(np.uint8))
         dr = ImageDraw.Draw(img)
+        if decor:
+            legend = []
+            for n, lb in enumerate(labels, 1):
+                x, y = self.px(lb["at"][0], lb["at"][1])
+                r = 19
+                dr.ellipse([x - r - 3, y - r - 3, x + r + 3, y + r + 3], fill=(250, 247, 236))
+                dr.ellipse([x - r, y - r, x + r, y + r], fill=(62, 45, 30))
+                t = str(n)
+                tw = dr.textlength(t, font=fonts["num"])
+                dr.text((x - tw / 2, y - 15), t, font=fonts["num"], fill=(250, 247, 236))
+                legend.append((n, lb["name"], lb.get("sub", "")))
+            return img, legend
         for lb in labels:
             x, y = self.px(lb["at"][0], lb["at"][1])
             light = lb.get("light", False)
@@ -333,7 +362,7 @@ class Plan:
                 img.paste(tmp, (x - tmp.width // 2, y - tmp.height // 2), tmp)
             else:
                 self._text(dr, x, y, lb, fonts, c1, c2)
-        return img
+        return img, []
 
     @staticmethod
     def _text(dr, x, y, lb, fonts, c1, c2):
@@ -348,9 +377,11 @@ class Plan:
             dr.text((x - w1 / 2, y - 14), t1, font=f1, fill=c1)
 
 
-def frame(plan_img, title, subtitle, meta, fonts, logo=None):
-    """Place a rendered plan on a sheet with a title block and a 1:100 scale bar."""
-    pad, band = 90, 330
+def frame(plan_img, title, subtitle, meta, fonts, legend=None):
+    """Place a rendered plan on a sheet with a title block, a 1:100 scale bar and a room legend."""
+    pad = 90
+    rows = len(legend or [])
+    band = 330 if not rows else max(400, 120 + rows * 40)
     W = plan_img.width + pad * 2
     H = plan_img.height + pad + band
     sheet = Image.new("RGB", (W, H), tuple(int(v) for v in rgb(PAL["paper"])))
@@ -360,10 +391,23 @@ def frame(plan_img, title, subtitle, meta, fonts, logo=None):
     dr.line([(pad, y0), (W - pad, y0)], fill=tuple(int(v) for v in rgb(PAL["gold"])), width=3)
     dr.text((pad, y0 + 34), title, font=fonts["title"], fill=(62, 45, 30))
     dr.text((pad, y0 + 118), subtitle, font=fonts["subtitle"], fill=(111, 100, 80))
-    dr.text((pad, y0 + 175), meta, font=fonts["sub"], fill=(141, 130, 112))
+    for k, part in enumerate(meta.split("  ·  ") if rows else [meta]):
+        dr.text((pad, y0 + 175 + k * 32), part, font=fonts["sub"], fill=(141, 130, 112))
+    if rows:
+        lx = pad + (W - 2 * pad) * 0.52
+        for i, (n, name, sub) in enumerate(legend):
+            ly = y0 + 36 + i * 40
+            dr.ellipse([lx, ly, lx + 28, ly + 28], fill=(62, 45, 30))
+            t = str(n)
+            tw = dr.textlength(t, font=fonts["numsmall"])
+            dr.text((lx + 14 - tw / 2, ly + 3), t, font=fonts["numsmall"], fill=(250, 247, 236))
+            dr.text((lx + 42, ly - 1), name, font=fonts["legend"], fill=(62, 45, 30))
+            if sub:
+                nw = dr.textlength(name, font=fonts["legend"])
+                dr.text((lx + 42 + nw + 12, ly - 1), sub, font=fonts["legend"], fill=(141, 130, 112))
     # scale bar 0-1-2-3 m
     m = PT_PER_M * S
-    bx, by = W - pad - 3 * m, y0 + 60
+    bx, by = (pad, y0 + 270) if rows else (W - pad - 3 * m, y0 + 60)
     for k in range(3):
         col = (62, 45, 30) if k % 2 == 0 else (250, 247, 236)
         dr.rectangle([bx + k * m, by, bx + (k + 1) * m, by + 18], fill=col, outline=(62, 45, 30), width=2)

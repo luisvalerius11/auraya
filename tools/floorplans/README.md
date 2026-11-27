@@ -15,7 +15,11 @@ Output per villa (A1–A4, as in the brochure and price list): `villa-aN-{ground
 
 - `render.py` reads the vector drawing, sorts paths by CAD layer (walls, furniture, hatch, …),
   fills rooms with materials, adds shadows and labels, and draws the title block.
-- `plans.py` holds the crop and the room/material/label definitions for each villa and floor.
+- `decor.py` draws the furniture, fixtures and planting (sofas, beds, tables and chairs, kitchen,
+  sanitaryware, loungers, palms and shrubs) as textured top-view sprites with soft shadows,
+  placed at the positions of the CAD furniture.
+- `plans.py` holds the crop and the room/material/label/furniture definitions for each villa and floor.
+  Rooms are numbered on the plan and listed in the legend under the title.
   When the architect issues a new PDF with the same sheet layout, rerun the command; if rooms
   move, adjust the coordinates (PDF points on the A3 sheet) in `plans.py`.
 
