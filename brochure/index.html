@@ -419,7 +419,7 @@
   .sec-band[data-level="0"]::after{ display:none; }
   /* each band carries its own label: number, level name and rooms, over the open left side of the drawing */
   .sec-tag{ position:absolute; left:0; top:50%; transform:translateY(-50%); z-index:1; display:grid; grid-template-columns:auto 1fr;
-    align-items:center; gap:0 .7em; width:42%; padding:1.1em 2.4em 1.1em 2.6em; text-align:left;
+    align-items:center; gap:0 .7em; width:34%; padding:1.1em 1em 1.1em 2.6em; text-align:left;   /* text wraps before the house, which starts at about 37% */
     background:radial-gradient(farthest-side at 30% 50%, rgba(244,242,236,.95) 0, rgba(244,242,236,.85) 55%, rgba(244,242,236,0) 100%);
     text-shadow:0 0 .4em #f4f2ec, 0 0 .9em #f4f2ec; }
   .sec-no{ grid-row:span 2; font-family:var(--serif); font-size:2.1em; line-height:1; letter-spacing:.04em; color:rgba(22,19,14,.34); transition:color .3s; }
@@ -1500,7 +1500,8 @@ body.narrow .price-t td{ font-size:.8em; }
     LEVELS.forEach(function(L){                                    /* label each band of the section drawing */
       var band = secPage.querySelector('.sec-band[data-level="' + L.id + '"]'); if (!band) return;
       var tag = el('span', 'sec-tag');
-      tag.appendChild(el('span', 'sec-no', L.no)); tag.appendChild(el('span', 'nm', L.name)); tag.appendChild(el('span', 'rm', L.rooms));
+      tag.appendChild(el('span', 'sec-no', L.no)); tag.appendChild(el('span', 'nm', L.name));
+      tag.appendChild(el('span', 'rm', L.rooms.replace(/ \u00b7 /g, '\u00a0\u00b7 ')));   /* keep each dot with the word before it, so no line starts with one */
       band.appendChild(tag);
     });
     var secList = secPage.querySelector('.sec-list');                /* the same levels as a list, for phones (top floor first) */
