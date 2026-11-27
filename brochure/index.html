@@ -1690,12 +1690,13 @@ body.narrow .price-t td{ font-size:.8em; }
     var arrows = getComputedStyle(prevBtn).display !== 'none';
     var w = stage.clientWidth - (arrows ? 150 : 14), h = stage.clientHeight - (arrows ? 14 : 8);
     var one = Math.min(w, h*ar), two = Math.min(w/2, h*ar);
-    /* two pages whenever they fit well, and always on tablet-width screens and up */
-    var wantSpread = two >= one*0.62 || stage.clientWidth >= 600;
+    /* two pages only when each comes out nearly as big as a single page would (landscape tablets,
+       the unfolded Find N3, laptops); upright tablets get one large page instead of a small spread */
+    var wantSpread = two >= one*0.75;
     var pw = Math.max(wantSpread ? two : one, 120), ph = pw/ar, fs = pw * 0.026;
     /* Phones held upright: a printed page shape would leave half the screen empty, so the page takes
        the full width and grows taller (down to 1:2), and the type is set larger to match. */
-    var tall = !wantSpread && w < h*ar*0.97;
+    var tall = !wantSpread && w < h*ar*0.97 && w < 600;     /* phones only; tablets keep the printed shape */
     if (tall){ pw = Math.max(w, 120); ph = Math.min(h, pw*2); fs = Math.min(pw * 0.034, ph * 0.0195); }
     document.body.classList.toggle('tall', tall);
     sheetBox.style.width  = (wantSpread ? 2*pw : pw) + 'px';
