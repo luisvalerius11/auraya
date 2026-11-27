@@ -100,7 +100,7 @@
   .cur{ display:inline-flex; border:1px solid var(--line-dark); border-radius:3px; overflow:hidden; }
   .cur button{ font:500 .7rem var(--sans); letter-spacing:.16em; cursor:pointer; padding:7px 12px; background:none; border:0; color:var(--stone-soft); min-height:32px; }
   .cur button[aria-pressed="true"]{ background:var(--bone); color:var(--ink); }
-  .figs{ display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:24px; margin-top:16px; align-items:end; }
+  .figs{ display:grid; grid-template-columns:1.25fr 1fr; gap:24px; margin-top:16px; align-items:end; }
   .fig .v{ font-family:var(--serif); font-size:2.1rem; line-height:1; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
   .fig.big .v{ font-size:3.6rem; }
   .fig .l{ margin-top:10px; font-size:.7rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--stone-soft); }
@@ -275,7 +275,6 @@
         <div class="figs">
           <div class="fig big"><div class="v" id="fRoi"></div><div class="l">Annual ROI</div></div>
           <div class="fig"><div class="v" id="fNet"></div><div class="l">Net income a year</div></div>
-          <div class="fig"><div class="v" id="fPay"></div><div class="l">Years to earn back the price</div></div>
         </div>
         <p class="result-sub" id="resultSub"></p>
       </div>
@@ -408,7 +407,7 @@
     var pre = gross - sell - mgmt - fixed, ctax = R(gross * CTAX);   /* central tax: 0.5% of gross rental income */
     var exp = sell + mgmt + fixed + ctax, net = gross - exp;
     return { v:v, base:base, inv:inv, nights:nights, gross:gross, ota:ota, pb1:pb1, sell:sell, mgmt:mgmt, fixed:fixed, pre:pre, ctax:ctax, exp:exp, net:net,
-      roi: net/inv, pay: net > 0 ? inv/net : Infinity };
+      roi: net/inv };
   }
   function withSt(extra){ var o = { villa:st.villa, rate:st.rate, occ:st.occ, ota:st.ota, mgmt:st.mgmt, bphtb:st.bphtb }; for (var k in extra) o[k] = extra[k]; return o; }
 
@@ -480,7 +479,6 @@
     $('resultLabel').textContent = 'Villa ' + v.id + ' · ' + (si >= 0 ? SCEN[si].name + ' scenario' : 'Custom scenario');
     $('fRoi').textContent = pct(r.roi);
     $('fNet').textContent = usd(r.net);
-    $('fPay').textContent = isFinite(r.pay) ? r.pay.toFixed(1) : '–';
     $('resultSub').textContent = 'About ' + usd(r.net/12) + ' a month after every cost and tax, on an investment of ' + usd(r.inv) + '.';
 
     var after = r.gross - r.ota;
@@ -531,10 +529,7 @@
         (CUR.code === 'IDR' ? idr(v.idr) : idr(v.idr) + rateDiv() + ' = ' + usd(r.base)) + (st.bphtb ? ' \u00d7 1.05 BPHTB = ' + usd(r.inv) : '')],
       ['Annual ROI', pct(r.roi),
         'Net income as a share of the investment: the cash return the villa earns each year. Any rise in the villa\u2019s value comes on top.',
-        usd(r.net) + ' \u00f7 ' + usd(r.inv) + ' = ' + pct(r.roi, 2), 'final'],
-      ['Years to earn back the price', isFinite(r.pay) ? r.pay.toFixed(1) + ' years' : '\u2013',
-        'How long the net income takes to add up to the investment, if every year matched this one.',
-        isFinite(r.pay) ? usd(r.inv) + ' \u00f7 ' + usd(r.net) + ' = ' + r.pay.toFixed(1) + ' years' : 'Not reached: net income is not above zero']
+        usd(r.net) + ' \u00f7 ' + usd(r.inv) + ' = ' + pct(r.roi, 2), 'final']
     );
     $('ledger').innerHTML = '';
     rows.forEach(function(x){
