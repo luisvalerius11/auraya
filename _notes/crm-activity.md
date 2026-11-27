@@ -34,7 +34,7 @@ Then send the agent their links:
 
 What changes on an agent link:
 - **Contact buttons:** every WhatsApp and email button on the brochure, ROI model and simulator goes to the agent.
-- **Brochure last page:** shows "Your agent" with their name and contact details. Auraya appears as a small "Developer" line below. To hide that line, set `SHOW_DEVELOPER_WITH_AGENT = false` in `assets/ref.js`.
+- **Brochure last page:** shows "Your agent" with their name and contact details. Auraya's own contact is not shown. To add a small "Developer" line with it below the agent, set `SHOW_DEVELOPER_WITH_AGENT = true` in `assets/ref.js`.
 - **Leads:** forms sent from the landing page carry `agent=putu`.
 - **Activity:** every activity row carries `agent=putu`.
 
