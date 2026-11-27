@@ -595,6 +595,8 @@
   /* ======= CLICK TRACKING ======= */
   document.getElementById('openBrochure').addEventListener('click',()=>track('view_item','ViewContent',{content_name:'brochure'}));
   document.getElementById('planLink').addEventListener('click',()=>track('plan_open',null,{from:'landing'}));
+  /* arriving from the brochure's "Get the exact location" (/#leadForm): put the cursor in the form */
+  if(location.hash==='#leadForm') setTimeout(()=>{document.querySelector('#offer .card-form').scrollIntoView({block:'center'});document.getElementById('name').focus({preventScroll:true});},400);
   /* "Get the exact location": scroll to the investor-pack form and put the cursor in the first field */
   document.getElementById('exactLoc').addEventListener('click',e=>{
     e.preventDefault();
