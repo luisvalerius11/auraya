@@ -134,7 +134,7 @@
     .tool{ height:32px; }
   }
   /* phones held sideways: too short for a whole portrait page at a readable size, so one page is shown
-     at a readable width, grows to the height of its content (see fitSideways) and scrolls down inside the
+     at a readable width, grows to the height of its content (see fitGrow) and scrolls down inside the
      stage (swipe sideways still turns pages) */
   @media (orientation:landscape) and (max-height:500px) and (pointer:coarse){
     .viewer{ padding:0 max(8px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
@@ -155,11 +155,17 @@
     .tool{ width:48px; height:44px; }
     .counter{ white-space:nowrap; }
   }
-  /* touch tablets and unfolded foldables: slimmer margins so the open book is bigger */
+  /* touch tablets and unfolded foldables: slimmer margins and no side arrows (swipe, or the toolbar arrows)
+     so the open book is bigger */
   @media (pointer:coarse) and (min-width:701px) and (max-width:1100px){
     .viewer{ padding:0 10px max(12px, env(safe-area-inset-bottom)); }
     .desk{ padding:10px 4px 8px; }
+    .nav-arrow{ display:none; }
   }
+  /* touch screens where a page still holds more than fits (small tablets on their side): the book grows to
+     its content and scrolls down inside the stage, instead of hiding the rest inside the page (see fitGrow) */
+  body.grown .stage{ align-items:flex-start; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+  body.grown .sheet-box{ margin:0 auto 10px; }
   @media (max-width:360px){ .tool{ width:44px; } .counter{ padding:0 8px; } }
   .tool{ min-width:44px; min-height:44px; }   /* Apple's 44pt minimum, also on short screens */
 
@@ -1530,7 +1536,7 @@ body.narrow .price-t td{ font-size:.8em; }
     var sidewaysQ = window.matchMedia('(orientation:landscape) and (max-height:500px) and (pointer:coarse)');
     function placeRead(){
       if (read.hidden) return;
-      if (!sidewaysQ.matches){ read.classList.remove('float'); read.style.top = ''; return; }
+      if (!sidewaysQ.matches && !document.body.classList.contains('grown')){ read.classList.remove('float'); read.style.top = ''; return; }
       read.classList.add('float');
       var st = stageEl.getBoundingClientRect(), mb = mapbox.getBoundingClientRect();
       var top = Math.max(0, st.top - mb.top) + 8;                       /* top edge of what is on screen */
@@ -1980,23 +1986,30 @@ body.narrow .price-t td{ font-size:.8em; }
       document.body.classList.remove('mapnums');
       document.body.classList.toggle('mapnums', document.body.classList.contains('tall') || pinsCollide(mb));
     }
-    fitSideways();
+    fitGrow();
   }
-  /* phones held sideways: the stage already scrolls, so the page grows to the height of its content
-     instead of scrolling (or clipping) inside itself -- one scroll, nothing out of reach */
-  var baseH = 0;
-  function fitSideways(){
-    if (!sideways.matches || spread || !baseH) return;
-    var pg = pages[cur]; if (!pg || !leaves.contains(pg)) return;
-    var keep = stage.scrollTop;
+  /* Touch screens (phones held sideways, tablets): rather than scroll (or clip) inside a page, where iOS shows
+     no scrollbar and the rest goes unseen, the book grows to the height of the page(s) on screen and the stage
+     scrolls -- one scroll, nothing out of reach. Phones held upright keep the page scrolling in place. */
+  var baseH = 0, touch = window.matchMedia('(pointer:coarse)');
+  function fitGrow(){
+    if (!baseH) return;
+    var keep = stage.scrollTop, need = baseH;
     sheetBox.style.height = baseH + 'px';
-    var inner = pg.querySelector('.page-inner') || pg.querySelector('.split'), need = pg.scrollHeight;
-    if (inner) need = Math.max(need, pg.clientHeight - inner.clientHeight + inner.scrollHeight);
-    if (need > baseH + 1) sheetBox.style.height = Math.ceil(need) + 'px';
+    if (sideways.matches || (touch.matches && !document.body.classList.contains('tall'))){
+      (spread ? [2*state - 1, 2*state] : [cur]).forEach(function(k){
+        var pg = pages[k]; if (!pg || !leaves.contains(pg)) return;
+        var inner = pg.querySelector('.page-inner') || pg.querySelector('.split');
+        need = Math.max(need, pg.scrollHeight, inner ? pg.clientHeight - inner.clientHeight + inner.scrollHeight : 0);
+      });
+    }
+    var grow = need > baseH + 1;
+    if (grow) sheetBox.style.height = Math.ceil(need) + 'px';
+    document.body.classList.toggle('grown', grow || sideways.matches);
     stage.scrollTop = keep;
   }
   /* opening a note or switching a tab can change the height without adding nodes */
-  leaves.addEventListener('click', function(){ requestAnimationFrame(fitSideways); setTimeout(fitSideways, 450); });
+  leaves.addEventListener('click', function(){ requestAnimationFrame(fitGrow); setTimeout(fitGrow, 450); });
   function pinsCollide(mb){
     var box = mb.getBoundingClientRect(), hit = function(a, b){ return a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1; };
     var poi = Array.prototype.slice.call(mb.querySelectorAll('.poi'));
@@ -2072,11 +2085,14 @@ body.narrow .price-t td{ font-size:.8em; }
     pageSound();
     state = target;
     cur = Math.max(0, 2*state - 1);
+    if (document.body.classList.contains('grown')) stage.scrollTop = 0;   /* each spread starts at its top */
     if (Math.abs(target - from) !== 1 || still){
       leafEls.forEach(function(el){ el.classList.add('no-anim'); });
       settle(); void leaves.offsetWidth;
       leafEls.forEach(function(el){ el.classList.remove('no-anim'); });
+      minText();                         /* spreads move no nodes, so re-measure here (type floor, map pins, height) */
     } else {
+      fitGrow();                         /* the new spread's height now; the rest once it has landed */
       busy = true;
       var el = leafEls[fwd ? from : target];
       leafEls.forEach(function(l, k){ l.classList.toggle('far', !near(k, Math.min(from, target), Math.max(from, target))); });
@@ -2084,7 +2100,7 @@ body.narrow .price-t td{ font-size:.8em; }
       sheetBox.setAttribute('data-pos', state === 0 ? 'start' : (state === leafEls.length ? 'end' : 'mid'));
       var turnState = state;
       requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (state === turnState && busy){ el.classList.toggle('turned', fwd); watchFlip(el); } }); });
-      spreadTimer = setTimeout(function(){ settle(); busy = false; }, TURN_MS + 40);
+      spreadTimer = setTimeout(function(){ settle(); busy = false; minText(); }, TURN_MS + 40);
     }
     afterMove();
   }
@@ -2230,7 +2246,7 @@ body.narrow .price-t td{ font-size:.8em; }
     if (i === cur) return;
     if (busy){ if (!finishTurn) return; finishTurn(); }   /* swiped again mid-turn: finish this one now and turn on */
     busy = true;
-    if (sideways.matches) stage.scrollTop = 0;                 /* each page starts at its top */
+    if (document.body.classList.contains('grown')) stage.scrollTop = 0;   /* each page starts at its top */
     pageSound();
     render(i, dir || (i > cur ? 'next' : 'prev'));
   }
