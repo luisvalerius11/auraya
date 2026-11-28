@@ -302,6 +302,8 @@
   /* AI-animated clips are labelled as such, on the card and when opened */
   .clip-note{ position:absolute; right:.55em; bottom:.55em; z-index:1; font:500 .5em var(--sans); letter-spacing:.14em; text-transform:uppercase;
     color:rgba(255,255,255,.92); background:rgba(20,16,10,.45); padding:.45em .8em; border-radius:2em; pointer-events:none; }
+  .spot-credit{ position:absolute; left:.7em; bottom:.6em; z-index:2; max-width:80%; font-size:.5em; letter-spacing:.04em; color:#fff;
+    background:rgba(20,16,10,.5); padding:.3em .7em; border-radius:2em; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .spot-note{ font-size:.62em; letter-spacing:.06em; color:#857f6e; margin:0 0 1.1em; font-style:italic; }
   .place .nm{ font-size:.8em; font-weight:600; padding:.75em .9em .1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .rt{ font-size:.66em; padding:0 1.1em .3em; color:#5f5a4e; white-space:nowrap; }
@@ -1139,6 +1141,8 @@ body.narrow .price-t td{ font-size:.8em; }
                plays only when the place is opened
        illustrative  self-hosted clips are labelled "Illustrative" (they are
                animated from the photo); set illustrative:false for real footage
+       credit  optional: for a freely licensed photo, { by:"Photographer", lic:"CC BY-SA 4.0", url:"source page" };
+               shown as a small "Photo: …" line on the photo when the place is opened
        blurb   optional: a line or two shown when the place is opened
        map     optional: Google Maps link
        quotes  optional: reviews shown when the place is opened, copied word
@@ -1323,6 +1327,11 @@ body.narrow .price-t td{ font-size:.8em; }
       var x = el('button', 'spot-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Close');
       x.addEventListener('click', close);
       media.appendChild(x);
+      if (p.credit){
+        var cr = el('a', 'spot-credit', 'Photo: ' + p.credit.by + ' \u00b7 ' + p.credit.lic);
+        cr.href = p.credit.url; cr.target = '_blank'; cr.rel = 'noopener';
+        media.appendChild(cr);
+      }
       var body = el('div', 'spot-body');
       if (p.video && !isEmbed(p.video) && p.illustrative !== false)
         body.appendChild(el('p', 'spot-note', 'Illustrative: animated from a photo of the venue.'));
