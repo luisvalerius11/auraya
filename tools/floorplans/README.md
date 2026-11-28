@@ -20,7 +20,8 @@ Brochure-ready files:
 - `brochure/villa-aN-{ground,second,rooftop}.webp`: each plan with dimensions and room labels but no title
   block. The brochure's Floorplan page uses copies in `brochure/img/plans/` (villa tabs A1-A4, the three
   levels stacked); after re-rendering, copy them over: `cp assets/floorplans/brochure/*.webp brochure/img/plans/`
-  and update the image widths in `VILLAS` in `brochure/index.html` if a plan's size changed.
+  and update the image sizes (`w` / `h`) in `VILLAS` in `brochure/index.html` if a plan's size changed.
+  The `-zoom.webp` files are full-resolution copies loaded only by the brochure's full-screen plan viewer.
 
 Output per villa (A1–A4, as in the brochure and price list): `villa-aN-{ground,second,rooftop}.webp` (web, 1400 px), `villa-aN-all-floors.webp`
 (the three floors side by side), and in `hires/` 300 dpi PNGs (1:100 at 300 dpi) plus a

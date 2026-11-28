@@ -460,7 +460,9 @@
     border:0; border-left:1px solid rgba(22,19,14,.12); background:none; cursor:pointer; font:inherit; color:#3b362c; transition:background .2s, color .2s; }
   .plan-villa:first-child{ border-left:0; }
   .plan-villa .id{ font-family:var(--serif); font-size:1.15em; letter-spacing:.06em; line-height:1.1; }
-  .plan-villa .sz{ font-size:.58em; letter-spacing:.12em; text-transform:uppercase; color:#8a8170; white-space:nowrap; }
+  .plan-villa .id{ position:relative; }
+  .plan-villa .sz{ font-size:.6em; letter-spacing:.12em; text-transform:uppercase; color:#6a6152; white-space:nowrap; }
+  .plan-villa .dot{ position:absolute; top:.1em; right:-.55em; width:.32em; height:.32em; border-radius:50%; background:#b0563a; }
   .plan-villa:hover{ background:rgba(22,19,14,.04); }
   .plan-villa[aria-selected="true"]{ background:var(--ink); color:#faf7ec; }
   .plan-villa[aria-selected="true"] .sz{ color:rgba(250,247,236,.72); }
@@ -468,10 +470,18 @@
   .plan-bar{ display:flex; align-items:center; justify-content:space-between; gap:1em; margin-top:.9em; }
   .plan-levels{ display:flex; gap:1.2em; }
   .plan-lv{ border:0; background:none; padding:.35em 0; cursor:pointer; font:inherit; font-size:.64em; font-weight:600; letter-spacing:.2em;
-    text-transform:uppercase; color:#8a8170; border-bottom:1.5px solid transparent; transition:color .2s, border-color .2s; }
+    text-transform:uppercase; color:#6a6152; border-bottom:1.5px solid transparent; transition:color .2s, border-color .2s;
+    display:inline-flex; align-items:center; }
+  @media (pointer:coarse){ .plan-lv{ min-height:44px; } .plan-villa{ min-height:44px; } }   /* Apple's minimum touch target */
+  .plan-status{ font-size:.6em; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:#8a3c26;
+    display:inline-flex; align-items:center; gap:.5em; }
+  .plan-status:empty{ display:none; }
+  .plan-status::before{ content:""; width:.55em; height:.55em; border-radius:50%; background:#b0563a; }
   .plan-lv .no{ font-family:var(--serif); font-weight:500; letter-spacing:.06em; margin-right:.5em; }
   .plan-lv:hover{ color:var(--ink); }
-  .plan-lv.on{ color:var(--ink); border-bottom-color:var(--ink); }
+  .plan-lv{ position:relative; }
+  .plan-lv.on{ color:var(--ink); }
+  .plan-lv.on::after{ content:""; position:absolute; left:0; right:0; top:calc(50% + .9em); height:1.5px; background:var(--ink); }
   .plan-lv:focus-visible{ outline:2px solid #8a7a4f; outline-offset:3px; }
   .plan-stage{ flex:1; min-height:0; position:relative; margin-top:.6em; border-top:1px solid rgba(22,19,14,.14); }
   .plan-scroll{ position:absolute; inset:0; overflow-y:auto; overscroll-behavior:contain; scroll-behavior:smooth;
@@ -482,7 +492,11 @@
   .plan-floor{ margin:0; padding:1.1em 0 .4em; }
   .plan-floor + .plan-floor{ border-top:1px solid rgba(22,19,14,.1); }
   .plan-floor figcaption{ display:flex; align-items:baseline; gap:.6em; font-size:.66em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:#3b362c; }
-  .plan-floor figcaption .no{ font-family:var(--serif); font-size:1.3em; font-weight:500; letter-spacing:.06em; color:#a39a87; }
+  .plan-floor figcaption .no{ font-family:var(--serif); font-size:1.3em; font-weight:500; letter-spacing:.06em; color:#6a6152; }
+  .plan-floor figcaption .zoom{ margin-left:auto; display:inline-flex; align-items:center; gap:.45em; font-weight:600; letter-spacing:.16em; color:#6a6152;
+    border:0; background:none; font:inherit; cursor:pointer; padding:.4em 0; min-height:44px; }
+  .plan-floor figcaption .zoom svg{ width:1.25em; height:1.25em; }
+  .plan-floor img{ cursor:zoom-in; }
   .plan-floor img{ display:block; width:100%; max-width:30em; height:auto; margin:.2em auto 0; }
   /* phones: plans run to the page edges; controls set a touch larger */
   body.tall .plan-stage{ margin:.6em -1.6em 0; }
@@ -490,6 +504,34 @@
   body.tall .plan-villa .id{ font-size:1.3em; }
   body.tall .plan-villa .sz{ font-size:.62em; }
   body.tall .plan-lv{ font-size:.72em; }
+  body.tall .plan-status{ font-size:.66em; }
+  body.tall .plan-floor figcaption{ padding:0 1.6em; }
+
+  /* full-screen plan viewer: pinch / wheel to zoom, drag to pan, double-tap to zoom in or out,
+     swipe or arrow keys between levels. Lives outside the book, so page turns never fire. */
+  .pv{ position:fixed; inset:0; z-index:1000; background:#faf7ec; display:flex; flex-direction:column; color:#16130e;
+    opacity:0; visibility:hidden; transition:opacity .25s ease, visibility 0s .25s; font-family:var(--sans); }
+  .pv.open{ opacity:1; visibility:visible; transition:opacity .25s ease; }
+  .pv-top{ display:flex; align-items:center; gap:12px; padding:max(12px, env(safe-area-inset-top)) 16px 10px; border-bottom:1px solid rgba(22,19,14,.12); }
+  .pv-title{ flex:1; min-width:0; font-size:15px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pv-title .v{ font-family:var(--serif); font-weight:500; letter-spacing:.04em; margin-right:.5em; }
+  .pv-btn{ flex:none; width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:50%;
+    background:rgba(22,19,14,.06); color:#16130e; cursor:pointer; }
+  .pv-btn:hover{ background:rgba(22,19,14,.12); }
+  .pv-btn:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
+  .pv-btn svg{ width:20px; height:20px; }
+  .pv-body{ position:relative; flex:1; min-height:0; overflow:hidden; touch-action:none; cursor:grab; }
+  .pv-body.drag{ cursor:grabbing; }
+  .pv-img{ position:absolute; left:0; top:0; transform-origin:0 0; user-select:none; -webkit-user-drag:none; max-width:none; }
+  .pv-foot{ display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px max(12px, env(safe-area-inset-bottom)); border-top:1px solid rgba(22,19,14,.12); }
+  .pv-lv{ min-height:44px; padding:0 14px; border:1px solid rgba(22,19,14,.2); border-radius:22px; background:none; cursor:pointer;
+    font:inherit; font-size:13px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:#3b362c; }
+  .pv-lv[aria-current="true"]{ background:#16130e; border-color:#16130e; color:#faf7ec; }
+  .pv-lv:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
+  .pv-hint{ position:absolute; left:50%; bottom:14px; transform:translateX(-50%); padding:8px 14px; border-radius:18px; background:rgba(22,19,14,.78);
+    color:#faf7ec; font-size:13px; letter-spacing:.04em; pointer-events:none; transition:opacity .4s; white-space:nowrap; }
+  .pv-hint.gone{ opacity:0; }
+  @media (prefers-reduced-motion:reduce){ .pv, .pv.open{ transition:none; } }
 
   /* room pages (exterior / interiors) */
   .room .page-inner{ padding:2.4em 3em; }
@@ -910,6 +952,7 @@ body.narrow .price-t td{ font-size:.8em; }
       <div class="plan-villas" role="tablist" aria-label="Villa"></div>
       <div class="plan-bar">
         <div class="plan-levels" aria-label="Go to level"></div>
+        <span class="plan-status" aria-live="polite"></span>
       </div>
       <div class="plan-stage">
         <div class="plan-scroll" tabindex="0" aria-label="Floor plans of the chosen villa, every level"></div>
@@ -1466,8 +1509,9 @@ body.narrow .price-t td{ font-size:.8em; }
         scroller = page.querySelector('.plan-scroll'), stageEl = page.querySelector('.plan-stage'), cur = 0, figs = [];
     VILLAS.forEach(function(V, i){                                   /* segmented picker: villa and its land */
       var b = el('button', 'plan-villa'); b.type = 'button'; b.dataset.i = i; b.setAttribute('role', 'tab');
-      b.appendChild(el('span', 'id', V.id));
-      b.appendChild(el('span', 'sz', V.land + ' sqm' + (V.reserved ? ' · Reserved' : '')));
+      var idEl = el('span', 'id', V.id); if (V.reserved){ var d = el('span', 'dot'); d.setAttribute('aria-hidden', 'true'); idEl.appendChild(d); }
+      b.appendChild(idEl);
+      b.appendChild(el('span', 'sz', V.land + ' sqm'));
       b.setAttribute('aria-label', 'Villa ' + V.id + ', land ' + V.land + ' square metres' + (V.reserved ? ', reserved' : ''));
       picker.appendChild(b);
     });
@@ -1486,11 +1530,16 @@ body.narrow .price-t td{ font-size:.8em; }
     function show(i, source){
       cur = +i; var V = VILLAS[cur];
       Array.prototype.forEach.call(picker.children, function(t){ t.setAttribute('aria-selected', +t.dataset.i === cur ? 'true' : 'false'); });
+      page.querySelector('.plan-status').textContent = V.reserved ? 'Reserved' : '';
       scroller.innerHTML = ''; figs = [];
       PLAN_FLOORS.forEach(function(F, k){
         var fig = el('figure', 'plan-floor'), cap = el('figcaption');
         cap.appendChild(el('span', 'no', F.no)); cap.appendChild(el('span', 'nm', F.name));
-        var im = el('img');
+        var zb = el('button', 'zoom'); zb.type = 'button'; zb.dataset.k = k;
+        zb.setAttribute('aria-label', 'Enlarge the ' + F.name.toLowerCase() + ' plan of villa ' + V.id);
+        zb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21M10.5 7.5v6M7.5 10.5h6"/></svg>Enlarge';
+        cap.appendChild(zb);
+        var im = el('img'); im.dataset.k = k;
         im.src = 'img/plans/villa-' + V.id.toLowerCase() + '-' + F.slug + '.webp';
         im.width = V.w[k]; im.height = V.h[k]; im.decoding = 'async'; if (k) im.loading = 'lazy';
         im.alt = 'Villa ' + V.id + ', ' + F.name.toLowerCase() + ' plan with room names, areas and dimensions in millimetres';
@@ -1508,6 +1557,10 @@ body.narrow .price-t td{ font-size:.8em; }
       track('villa_plan_level', { villa:VILLAS[cur].id, level:PLAN_FLOORS[+b.dataset.k].name });
     });
     picker.addEventListener('click', function(e){ var t = e.target.closest('.plan-villa'); if (t) show(t.dataset.i, 'tab'); });
+    scroller.addEventListener('click', function(e){
+      var t = e.target.closest('.zoom, .plan-floor img'); if (!t) return;
+      viewer.open(cur, +t.dataset.k);
+    });
     picker.addEventListener('keydown', function(e){
       if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
       e.preventDefault(); e.stopPropagation();
@@ -1516,6 +1569,128 @@ body.narrow .price-t td{ font-size:.8em; }
     });
     scroller.addEventListener('keydown', function(e){ if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') return; e.stopPropagation(); });
     show(0, null);
+
+    /* ---------- full-screen viewer ---------- */
+    var viewer = (function(){
+      var ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+      var ICON_FIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+      var root = el('div', 'pv'); root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', 'Floor plan');
+      var top = el('div', 'pv-top'), title = el('div', 'pv-title');
+      var fitBtn = el('button', 'pv-btn'); fitBtn.type = 'button'; fitBtn.innerHTML = ICON_FIT; fitBtn.setAttribute('aria-label', 'Fit to screen');
+      var closeBtn = el('button', 'pv-btn'); closeBtn.type = 'button'; closeBtn.innerHTML = ICON_X; closeBtn.setAttribute('aria-label', 'Close');
+      top.appendChild(title); top.appendChild(fitBtn); top.appendChild(closeBtn);
+      var body = el('div', 'pv-body'), img = el('img', 'pv-img'), hint = el('div', 'pv-hint');
+      img.alt = ''; img.draggable = false; body.appendChild(img); body.appendChild(hint);
+      var foot = el('div', 'pv-foot');
+      PLAN_FLOORS.forEach(function(F, k){ var b = el('button', 'pv-lv', F.no + ' ' + F.name.split(' ')[0]); b.type = 'button'; b.dataset.k = k; foot.appendChild(b); });
+      root.appendChild(top); root.appendChild(body); root.appendChild(foot); document.body.appendChild(root);
+
+      var vi = 0, lv = 0, s = 1, x = 0, y = 0, fit = 1, iw = 1, ih = 1, lastFocus = null, hinted = false;
+      function apply(){ img.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')'; }
+      function clamp(){
+        var bw = body.clientWidth, bh = body.clientHeight, w = iw*s, h = ih*s;
+        x = w <= bw ? (bw - w)/2 : Math.min(0, Math.max(bw - w, x));
+        y = h <= bh ? (bh - h)/2 : Math.min(0, Math.max(bh - h, y));
+      }
+      function toFit(){
+        var bw = body.clientWidth, bh = body.clientHeight;
+        fit = Math.min((bw - 24)/iw, (bh - 24)/ih); s = fit; x = (bw - iw*s)/2; y = (bh - ih*s)/2; apply();
+      }
+      function zoomAt(ns, cx, cy){
+        ns = Math.max(fit, Math.min(fit*6, ns));
+        x = cx - (cx - x) * ns/s; y = cy - (cy - y) * ns/s; s = ns; clamp(); apply();
+      }
+      function load(){
+        var V = VILLAS[vi], F = PLAN_FLOORS[lv];
+        title.innerHTML = ''; title.appendChild(el('span', 'v', 'Villa ' + V.id)); title.appendChild(document.createTextNode(F.name));
+        Array.prototype.forEach.call(foot.children, function(b){ b.setAttribute('aria-current', +b.dataset.k === lv ? 'true' : 'false'); });
+        iw = V.w[lv]; ih = V.h[lv];
+        img.style.width = iw + 'px'; img.style.height = ih + 'px';
+        img.alt = 'Villa ' + V.id + ', ' + F.name.toLowerCase() + ' plan';
+        var base = 'img/plans/villa-' + V.id.toLowerCase() + '-' + F.slug;
+        img.src = base + '.webp';                                    /* already loaded by the page: shows at once */
+        var hi = new Image(), want = base;                           /* then swap in the full-resolution plan */
+        hi.onload = function(){ if (img.src.indexOf(want) !== -1) img.src = hi.src; };
+        hi.src = base + '-zoom.webp';
+        toFit();
+      }
+      function open(v, k){
+        vi = v; lv = k; lastFocus = document.activeElement;
+        root.classList.add('open'); load(); closeBtn.focus();
+        if (!hinted){ hinted = true; hint.textContent = ('ontouchstart' in window ? 'Pinch to zoom · swipe for other levels' : 'Scroll to zoom · drag to move · ← → levels');
+          hint.classList.remove('gone'); setTimeout(function(){ hint.classList.add('gone'); }, 2600); }
+        else hint.classList.add('gone');
+        track('villa_plan_zoom', { villa:VILLAS[v].id, level:PLAN_FLOORS[k].name });
+      }
+      function close(){ root.classList.remove('open'); if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+      function step(d){ var n = lv + d; if (n < 0 || n >= PLAN_FLOORS.length) return; lv = n; load(); }
+
+      closeBtn.addEventListener('click', close);
+      fitBtn.addEventListener('click', toFit);
+      foot.addEventListener('click', function(e){ var b = e.target.closest('.pv-lv'); if (b){ lv = +b.dataset.k; load(); } });
+      window.addEventListener('resize', function(){ if (root.classList.contains('open')) toFit(); });
+      /* keys go to the viewer while it is open, never to the book underneath */
+      document.addEventListener('keydown', function(e){
+        if (!root.classList.contains('open')) return;
+        if (e.key === 'Escape'){ close(); }
+        else if (e.key === 'ArrowRight' || e.key === 'ArrowDown'){ step(1); }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ step(-1); }
+        else if (e.key === '+' || e.key === '='){ zoomAt(s*1.4, body.clientWidth/2, body.clientHeight/2); }
+        else if (e.key === '-'){ zoomAt(s/1.4, body.clientWidth/2, body.clientHeight/2); }
+        else if (e.key === 'Tab'){                                   /* keep focus inside the dialog */
+          var f = root.querySelectorAll('button'), first = f[0], last = f[f.length-1];
+          if (e.shiftKey && document.activeElement === first){ last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last){ first.focus(); }
+          else return;
+        } else return;
+        e.preventDefault(); e.stopPropagation();
+      }, true);
+      body.addEventListener('wheel', function(e){
+        e.preventDefault(); var r = body.getBoundingClientRect();
+        zoomAt(s * Math.exp(-e.deltaY * 0.0022), e.clientX - r.left, e.clientY - r.top);
+      }, {passive:false});
+      /* pointers: one finger pans (or swipes levels when not zoomed), two fingers pinch */
+      var pts = {}, start = null, lastTap = 0;
+      function rel(e){ var r = body.getBoundingClientRect(); return { x:e.clientX - r.left, y:e.clientY - r.top }; }
+      body.addEventListener('pointerdown', function(e){
+        try{ body.setPointerCapture(e.pointerId); }catch(err){} pts[e.pointerId] = rel(e); body.classList.add('drag');
+        var ids = Object.keys(pts);
+        if (ids.length === 1){ start = { x:x, y:y, p:pts[ids[0]], t:Date.now(), s:s }; }
+        else if (ids.length === 2){ var a = pts[ids[0]], b = pts[ids[1]];
+          start = { pinch:true, d:Math.hypot(a.x-b.x, a.y-b.y), s:s, mx:(a.x+b.x)/2, my:(a.y+b.y)/2, x:x, y:y }; }
+      });
+      body.addEventListener('pointermove', function(e){
+        if (!pts[e.pointerId] || !start) return; pts[e.pointerId] = rel(e);
+        var ids = Object.keys(pts);
+        if (start.pinch && ids.length === 2){
+          var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a.x-b.x, a.y-b.y), mx = (a.x+b.x)/2, my = (a.y+b.y)/2;
+          var ns = Math.max(fit*.9, Math.min(fit*6, start.s * d/start.d));
+          x = mx - (start.mx - start.x) * ns/start.s; y = my - (start.my - start.y) * ns/start.s; s = ns; clamp(); apply();
+        } else if (!start.pinch && ids.length === 1){
+          var p = pts[ids[0]]; x = start.x + p.x - start.p.x; y = start.y + p.y - start.p.y;
+          if (s <= fit*1.01){ y = start.y; img.style.transition = 'none'; img.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')'; }
+          else { clamp(); apply(); }
+        }
+      });
+      function up(e){
+        if (!pts[e.pointerId]) return; var p = pts[e.pointerId]; delete pts[e.pointerId];
+        if (Object.keys(pts).length) { start = null; return; }
+        body.classList.remove('drag');
+        if (start && !start.pinch){
+          var dx = p.x - start.p.x, dy = p.y - start.p.y, dt = Date.now() - start.t;
+          if (start.s <= fit*1.01 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)){ step(dx < 0 ? 1 : -1); start = null; return; }
+          if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && dt < 300){              /* tap: double tap toggles zoom */
+            var now = Date.now();
+            if (now - lastTap < 320){ if (s > fit*1.05) toFit(); else zoomAt(fit*2.6, p.x, p.y); lastTap = 0; }
+            else lastTap = now;
+          }
+        }
+        if (s < fit) toFit(); else { clamp(); apply(); }
+        start = null;
+      }
+      body.addEventListener('pointerup', up); body.addEventListener('pointercancel', up);
+      return { open:open };
+    })();
   })();
 
   var store   = document.getElementById('pageStore');

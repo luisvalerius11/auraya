@@ -241,6 +241,7 @@ def build(pdf, out, only=None):
                 tight = Plan(doc[page], c)
                 tight.site_exclude = SITE_EXCLUDE.get((n, page), ())
                 plan_only, _ = tight.render(zones, labels, F, decor)
+            plan_only.save(os.path.join(out, "brochure", f"villa-a{n}-{slug}-zoom.webp"), quality=82, method=6)  # full res, viewer
             plan_only.thumbnail((1800, 1800), Image.LANCZOS)
             plan_only.save(os.path.join(out, "brochure", f"villa-a{n}-{slug}.webp"), quality=88, method=6)
             sheet = frame(img, f"Villa A{n}", fname,
