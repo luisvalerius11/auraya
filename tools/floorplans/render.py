@@ -370,6 +370,13 @@ class Plan:
             web = np.exp(-(v ** 2) * 6)  # bright caustic network
             depth = np.sin(wx * 0.011) * np.sin(wy * 0.013)
             return img * (1 + 0.10 * web[..., None] + 0.03 * depth[..., None])
+        if name == "coping":
+            # honed natural-stone pool coping in 60 cm lengths, a shade lighter than the deck
+            unit = int(0.6 * m)
+            tid = ((xx // unit) * 7 + (yy // unit) * 13) % 9 / 9.0 - 0.5
+            img = rgb("#e9e0cd")[None, None, :] * (1 + 0.03 * tid[..., None] + self.noise(2, 0.012)[..., None])
+            img[((xx % unit) < 2) | ((yy % unit) < 2)] *= 0.9
+            return img
         if name == "overflow":
             # overflow (infinity) edge: the water sheet running over the ocean-side lip into the channel
             base = self.material("water") * 0.86
@@ -460,11 +467,11 @@ class Plan:
         # 3b) the coping ring around pools and jacuzzis is outdoor concrete, not furniture
         if decor:
             water = np.isin(lab, idx[assign == "water"])
-            near = ndi.binary_dilation(water, iterations=12)
+            near = ndi.binary_dilation(water, iterations=45)       # the edge ring and the strips beyond it
             touch = np.bincount(lab.ravel(), weights=near.ravel(), minlength=n + 1)
             for i in idx[1:]:
                 if assign[i] == "furn" and touch[i] > 0 and area[i] > 4000:
-                    assign[i] = "polished_concrete"
+                    assign[i] = "coping"
 
         # 4) furniture finishes (walnut joinery, teak tables) by rectangle
         for z in zones:
