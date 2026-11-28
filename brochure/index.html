@@ -64,8 +64,8 @@
   .leaves{ position:absolute; inset:0; perspective:2800px; }
   .layer{
     position:absolute; inset:0; display:flex;
-    transform-origin:left center; transform-style:preserve-3d;
-    transition:transform 1s cubic-bezier(.45,.05,.25,1), opacity .25s linear;
+    transform-origin:left center; transform-style:preserve-3d; will-change:transform;
+    transition:transform var(--turn, 1s) cubic-bezier(.45,.05,.25,1), opacity .25s linear;
   }
   /* the blank reverse of the sheet, shown by the script once the page has turned past upright */
   .layer > .leaf-back{ position:absolute; inset:0; display:none;
@@ -76,8 +76,8 @@
   .layer::before{ content:""; position:absolute; inset:0; z-index:8; pointer-events:none;
     background:linear-gradient(90deg, rgba(20,14,6,.16), rgba(20,14,6,0) 5%); }
   .layer::after{ content:""; position:absolute; inset:0; z-index:9; pointer-events:none; opacity:0;
-    background:linear-gradient(90deg, rgba(20,14,6,.30), rgba(20,14,6,.04) 70%); transition:opacity 1s ease; }
-  .layer.turned{ transform:rotateY(-180deg); opacity:0; transition-delay:0s,.75s; }
+    background:linear-gradient(90deg, rgba(20,14,6,.30), rgba(20,14,6,.04) 70%); transition:opacity var(--turn, 1s) ease; }
+  .layer.turned{ transform:rotateY(-180deg); opacity:0; transition-delay:0s,calc(var(--turn, 1s) * .75); }
   .layer.turned::after{ opacity:1; }
   .layer.no-anim, .layer.no-anim::after{ transition:none; }
   @media (prefers-reduced-motion:reduce){ .layer, .layer::after{ transition:none; } }
@@ -1634,7 +1634,8 @@ body.narrow .price-t td{ font-size:.8em; }
   var counter = document.getElementById('counter');
   var prevBtn = document.getElementById('prevBtn'), nextBtn = document.getElementById('nextBtn');
   var prevTool= document.getElementById('prevTool'), nextTool= document.getElementById('nextTool');
-  var TURN_MS = 1000;
+  /* page-turn length: the open book on wide screens turns slowly; a single page (phones) turns quicker */
+  var TURN_MS = 1000, TURN_SPREAD = 1000, TURN_SINGLE = 600;
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ----- page-turn sound -----
@@ -1742,6 +1743,8 @@ body.narrow .price-t td{ font-size:.8em; }
   }
   function rebuild(){
     clearBook();
+    TURN_MS = spread ? TURN_SPREAD : TURN_SINGLE;
+    sheetBox.style.setProperty('--turn', TURN_MS + 'ms');
     document.body.classList.toggle('spread', spread);
     sheetBox.classList.add('no-anim');
     if (spread){
@@ -1798,13 +1801,11 @@ body.narrow .price-t td{ font-size:.8em; }
   }
 
   /* While a sheet turns, show whichever side is facing the reader */
+  /* The sheet is edge-on at 38% of the turn (where the easing curve reaches half of its 180 degrees),
+     so switch sides then, rather than reading the sheet's angle on every frame, which slows phones. */
   function watchFlip(el){
-    var t0 = Date.now();
-    (function tick(){
-      var m = getComputedStyle(el).transform.match(/matrix3d\(([-\d.e]+)/);
-      if (m) el.classList.toggle('flipped', parseFloat(m[1]) < 0);
-      if (Date.now() - t0 < TURN_MS && el.parentNode) requestAnimationFrame(tick);
-    })();
+    var to = el.classList.contains('turned');
+    setTimeout(function(){ el.classList.toggle('flipped', to); }, TURN_MS * 0.38);
   }
 
   /* ----- single-page mode ----- */
@@ -1820,23 +1821,36 @@ body.narrow .price-t td{ font-size:.8em; }
     Array.prototype.slice.call(el.querySelectorAll('.page')).forEach(function(p){ store.appendChild(p); });
     el.remove();
   }
+  var finishTurn = null;     /* ends the turn in progress at once (a quick second swipe skips ahead) */
   function render(i, dir){
     cur = i;
     var old = layer, fresh = buildLayer(i);
     layer = fresh;
     if (!old || !dir || still){
       leaves.appendChild(fresh); stash(old); busy = false;
-    } else if (dir === 'next'){
-      /* new page lies underneath; the current page lifts and turns away over the spine */
-      leaves.insertBefore(fresh, old);
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ old.classList.add('turned'); watchFlip(old); }); });
-      setTimeout(function(){ if (layer === fresh){ stash(old); busy = false; } }, TURN_MS + 40);
     } else {
-      /* previous page turns back in from the spine and lands on top */
-      fresh.classList.add('no-anim','turned','flipped');
-      leaves.appendChild(fresh);
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ fresh.classList.remove('no-anim','turned'); watchFlip(fresh); }); });
-      setTimeout(function(){ if (layer === fresh){ stash(old); busy = false; } }, TURN_MS + 40);
+      if (dir === 'next'){
+        /* new page lies underneath; the current page lifts and turns away over the spine */
+        leaves.insertBefore(fresh, old);
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (layer === fresh && old.parentNode){ old.classList.add('turned'); watchFlip(old); } }); });
+      } else {
+        /* previous page turns back in from the spine and lands on top */
+        fresh.classList.add('no-anim','turned','flipped');
+        leaves.appendChild(fresh);
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (layer === fresh){ fresh.classList.remove('no-anim','turned'); watchFlip(fresh); } }); });
+      }
+      var timer = setTimeout(done, TURN_MS + 40);
+      function done(){
+        clearTimeout(timer);
+        if (finishTurn !== done) return;
+        finishTurn = null;
+        stash(old);
+        fresh.classList.add('no-anim'); fresh.classList.remove('turned','flipped');
+        void fresh.offsetWidth; fresh.classList.remove('no-anim');
+        busy = false;
+        settleMedia();
+      }
+      finishTurn = done;
     }
     afterMove();
   }
@@ -1874,10 +1888,17 @@ body.narrow .price-t td{ font-size:.8em; }
     var mp = document.querySelector('.loc');
     if (mp && mp.closeMap) mp.closeMap();
     try{ history.replaceState(null, '', '#p' + (cur+1)); }catch(e){}
-    if (mediaOK){ preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4); }
     updateChrome();
-    syncClips();
     reportPages();
+    /* starting videos and decoding photos mid-turn makes phones stutter, so they wait for the turn to end */
+    if (busy){ clearTimeout(mediaTimer); mediaTimer = setTimeout(settleMedia, TURN_MS + 80); }
+    else settleMedia();
+  }
+  var mediaTimer = 0;
+  function settleMedia(){
+    clearTimeout(mediaTimer);
+    if (mediaOK){ preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4); }
+    syncClips();
   }
 
   /* ----- analytics: which pages are read, for how long, and how the reader got there ----- */
@@ -1916,7 +1937,8 @@ body.narrow .price-t td{ font-size:.8em; }
   function go(i, dir){
     if (i < 0 || i >= N) return;
     if (spread){ turnTo(Math.floor((i+1)/2)); return; }
-    if (busy || i === cur) return;
+    if (i === cur) return;
+    if (busy){ if (!finishTurn) return; finishTurn(); }   /* swiped again mid-turn: finish this one now and turn on */
     busy = true;
     if (sideways.matches) stage.scrollTop = 0;                 /* each page starts at its top */
     pageSound();
