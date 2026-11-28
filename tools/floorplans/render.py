@@ -390,7 +390,7 @@ class Plan:
         return np.broadcast_to(rgb(PAL["paper"]), (H, W, 3)).astype(np.float32).copy()
 
     # ---------- render ----------
-    def render(self, zones, labels, fonts, decor=None):
+    def render(self, zones, labels, fonts, decor=None, underlay=None, raw=False):
         """Returns (image, legend). With `decor`, CAD furniture lines are replaced by rendered
         furniture and rooms are marked with numbers listed in the legend."""
         H, W = self.H, self.W
@@ -523,7 +523,19 @@ class Plan:
         canvas[m_struct] = rgb(PAL["ink"])
         canvas[walls] = rgb(PAL["wall"])
 
+        if underlay is not None:
+            # the level below, faded into this level's open (paper) areas: pools, decks and garden
+            # stay legible on upper levels without competing with the floor that is drawn
+            paper = np.abs(canvas - rgb(PAL["paper"])).sum(2) < 6
+            paper = ndi.binary_erosion(paper, iterations=1)
+            u = np.asarray(underlay.convert("RGB"), np.float32)[:H, :W]
+            grey = u.mean(2, keepdims=True)
+            u = u * 0.55 + grey * 0.45                                   # half desaturated
+            soft = ndi.gaussian_filter(paper.astype(np.float32), 1.2)[..., None] * 0.36
+            canvas = canvas * (1 - soft) + u * soft
         img = Image.fromarray(np.clip(canvas, 0, 255).astype(np.uint8))
+        if raw:
+            return img, []
         dr = ImageDraw.Draw(img)
         if decor:
             for lb in labels:
