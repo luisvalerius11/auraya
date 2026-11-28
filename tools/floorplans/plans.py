@@ -23,6 +23,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 FONTS = os.path.join(ROOT, "assets", "fonts")
 
 CLIPS = {1: (55, 100, 372, 508), 2: (362, 100, 586, 508), 3: (575, 100, 799, 508), 4: (790, 172, 1068, 595)}
+# Site-layer lines that are not the plot boundary (setback line ending at Villa 4's boundary)
+SITE_EXCLUDE = {(4, 1): [(978, 462, 1050, 472)], (4, 2): [(978, 462, 1050, 472)]}
 FLOORS = [("ground", "Ground Floor", 0), ("second", "Second Floor", 1), ("rooftop", "Rooftop", 2)]
 
 
@@ -46,7 +48,7 @@ V2_GF_HOUSE = [
     ("rug", 410, 278),
     ("furn:walnut", 370, 365, 392, 435), ("furn:walnut", 419, 413, 447, 436), ("furn:walnut", 490, 413, 516, 436),
     ("terrazzo", 364, 225, 405, 262),
-    ("marble_out", 405, 225, 586, 262),
+    ("polished_concrete", 405, 225, 586, 262),
     ("terrazzo", 364, 432, 442, 466),
     ("stair", 442, 432, 500, 466),
     ("marble", 364, 262, 586, 466),
@@ -70,8 +72,8 @@ V2_2F_LABELS = [
 ]
 V2_RT = [
     ("water", 406, 268), ("glass", 489, 420), ("furn:teak", 441, 348),
-    ("planting", 486, 218, 586, 258), ("marble_out", 364, 218, 586, 404),
-    ("marble_out", 364, 404, 400, 436), ("stair", 364, 436, 586, 466),
+    ("planting", 486, 218, 586, 258), ("polished_concrete", 364, 218, 586, 404),
+    ("polished_concrete", 364, 404, 400, 436), ("stair", 364, 436, 586, 466),
 ]
 V2_RT_LABELS = [L("Rooftop", 535, 330, "33 m²"), L("Jacuzzi", 406, 268, "Optional add-on", light=True), L("Skylight", 489, 418)]
 
@@ -91,8 +93,6 @@ V2_GF_DECOR = [  # inside the 7.5 m module (same in every villa, Villa 4 shifted
     ("chair", 476.5, 400, 13, 12, 180), ("chair", 498.5, 400, 13, 12, 180),
     ("tall_units", 421, 416, 445, 433, 1), ("tall_units", 492, 416, 514, 433, 1),
     ("counter", 445, 416, 492, 433, 180, [("sink", 0.3), ("hob", 0.72)]),
-    ("basin_round", 386.5, 450, 6.5), ("toilet", 431, 450, 90),
-    ("shower", 378, 229, 404, 253, 0),
     ("pot_plant", 576, 236, 8), ("pot_plant", 577, 350, 9),
     ("scooter", 425, 486, 90), ("scooter", 520, 486, 90),
 ]
@@ -116,9 +116,6 @@ V2_2F_DECOR = [
     ("desk", 374, 244, 382, 286, 270), ("chair", 388, 258, 13, 12, 90),
     ("desk", 575, 244, 583, 286, 90), ("chair", 568, 258, 13, 12, 270),
     ("tall_units", 399, 314, 425, 331, 2), ("tall_units", 527, 314, 552, 331, 2),
-    ("vanity", 433, 321, 460, 334, 0, 1), ("vanity", 492, 321, 519, 334, 0, 1),
-    ("shower", 405, 371, 444, 404, 180), ("shower", 507, 371, 546, 404, 180),
-    ("toilet", 463, 390, 180), ("toilet", 491.5, 390, 180),
 ]
 V2_RT_DECOR = [
     ("daybed", 437, 225, 487, 257, 0),
@@ -157,19 +154,19 @@ def villa_123(n):
     if n == 1:
         # keep the rug and joinery (first 4), replace V2's shower/terrace (next 2) with Villa 1's own
         gf = [("water", 206, 165)] + gf[:4] + [
-            ("terrazzo", 157, 222, 195, 256), ("marble_out", 195, 215, 372, 256),
-            ("marble_out", 300, 100, 372, 222), ("marble_out", 108, 100, 302, 214),
+            ("terrazzo", 157, 222, 195, 256), ("polished_concrete", 195, 215, 372, 256),
+            ("polished_concrete", 300, 100, 372, 222), ("polished_concrete", 108, 100, 302, 214),
             ("planting", 120, 300), ("planting", 130, 215),
         ] + gf[6:]
         gfl = [L("Pool", 206, 163, "15 m²", light=True), L("Sunbed", 336, 172, "8 m²"),
                L("Shower", 178, 240), L("Terrace", 290, 246)] + gfl[2:]
     elif n == 2:
-        gf = [("water", 448, 175), ("marble_out", 512, 100, 586, 226), ("planting", 362, 100, 382, 226),
-              ("marble_out", 380, 100, 515, 226)] + gf
+        gf = [("water", 448, 175), ("polished_concrete", 512, 100, 586, 226), ("planting", 362, 100, 382, 226),
+              ("polished_concrete", 380, 100, 515, 226)] + gf
         gfl = [L("Pool", 448, 178, "11 m²", light=True), L("Sunbed", 550, 175, "7 m²")] + gfl
     else:
-        gf = [("water", 660, 182), ("marble_out", 728, 100, 799, 226), ("planting", 575, 100, 594, 226),
-              ("marble_out", 592, 100, 731, 226)] + gf
+        gf = [("water", 660, 182), ("polished_concrete", 728, 100, 799, 226), ("planting", 575, 100, 594, 226),
+              ("polished_concrete", 592, 100, 731, 226)] + gf
         gfl = [L("Pool", 662, 180, "7 m²", light=True), L("Sunbed", 763, 190, "5 m²")] + gfl
     f2, f2l = shift(V2_2F, V2_2F_LABELS, dx)
     rt, rtl = shift(V2_RT, V2_RT_LABELS, dx)
@@ -183,8 +180,8 @@ def villa_4():
     gf = [
         ("furn:walnut", 797, 435, 820, 503), ("furn:walnut", 845, 478, 870, 503), ("furn:walnut", 905, 478, 930, 503),
         ("water", 860, 255), ("rug", 832, 345), ("planting", 1030, 450),
-        ("terrazzo", 800, 296, 830, 333), ("marble_out", 830, 292, 1003, 333),
-        ("marble_out", 912, 172, 1020, 294), ("marble_out", 795, 172, 915, 294),
+        ("terrazzo", 800, 296, 830, 333), ("polished_concrete", 830, 292, 1003, 333),
+        ("polished_concrete", 912, 172, 1020, 294), ("polished_concrete", 795, 172, 915, 294),
         ("planting", 1000, 172, 1068, 568, "edge"),
         ("terrazzo", 800, 502, 868, 532), ("stair", 868, 502, 975, 532),
         ("marble", 797, 333, 1003, 532), ("pavers", 797, 532, 1003, 568, "edge"), ("pavers", 797, 531, 1001, 567, "paint"),
@@ -202,8 +199,8 @@ def villa_4():
     f2l = [L("Bedroom", 850, 322, "14 m²"), L("Bedroom", 955, 322, "14 m²"),
            L("Bathroom", 864, 425, "6 m²"), L("Bathroom", 940, 425, "6 m²"), L("Hallway", 900, 487)]
     rt = [("water", 830, 337), ("glass", 915, 486), ("furn:teak", 868, 420),
-          ("planting", 915, 288, 1006, 326), ("marble_out", 797, 288, 1006, 470),
-          ("marble_out", 797, 470, 826, 500), ("stair", 797, 500, 1006, 532)]
+          ("planting", 915, 288, 1006, 326), ("polished_concrete", 797, 288, 1006, 470),
+          ("polished_concrete", 797, 470, 826, 500), ("stair", 797, 500, 1006, 532)]
     rtl = [L("Rooftop", 960, 410, "33 m²"), L("Jacuzzi", 830, 337, "Optional add-on", light=True), L("Skylight", 915, 486)]
     rtd = [it if it[0] != "counter" else it[:3] + (1004,) + it[4:] for it in shift_decor(V2_RT_DECOR, *V4_SHIFT)]
     decor = [shift_decor(V2_GF_DECOR, *V4_SHIFT) + GF_OUTSIDE[4], shift_decor(V2_2F_DECOR, *V4_SHIFT), rtd]
@@ -230,7 +227,9 @@ def build(pdf, out, only=None):
         defs = villa_123(n) if n < 4 else villa_4()
         sheets = []
         for (slug, fname, page), (zones, labels, decor) in zip(FLOORS, defs):
-            img, legend = Plan(doc[page], CLIPS[n]).render(zones, labels, F, decor)
+            plan = Plan(doc[page], CLIPS[n])
+            plan.site_exclude = SITE_EXCLUDE.get((n, page), ())
+            img, legend = plan.render(zones, labels, F, decor)
             sheet = frame(img, f"Villa A{n}", fname,
                           "Scale 1:100 at 300 dpi  ·  Indicative, design development 05.01.2026", F, legend)
             sheets.append(sheet)

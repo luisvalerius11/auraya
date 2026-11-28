@@ -23,7 +23,7 @@ S = DPI / 72.0
 PT_PER_M = 72 / 25.4 * 10  # 1:100 -> 1 m is 10 mm on paper
 
 PAL = {
-    "paper": "#faf7ec", "ink": "#3E2D1E", "wall": "#4B4335", "fine": "#8d8270",
+    "paper": "#faf7ec", "ink": "#141312", "wall": "#1b1a18", "fine": "#8d8270",
     "faint": "#cfc7b3", "furn": "#f6f1e4", "gold": "#a78b5f", "soft": "#6f6450",
 }
 
@@ -112,6 +112,65 @@ class Plan:
                 dr.line(xy, fill=255, width=lw)
         return np.array(img) > 0
 
+    def site_lines(self, inside):
+        """Plot boundary as solid lines. CAD draws it dash-dot as separate segments, so dash ends
+        within 3.5 pt of each other are joined. Chains that cross the building are setback lines
+        and are dropped."""
+        segs = []
+        for d in self.layers["site"]:
+            for it in d["items"]:
+                if it[0] == "l":
+                    mx, my = (it[1].x + it[2].x) / 2, (it[1].y + it[2].y) / 2
+                    if any(x0 <= mx <= x1 and y0 <= my <= y1 for x0, y0, x1, y1 in getattr(self, "site_exclude", ())):
+                        continue  # configured: not part of the plot boundary (e.g. a setback line)
+                    segs.append(((it[1].x, it[1].y), (it[2].x, it[2].y)))
+        n = len(segs)
+        parent = list(range(n))
+
+        def find(a):
+            while parent[a] != a:
+                parent[a] = parent[parent[a]]
+                a = parent[a]
+            return a
+
+        ends = np.array([p for sgm in segs for p in sgm]) if n else np.zeros((0, 2))
+        links = []
+        for a in range(len(ends)):
+            dd = np.hypot(*(ends - ends[a]).T)
+            for b in np.nonzero(dd < 4.5)[0]:
+                if b // 2 != a // 2 and b > a:
+                    links.append((ends[a], ends[b]))
+                    ra, rb = find(a // 2), find(b // 2)
+                    parent[ra] = rb
+        comp = {}
+        for k in range(n):
+            comp.setdefault(find(k), []).append(k)
+        lw = max(3, int(round(0.84 * 1.4 * S)))
+        img = Image.new("L", (self.W, self.H), 0)
+        dr = ImageDraw.Draw(img)
+        H, W = self.H, self.W
+        for ks in comp.values():
+            pts_in = tot = 0
+            for k in ks:
+                (x0, y0), (x1, y1) = segs[k]
+                for t in np.linspace(0, 1, 6):
+                    px, py = self.px(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t)
+                    if 0 <= px < W and 0 <= py < H:
+                        tot += 1
+                        pts_in += inside[py, px]
+            if tot and pts_in > 0.25 * tot:
+                continue  # crosses the building: a setback line, not the plot boundary
+            length = sum(math.hypot(segs[k][1][0] - segs[k][0][0], segs[k][1][1] - segs[k][0][1]) for k in ks)
+            angles = {round(math.degrees(math.atan2(segs[k][1][1] - segs[k][0][1], segs[k][1][0] - segs[k][0][0])) % 180)
+                      for k in ks}
+            if length < 60 or (length < 120 and len(angles) == 1 and pts_in > 0):
+                continue  # short straight piece touching the building: end of a setback line
+            for k in ks:
+                dr.line([self.px(*segs[k][0]), self.px(*segs[k][1])], fill=255, width=lw)
+        for p, q in links:
+            dr.line([self.px(*p), self.px(*q)], fill=255, width=lw)
+        return np.array(img) > 0
+
     # ---------- materials ----------
     def noise(self, scale, amp):
         H, W = self.H, self.W
@@ -174,6 +233,15 @@ class Plan:
             joint = (iid != np.roll(iid, 1, 1)) | (iid != np.roll(iid, 1, 0))
             joint = ndi.binary_dilation(joint, iterations=1) if not indoor else joint
             img[joint] *= 0.9
+            return img
+        if name == "polished_concrete":
+            # light warm-grey polished concrete: soft clouding, fine aggregate, gentle sheen
+            base = rgb("#d4d0c8")
+            cloud = self.noise(40, 0.035) + self.noise(16, 0.018)
+            sheen = 0.025 * np.sin(xx * 0.004 + yy * 0.006)
+            img = base[None, None, :] * (1 + cloud[..., None] + sheen[..., None] + self.noise(1, 0.008)[..., None])
+            fleck = self.rng.random((H, W)) > 0.9993
+            img[fleck] *= 0.9
             return img
         if name == "terrazzo":
             img = rgb("#d8d1c3")[None, None, :] * (1 + self.noise(2, 0.012)[..., None])
@@ -272,6 +340,15 @@ class Plan:
                 if not assign[i] and in_zone(i, z) and (edge_ok or i not in border):
                     assign[i] = z[0]
 
+        # 3b) the coping ring around pools and jacuzzis is outdoor concrete, not furniture
+        if decor:
+            water = np.isin(lab, idx[assign == "water"])
+            near = ndi.binary_dilation(water, iterations=12)
+            touch = np.bincount(lab.ravel(), weights=near.ravel(), minlength=n + 1)
+            for i in idx[1:]:
+                if assign[i] == "furn" and touch[i] > 0 and area[i] > 4000:
+                    assign[i] = "polished_concrete"
+
         # 4) furniture finishes (walnut joinery, teak tables) by rectangle
         for z in zones:
             if len(z) == 5 and z[0].startswith("furn:"):
@@ -323,7 +400,10 @@ class Plan:
             canvas[mask] = canvas[mask] * (1 - alpha) + rgb(color) * alpha
 
         ink(m_above & ~walls, PAL["fine"], 0.35)
-        ink(m_site & ~walls, PAL["fine"], 0.5)
+        # plot boundary: solid black outside the building (CAD dash gaps closed); hidden over floors
+        inside = floor | furn
+        site_solid = self.site_lines(inside)
+        ink(site_solid & ~walls & ~ndi.binary_dilation(inside, iterations=4), PAL["ink"], 1.0)
         ink(m_slat & ~walls & ~floor, PAL["fine"], 0.3)
         ink(m_fine & ~walls, PAL["fine"], 0.7)
         if decor:
