@@ -655,6 +655,30 @@
   load();
   render();
 
+  /* settings column beside the results (wide screens): it stays in view while the results scroll. When it is taller
+     than the screen it follows the scroll direction: scrolling down it moves on until its last controls (reservation
+     date, start over) are in view and sticks there; scrolling up it comes back until its top is in view. Every control
+     is then a short scroll away, wherever you are on the page. */
+  (function stickyPanel(){
+    var panel = document.querySelector('.panel'); if (!panel) return;
+    var TOP = 20, top = TOP, lastY = window.scrollY;
+    function lowest(){ return Math.min(TOP, window.innerHeight - panel.offsetHeight - 20); }
+    function apply(){ panel.style.top = top + 'px'; }
+    function reset(){
+      panel.style.top = '';
+      if (getComputedStyle(panel).position !== 'sticky') return;
+      top = Math.max(lowest(), Math.min(TOP, top)); apply();
+    }
+    window.addEventListener('scroll', function(){
+      var y = window.scrollY, dy = y - lastY; lastY = y;
+      if (!panel.style.top) return;                        /* not beside the results */
+      top = Math.max(lowest(), Math.min(TOP, top - dy)); apply();
+    }, { passive:true });
+    window.addEventListener('resize', reset);
+    if ('ResizeObserver' in window) new ResizeObserver(reset).observe(panel);
+    reset();
+  })();
+
   /* pinned total (phones and tablets): mirrors the result card's figures */
   (function miniTotal(){
     var bar = $('miniTotal'), result = document.querySelector('.result'), panel = document.querySelector('.panel');
