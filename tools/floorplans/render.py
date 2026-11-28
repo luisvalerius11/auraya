@@ -370,6 +370,11 @@ class Plan:
             web = np.exp(-(v ** 2) * 6)  # bright caustic network
             depth = np.sin(wx * 0.011) * np.sin(wy * 0.013)
             return img * (1 + 0.10 * web[..., None] + 0.03 * depth[..., None])
+        if name == "overflow":
+            # overflow (infinity) edge: the water sheet running over the ocean-side lip into the channel
+            base = self.material("water") * 0.86
+            sheen = 0.06 * np.sin(xx * 0.35 + np.sin(yy * 0.08) * 2)
+            return base * (1 + sheen[..., None])
         if name == "planting":
             # dense tropical planting: layered leaf clusters, darker in the gaps
             img = np.broadcast_to(rgb("#4f6338"), (H, W, 3)).astype(np.float32).copy()
@@ -434,7 +439,7 @@ class Plan:
 
         # 1) seeds (pools, jacuzzis, rugs, skylights): the region under the point
         for z in zones:
-            if len(z) == 3:
+            if len(z) == 3 and z[0] != "poly":
                 x, y = self.px(z[1], z[2])
                 i = lab[min(max(y, 0), H - 1), min(max(x, 0), W - 1)]
                 if i and not assign[i]:
@@ -483,15 +488,27 @@ class Plan:
         furn = ndi.binary_dilation(np.isin(lab, idx[is_furn]), iterations=2) & ~walls
         # gardens: wherever the drawing carries the planting hatch, plant it (beats any zone guess)
         if self.layers["garden"]:
-            gm = self.raster("garden", 1.0, 3)
-            gm = ndi.binary_closing(gm, structure=np.ones((3, 3)), iterations=14)
-            gm = ndi.binary_opening(gm, structure=np.ones((3, 3)), iterations=4)
             water = np.isin(lab, idx[assign == "water"])
-            gm &= ~walls & ~furn & ~ndi.binary_dilation(water | m_struct | m_fine, iterations=2)
+            free = ~walls & ~furn & ~water & ~m_struct & ~m_fine
+            gm = self.raster("garden", 1.0, 3)
+            gm = ndi.binary_closing(gm, structure=np.ones((3, 3)), iterations=10) & free
+            for _ in range(28):                       # grow to the strip's edges, so narrow beds stay whole
+                gm = ndi.binary_dilation(gm) & free
             if "planting" not in cache:
                 cache["planting"] = self.material("planting")
             canvas[gm] = cache["planting"][gm]
             floor |= gm
+        # polygons: ("poly", material, [(x, y), ...]) in PDF points, painted over anything but walls
+        for z in zones:
+            if len(z) == 3 and z[0] == "poly":
+                pim = Image.new("L", (W, H), 0)
+                ImageDraw.Draw(pim).polygon([self.px(*q) for q in z[2]], fill=255)
+                pm = (np.array(pim) > 0) & ~walls
+                if z[1] not in cache:
+                    cache[z[1]] = self.material(z[1])
+                canvas[pm] = cache[z[1]][pm]
+                floor |= pm
+                furn &= ~pm                           # the band is part of the pool, not furniture
         # paint zones: recolour floor inside a wall-bounded rectangle (rooms joined by open doorways)
         for z in zones:
             if len(z) > 5 and z[5] == "paint":

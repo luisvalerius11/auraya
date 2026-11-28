@@ -148,6 +148,15 @@ def shift_decor(items, dx, dy=0):
 V4_SHIFT = (425.4, 68)  # Villa 4's rooms are the 7.5 m module moved by this much on the sheet
 
 
+# Overflow (infinity) edge on the ocean side of each pool, from the AELE lines of the ground floor.
+OVERFLOW = {
+    1: [(110.3, 118.4), (301.6, 118.4), (301.6, 126.9), (110.3, 126.9)],
+    2: [(382.4, 133.1), (514.2, 133.1), (514.2, 141.6), (382.4, 141.6)],
+    3: [(595.0, 149.5), (726.8, 170.3), (722.6, 174.0), (599.2, 154.5)],
+    4: [(807.6, 194.4), (913.9, 233.1), (913.9, 241.6), (807.6, 202.9)],
+}
+
+
 def villa_123(n):
     dx = (n - 2) * MODULE
     gf, gfl = shift(V2_GF_HOUSE, V2_GF_HOUSE_LABELS, dx)
@@ -168,6 +177,7 @@ def villa_123(n):
         gf = [("water", 660, 182), ("polished_concrete", 728, 100, 799, 226), ("planting", 575, 100, 594, 226),
               ("polished_concrete", 592, 100, 731, 226)] + gf
         gfl = [L("Pool", 662, 180, "7 m²", light=True), L("Sunbed", 762, 184)] + gfl
+    gf = [("poly", "overflow", OVERFLOW[n])] + gf
     f2, f2l = shift(V2_2F, V2_2F_LABELS, dx)
     rt, rtl = shift(V2_RT, V2_RT_LABELS, dx)
     strip = shift_decor(STRIP[1:], dx) if n == 3 else []
@@ -187,6 +197,7 @@ def villa_4():
         ("marble", 797, 333, 1003, 532), ("pavers", 797, 532, 1003, 568, "edge"), ("pavers", 797, 531, 1001, 567, "paint"),
         ("planting", 790, 568, 1068, 595, "edge"),
     ]
+    gf = [("poly", "overflow", OVERFLOW[4])] + gf
     gfl = [L("Pool", 860, 256, "6 m²", light=True), L("Sunbed", 932, 262),
            L("Shower", 815, 312), L("Terrace", 925, 314),
            L("Living", 968, 378, "25 m²"), L("Dining + Kitchen", 972, 442, "15 m²"),
