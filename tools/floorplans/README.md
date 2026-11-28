@@ -9,6 +9,17 @@ python3 tools/floorplans/plans.py "<path to 2026_0109_PDF_Villa_Matteo_Luas_Bang
 python3 tools/floorplans/plans.py <pdf> assets/floorplans 4     # one villa only
 ```
 
+Then compile the set for the brochure:
+
+```
+python3 tools/floorplans/compile.py assets/floorplans
+```
+
+Brochure-ready files:
+- `auraya-floor-plans.pdf`: cover plus one A3 landscape page per villa (all three floors), for print or download.
+- `brochure/villa-aN-{ground,second,rooftop}.webp`: each plan with dimensions and room labels but no title
+  block, sized to drop into the brochure's Floorplan page (page 12), which supplies its own heading and tabs.
+
 Output per villa (A1–A4, as in the brochure and price list): `villa-aN-{ground,second,rooftop}.webp` (web, 1400 px), `villa-aN-all-floors.webp`
 (the three floors side by side), and in `hires/` 300 dpi PNGs (1:100 at 300 dpi) plus a
 `villa-aN-all-floors.pdf` board for print.
@@ -38,10 +49,3 @@ and assigned per room in `plans.py`.
 Sheets carry no built-area figures (the drawing totals differ from the 145 m² used in marketing);
 room sizes come from the drawing. The rooftop jacuzzi is labelled as an optional add-on.
 
-## Photoreal version (Higgsfield)
-
-`assets/floorplans/photoreal/` holds AI-rendered versions. Process: render the plan without labels or
-dimensions, pad to 9:16, run it through Higgsfield GPT Image 2.6 (high quality, 2k) with
-`photoreal_prompt.txt`, crop back to the plan grid, restore the paper margin, then overlay the room
-labels, dimension chains and title block from `render.py` so all text and measurements stay exact.
-Check each render against the drawing: the model can occasionally move or invent details.

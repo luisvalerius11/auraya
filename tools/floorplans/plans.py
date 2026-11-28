@@ -231,6 +231,10 @@ def build(pdf, out, only=None):
             plan = Plan(doc[page], CLIPS[n])
             plan.site_exclude = SITE_EXCLUDE.get((n, page), ())
             img, legend = plan.render(zones, labels, F, decor)
+            os.makedirs(os.path.join(out, "brochure"), exist_ok=True)
+            plan_only = img.copy()  # plan + dimensions + labels, no title block: for the brochure page
+            plan_only.thumbnail((1800, 1800), Image.LANCZOS)
+            plan_only.save(os.path.join(out, "brochure", f"villa-a{n}-{slug}.webp"), quality=88, method=6)
             sheet = frame(img, f"Villa A{n}", fname,
                           "Scale 1:100 at 300 dpi  ·  Indicative, design development 05.01.2026", F, legend)
             sheets.append(sheet)
@@ -250,6 +254,7 @@ def build(pdf, out, only=None):
             board.paste(s, (x, 0))
             x += s.width + gap
         board.save(os.path.join(out, "hires", f"villa-a{n}-all-floors.pdf"), resolution=300)
+        board.save(os.path.join(out, "hires", f"villa-a{n}-all-floors.jpg"), quality=92)
         web = board.copy()
         web.thumbnail((2400, 2400), Image.LANCZOS)
         web.save(os.path.join(out, f"villa-a{n}-all-floors.webp"), quality=86, method=6)
