@@ -1617,9 +1617,9 @@ body.narrow .price-t td{ font-size:.8em; }
      ("auraya_sound"). Browsers only allow sound after the reader clicks, taps or presses
      a key, which is always the case here: the sound only ever follows a page turn.
      To use a recorded sound instead, set SOUND_URL to a short file, e.g. "vid/page-turn.mp3". */
-  var SOUND_URL = "", SOUND_VOLUME = 0.35;   /* 0 to 1; 0.5 was the first setting */
+  var SOUND_URL = "", SOUND_VOLUME = 0.22;   /* 0 to 1; was 0.35, and 0.5 at first */
   var pageSound = (function(){
-    var on = !still, ctx = null, noise = null, clip = null, last = 0;
+    var on = !still, ctx = null, noise = null, clip = null, last = 0, out = null;
     try { var saved = localStorage.getItem('auraya_sound'); if (saved) on = saved === 'on'; } catch(e){}
     var btn = document.getElementById('soundTool');
     function show(){ btn.setAttribute('aria-pressed', on ? 'true' : 'false'); btn.title = 'Page-turn sound: ' + (on ? 'on' : 'off'); }
@@ -1634,6 +1634,9 @@ body.narrow .price-t td{ font-size:.8em; }
       if (ctx) return true;
       var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
       ctx = new AC();
+      /* everything passes through a gentle low-pass, which takes the hiss off the top: soft paper, not a rustle */
+      out = ctx.createBiquadFilter(); out.type = 'lowpass'; out.frequency.value = 2400; out.Q.value = 0.5;
+      out.connect(ctx.destination);
       noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
       var d = noise.getChannelData(0), b = 0;
       for (var i = 0; i < d.length; i++){ b = 0.6*b + 0.4*(Math.random()*2 - 1); d[i] = b; }   /* softened noise: paper, not hiss */
@@ -1650,7 +1653,7 @@ body.narrow .price-t td{ font-size:.8em; }
       g.gain.setValueAtTime(0.0001, t);
       g.gain.exponentialRampToValueAtTime(peak, t + attack);
       g.gain.exponentialRampToValueAtTime(0.0001, t + len);
-      src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+      src.connect(bp); bp.connect(g); g.connect(out);
       src.start(t, Math.random()*0.4, len + 0.05);
     }
     function play(level){
@@ -1664,13 +1667,13 @@ body.narrow .price-t td{ font-size:.8em; }
       if (clip){
         var src = ctx.createBufferSource(), g = ctx.createGain();
         src.buffer = clip; src.playbackRate.value = rnd(0.92, 1.08); g.gain.value = v;
-        src.connect(g); g.connect(ctx.destination); src.start(t);
+        src.connect(g); g.connect(out); src.start(t);
         return;
       }
       var len = rnd(0.42, 0.55);
-      burst(t, len, rnd(2600, 3400), rnd(900, 1200), 0.36*v, 0.07);          /* the sheet sweeping over */
-      burst(t + len*0.55, 0.12, rnd(1400, 1800), 700, 0.24*v, 0.01);      /* edge catching the air */
-      burst(t + len*0.92, 0.09, rnd(500, 650), 300, 0.32*v, 0.006);       /* landing on the page */
+      burst(t, len, rnd(1700, 2200), rnd(700, 900), 0.36*v, 0.1);            /* the sheet sweeping over */
+      burst(t + len*0.55, 0.14, rnd(1000, 1300), 600, 0.14*v, 0.035);     /* edge catching the air, barely */
+      burst(t + len*0.92, 0.11, rnd(380, 480), 240, 0.24*v, 0.025);       /* landing on the page, softly */
     }
     return play;
   })();
