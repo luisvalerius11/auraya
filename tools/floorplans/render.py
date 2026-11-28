@@ -344,8 +344,8 @@ class Plan:
             img[joint] *= 0.9
             return img
         if name == "polished_concrete":
-            # light warm-grey polished concrete: soft clouding, fine aggregate, gentle sheen
-            base = rgb("#d4d0c8")
+            # beige polished concrete: soft clouding, fine aggregate, gentle sheen
+            base = rgb("#ddd0b8")  # beige polished concrete
             cloud = self.noise(40, 0.035) + self.noise(16, 0.018)
             sheen = 0.025 * np.sin(xx * 0.004 + yy * 0.006)
             img = base[None, None, :] * (1 + cloud[..., None] + sheen[..., None] + self.noise(1, 0.008)[..., None])
