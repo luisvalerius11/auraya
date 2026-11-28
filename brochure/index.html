@@ -537,7 +537,7 @@
   .mat-copy{ margin:auto 0; font-size:1.0em; line-height:1.7; text-align:center; font-weight:500; }
   .mat-copy em{ display:block; margin-top:1.2em; font-weight:600; }
 
-  /* add-ons: three roof options and a rough solar savings calculator */
+  /* add-ons: three roof options and rough solar returns */
   .addons .page-inner{ padding:2.4em 2.6em 2em; color:#2b2218; }
   .ao-kicker{ color:#6d675a; }
   .ao-title{ font-size:2.5em; margin-top:.3em; }
@@ -552,17 +552,11 @@
   .ao-sim-head{ display:flex; justify-content:space-between; align-items:baseline; gap:1em; flex-wrap:wrap; }
   .ao-sim-head h3{ margin:0; font-family:var(--serif); font-weight:500; font-size:.95em; letter-spacing:.06em; }
   .ao-sim-head span{ font-size:.62em; color:#6d675a; }
-  .ao-sim-body{ display:grid; grid-template-columns:1.1fr 1fr; gap:1.4em; margin-top:.5em; align-items:center; }
-  .ao-field{ display:block; margin-top:.25em; }
-  .ao-field .lb{ display:flex; justify-content:space-between; gap:.6em; font-size:.64em; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#5d564a; }
-  .ao-field output{ font-size:1.15em; letter-spacing:.02em; text-transform:none; color:#2b2218; font-variant-numeric:tabular-nums; }
-  .ao-field input{ width:100%; margin:.2em 0 0; accent-color:#4a4238; height:1.4em; }
-  .ao-outs{ display:grid; grid-template-columns:repeat(3,1fr); gap:.6em; text-align:center; }
+  .ao-outs{ display:grid; grid-template-columns:repeat(4,1fr); gap:.6em; margin-top:.8em; text-align:center; }
+  body.narrow .ao-outs{ grid-template-columns:repeat(2,1fr); gap:.9em .6em; }
   .ao-outs b{ display:block; font-family:var(--serif); font-weight:500; font-size:1.25em; font-variant-numeric:tabular-nums; }
   .ao-outs span{ display:block; margin-top:.3em; font-size:.58em; letter-spacing:.1em; text-transform:uppercase; color:#6d675a; line-height:1.4; }
   .ao-note{ margin:.7em 0 0; font-size:.6em; line-height:1.5; color:#6d675a; }
-  .ao-more{ margin-top:auto; align-self:flex-start; padding-top:1em; font-size:.64em; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#3b362c; text-decoration:none; }
-  .ao-more:hover{ color:var(--ink); }
 
   /* payment */
   .price-t{ margin-top:2.4em; }
@@ -648,7 +642,6 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .plan-col .lb{ flex:0 0 6.5em; margin-top:0; line-height:1.5; }
   body.narrow .addons .page-inner{ padding:2em 1.6em 1.6em; }
   body.narrow .ao-cards{ gap:.8em; margin-top:1em; }
-  body.narrow .ao-sim-body{ grid-template-columns:1fr; gap:.7em; }
   body.narrow .pay-title{ font-size:2.3em; text-align:center; }
   body.narrow .timeline{ width:auto; margin-top:2.2em; }
   body.narrow .tl-line{ left:.99em; right:auto; top:.9em; bottom:.9em; width:2px; height:auto; }
@@ -678,7 +671,7 @@ body.narrow .price-t td{ font-size:.8em; }
   body.tall .ao-price{ font-size:.95em; }
   body.tall .ao-free, body.tall .ao-desc{ font-size:.72em; }
   body.tall .ao-sim{ margin-top:1.8em; padding:1.2em 1.2em 1.1em; }
-  body.tall .ao-sim-head span, body.tall .ao-field .lb{ font-size:.7em; }
+  body.tall .ao-sim-head span{ font-size:.7em; }
   body.tall .ao-outs span{ font-size:.64em; }
   body.tall .ao-note{ font-size:.68em; }
   body.tall .price-t td{ padding:1.1em .2em; }
@@ -981,7 +974,11 @@ body.narrow .price-t td{ font-size:.8em; }
     <span class="pnum" style="color:#3b362c;">15</span>
   </section>
 
-  <!-- 16 · ADD-ONS: three roof options, with a rough solar savings calculator (script: ADD-ONS) -->
+  <!-- 16 · ADD-ONS: three roof options, with rough solar returns as fixed ranges.
+       The ranges assume solar covers 40–60% of a Rp 4 M monthly bill at PLN's R-3 tariff of Rp 1.699,53/kWh (2026):
+       saving Rp 19,2–28,8 M a year; payback 200 M / saving = 6,9–10,4 yrs; IRR over 25 years with 0,5%/yr
+       panel wear, flat tariff, no battery replacement = 7,8–13,3%; CO2 = kWh saved (11.300–16.900 a year)
+       x 0,753 kg/kWh (Indonesian power sector, 2023, Climate Analytics) = 8,5–12,8 t a year. -->
   <section class="page tex-cream addons" data-title="Add-ons" data-slug="addons">
     <div class="page-inner">
       <div class="kicker ao-kicker">Make the roof yours</div>
@@ -1013,22 +1010,16 @@ body.narrow .price-t td{ font-size:.8em; }
           </div>
         </article>
       </div>
-      <div class="ao-sim" data-noswipe>
-        <div class="ao-sim-head"><h3>Solar savings, roughly</h3><span>On an electricity bill of Rp 4 M a month</span></div>
-        <div class="ao-sim-body">
-          <div class="ao-inputs">
-            <label class="ao-field"><span class="lb">Share covered by solar <output id="aoShareOut"></output></span>
-              <input type="range" id="aoShare" min="20" max="60" step="5" value="50"></label>
-          </div>
-          <div class="ao-outs">
-            <div><b id="aoMonth"></b><span>saved a month</span></div>
-            <div><b id="aoYear"></b><span>saved a year</span></div>
-            <div><b id="aoPay"></b><span>to earn back Rp 200 M</span></div>
-          </div>
+      <div class="ao-sim">
+        <div class="ao-sim-head"><h3>What solar gives back, roughly</h3><span>Solar covering 40–60% of a Rp 4 M monthly bill</span></div>
+        <div class="ao-outs">
+          <div><b>Rp 19–29 M</b><span>saved a year</span></div>
+          <div><b>≈ 7–10 yrs</b><span>to earn back Rp 200 M</span></div>
+          <div><b>≈ 8–13%</b><span>return a year (IRR)</span></div>
+          <div><b>≈ 8–13 t</b><span>CO₂ avoided a year</span></div>
         </div>
-        <p class="ao-note">A rough guide at today's tariffs, before any price rises; actual savings depend on use and sunshine.</p>
+        <p class="ao-note">A rough guide at today's PLN tariff (Rp 1.699 per kWh), before any price rises. Return over 25 years of panel life, allowing 0.5% a year for panel wear and not counting a battery replacement. CO₂ at Indonesia's grid average of about 0.75 kg per kWh. Actual results depend on use and sunshine.</p>
       </div>
-      <a class="ao-more" href="/plan/?add=jacuzzi,solar,pergola">Add them to your payment plan <span aria-hidden="true">&rarr;</span></a>
     </div>
     <span class="pnum" style="color:#3b362c;">16</span>
   </section>
@@ -1479,30 +1470,6 @@ body.narrow .price-t td{ font-size:.8em; }
             { t:'Planters',            p:[[427,67],[360,442]] } ] }
   ];
   /* ================================================ */
-
-  /* ================= ADD-ONS: rough solar savings =================
-     Saving = monthly electricity bill x share covered by solar (bill fixed at Rp 4 M a month, share 50% to start); payback = package price / yearly saving.
-     No tariff rises and no battery value: a rough guide, as the page says. */
-
-  (function solarSavings(){
-    var page = document.querySelector('#pageStore .addons'); if (!page) return;
-    var PRICE = 200000000;
-    var BILL = 4000000, share = page.querySelector('#aoShare');   /* electricity bill a month, IDR */
-    function m(v){ return 'Rp ' + (v/1e6).toFixed(v < 1e7 ? 1 : 0).replace('.', ',') + ' M'; }
-    function upd(){
-      var month = BILL * +share.value / 100, year = month * 12;
-      page.querySelector('#aoShareOut').textContent = share.value + '%';
-      page.querySelector('#aoMonth').textContent = m(month);
-      page.querySelector('#aoYear').textContent = m(year);
-      page.querySelector('#aoPay').textContent = '≈ ' + Math.round(PRICE / year) + ' yrs';
-    }
-    var sent = false;
-    [share].forEach(function(el){
-      el.addEventListener('input', upd);
-      el.addEventListener('change', function(){ if (!sent){ sent = true; track('solar_savings_used', {}); } });
-    });
-    upd();
-  })();
 
   (function villaLevels(){
     var secPage = document.querySelector('#pageStore .sectionpg'), planPage = document.querySelector('#pageStore .plan');
