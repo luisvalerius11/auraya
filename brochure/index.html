@@ -448,42 +448,52 @@
     body.tall .sec-fig{ aspect-ratio:1250/893; }
   }
 
-  /* floorplan: tabs per villa; the chosen villa's three levels sit one under the other in a scrolling column */
-  .plan .page-inner{ padding:2.4em 2.6em 2.2em; }
-  .plan-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:1em; flex-wrap:wrap; }
-  .plan-title{ font-size:2.5em; }
-  .plan-tabs{ display:flex; gap:1.3em; }
-  .plan-tab{ border:0; background:none; padding:.4em 0; cursor:pointer; font:inherit; color:rgba(239,233,217,.55);
-    font-size:.74em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; border-bottom:1.5px solid transparent; transition:color .2s, border-color .2s; }
-  .plan-tab:hover{ color:var(--bone); }
-  .plan-tab[aria-selected="true"]{ color:#fff; border-bottom-color:var(--olive); }
-  .plan-tab:focus-visible{ outline:2px solid var(--olive); outline-offset:3px; }
-  .plan-meta{ display:flex; align-items:baseline; justify-content:space-between; gap:1em; margin-top:.9em; padding-bottom:.8em; border-bottom:1px solid rgba(239,233,217,.3); }
-  .plan-line{ margin:0; font-size:.74em; line-height:1.5; color:#ded7c3; }
-  .plan-line .res{ margin-left:.5em; padding:.1em .5em; border:1px solid rgba(239,233,217,.45); font-size:.85em; letter-spacing:.14em; text-transform:uppercase; }
-  .plan-pdf{ flex:none; font-size:.62em; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:#e6dfca; text-decoration:none; border-bottom:1px solid rgba(239,233,217,.4); }
-  .plan-pdf:hover{ color:#fff; border-bottom-color:#fff; }
-  .plan-stage{ flex:1; min-height:0; position:relative; margin-top:1em; }
-  .plan-scroll{ position:absolute; inset:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:rgba(239,233,217,.35) transparent;
-    -webkit-mask-image:linear-gradient(#000 calc(100% - 3.5em), transparent); mask-image:linear-gradient(#000 calc(100% - 3.5em), transparent); }
+  /* floorplan: the plans are drawn on the same warm white as the page, so they sit on it like an
+     architect's sheet. A segmented villa picker, then level chips that jump to and follow the scroll. */
+  .planpg{ background:#faf7ec; color:var(--ink); }
+  .plan .page-inner{ padding:2.4em 2.6em 1.6em; }
+  .plan-kicker{ color:#6d675a; }
+  .plan-title{ font-size:2.3em; margin-top:.35em; }
+  .plan-villas{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); margin-top:1.1em;
+    border:1px solid rgba(22,19,14,.18); border-radius:.5em; overflow:hidden; }
+  .plan-villa{ display:flex; flex-direction:column; align-items:center; gap:.15em; padding:.55em .2em .5em; margin:0;
+    border:0; border-left:1px solid rgba(22,19,14,.12); background:none; cursor:pointer; font:inherit; color:#3b362c; transition:background .2s, color .2s; }
+  .plan-villa:first-child{ border-left:0; }
+  .plan-villa .id{ font-family:var(--serif); font-size:1.15em; letter-spacing:.06em; line-height:1.1; }
+  .plan-villa .sz{ font-size:.58em; letter-spacing:.12em; text-transform:uppercase; color:#8a8170; white-space:nowrap; }
+  .plan-villa:hover{ background:rgba(22,19,14,.04); }
+  .plan-villa[aria-selected="true"]{ background:var(--ink); color:#faf7ec; }
+  .plan-villa[aria-selected="true"] .sz{ color:rgba(250,247,236,.72); }
+  .plan-villa:focus-visible{ outline:2px solid #8a7a4f; outline-offset:-3px; }
+  .plan-bar{ display:flex; align-items:center; justify-content:space-between; gap:1em; margin-top:.9em; }
+  .plan-levels{ display:flex; gap:1.2em; }
+  .plan-lv{ border:0; background:none; padding:.35em 0; cursor:pointer; font:inherit; font-size:.64em; font-weight:600; letter-spacing:.2em;
+    text-transform:uppercase; color:#8a8170; border-bottom:1.5px solid transparent; transition:color .2s, border-color .2s; }
+  .plan-lv .no{ font-family:var(--serif); font-weight:500; letter-spacing:.06em; margin-right:.5em; }
+  .plan-lv:hover{ color:var(--ink); }
+  .plan-lv.on{ color:var(--ink); border-bottom-color:var(--ink); }
+  .plan-lv:focus-visible{ outline:2px solid #8a7a4f; outline-offset:3px; }
+  .plan-pdf{ flex:none; font-size:.62em; font-weight:600; letter-spacing:.2em; color:#3b362c; text-decoration:none;
+    padding:.35em .8em; border:1px solid rgba(22,19,14,.25); border-radius:2em; transition:background .2s, color .2s; }
+  .plan-pdf:hover{ background:var(--ink); color:#faf7ec; }
+  .plan-stage{ flex:1; min-height:0; position:relative; margin-top:.6em; border-top:1px solid rgba(22,19,14,.14); }
+  .plan-scroll{ position:absolute; inset:0; overflow-y:auto; overscroll-behavior:contain; scroll-behavior:smooth;
+    scrollbar-width:thin; scrollbar-color:rgba(22,19,14,.25) transparent;
+    -webkit-mask-image:linear-gradient(#000 calc(100% - 2.5em), transparent); mask-image:linear-gradient(#000 calc(100% - 2.5em), transparent); }
   .plan-stage.end .plan-scroll{ -webkit-mask-image:none; mask-image:none; }
-  .plan-scroll:focus-visible{ outline:2px solid var(--olive); outline-offset:2px; }
-  .plan-floor{ margin:0 auto 1.6em; max-width:30em; }
-  .plan-floor figcaption{ display:flex; align-items:baseline; gap:.7em; margin:0 0 .55em; font-size:.68em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:#e6dfca; }
-  .plan-floor figcaption .no{ font-family:var(--serif); font-size:1.25em; font-weight:500; letter-spacing:.06em; color:rgba(239,233,217,.6); }
-  .plan-sheet{ background:#faf7ec; border-radius:3px; padding:.5em; box-shadow:0 .4em 1.4em rgba(0,0,0,.28); }
-  .plan-sheet img{ display:block; width:100%; height:auto; }
-  .plan-more{ position:absolute; left:0; right:0; bottom:.2em; text-align:center; pointer-events:none; font-size:.6em; font-weight:600; letter-spacing:.2em;
-    text-transform:uppercase; color:#e6dfca; transition:opacity .3s; }
-  .plan-more::after{ content:" \2193"; }
-  .plan-stage.scrolled .plan-more{ opacity:0; }
-  /* phones: the plans run nearly to the page edges, and the text is set larger */
-  body.tall .plan-stage{ margin:1em -1.4em 0; }
-  body.tall .plan-tabs{ gap:1.5em; }
-  body.tall .plan-tab{ font-size:.84em; }
-  body.tall .plan-line{ font-size:.86em; }
-  body.tall .plan-pdf{ font-size:.7em; }
-  body.tall .plan-floor figcaption{ font-size:.78em; margin-left:1.4em; }
+  .plan-scroll:focus-visible{ outline:2px solid #8a7a4f; outline-offset:-2px; }
+  .plan-floor{ margin:0; padding:1.1em 0 .4em; }
+  .plan-floor + .plan-floor{ border-top:1px solid rgba(22,19,14,.1); }
+  .plan-floor figcaption{ display:flex; align-items:baseline; gap:.6em; font-size:.66em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:#3b362c; }
+  .plan-floor figcaption .no{ font-family:var(--serif); font-size:1.3em; font-weight:500; letter-spacing:.06em; color:#a39a87; }
+  .plan-floor img{ display:block; width:100%; max-width:30em; height:auto; margin:.2em auto 0; }
+  /* phones: plans run to the page edges; controls set a touch larger */
+  body.tall .plan-stage{ margin:.6em -1.6em 0; }
+  body.tall .plan-floor figcaption{ padding:0 1.6em; font-size:.74em; }
+  body.tall .plan-villa .id{ font-size:1.3em; }
+  body.tall .plan-villa .sz{ font-size:.62em; }
+  body.tall .plan-lv{ font-size:.72em; }
+  body.tall .plan-pdf{ font-size:.68em; }
 
   /* room pages (exterior / interiors) */
   .room .page-inner{ padding:2.4em 3em; }
@@ -895,23 +905,22 @@ body.narrow .price-t td{ font-size:.8em; }
     <span class="pnum" style="color:#3b362c;">11</span>
   </section>
 
-  <!-- 12 · FLOORPLAN: pick a villa (A1-A4); its three levels are shown one under the other (script: VILLA PLANS) -->
-  <section class="page tex-dark plan" data-title="Floorplan">
+  <!-- 12 · FLOORPLAN: pick a villa (A1-A4); its three levels sit one under the other on the page's paper,
+       with level chips that jump to each and follow the scroll (script: VILLA PLANS) -->
+  <section class="page planpg plan" data-title="Floorplan">
     <div class="page-inner">
-      <div class="plan-head">
-        <h2 class="serif-title plan-title">Floorplan</h2>
-        <div class="plan-tabs" role="tablist" aria-label="Villa"></div>
-      </div>
-      <div class="plan-meta">
-        <p class="plan-line" aria-live="polite"></p>
-        <a class="plan-pdf" href="../assets/floorplans/auraya-floor-plans.pdf" download>All plans (PDF)</a>
+      <div class="kicker plan-kicker">Four villas, three levels each</div>
+      <h2 class="fat-title plan-title">Floorplan</h2>
+      <div class="plan-villas" role="tablist" aria-label="Villa"></div>
+      <div class="plan-bar">
+        <div class="plan-levels" aria-label="Go to level"></div>
+        <a class="plan-pdf" href="../assets/floorplans/auraya-floor-plans.pdf" download>PDF <span aria-hidden="true">&darr;</span></a>
       </div>
       <div class="plan-stage">
-        <div class="plan-scroll" tabindex="0" aria-label="Floor plans, scroll for every level"></div>
-        <span class="plan-more" aria-hidden="true">Scroll for every level</span>
+        <div class="plan-scroll" tabindex="0" aria-label="Floor plans of the chosen villa, every level"></div>
       </div>
     </div>
-    <span class="pnum">12</span>
+    <span class="pnum" style="color:#3b362c;">12</span>
   </section>
 
   <!-- 13 · EXTERIOR -->
@@ -1457,41 +1466,57 @@ body.narrow .price-t td{ font-size:.8em; }
   (function villaPlans(){
     var page = document.querySelector('#pageStore .plan'); if (!page) return;
     function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-    var tabs = page.querySelector('.plan-tabs'), scroller = page.querySelector('.plan-scroll'),
-        stageEl = page.querySelector('.plan-stage'), lineEl = page.querySelector('.plan-line'), cur = 0;
-    VILLAS.forEach(function(V, i){
-      var t = el('button', 'plan-tab', V.id); t.type = 'button'; t.dataset.i = i;
-      t.setAttribute('role', 'tab'); t.setAttribute('aria-label', 'Villa ' + V.id);
-      tabs.appendChild(t);
+    var picker = page.querySelector('.plan-villas'), levels = page.querySelector('.plan-levels'),
+        scroller = page.querySelector('.plan-scroll'), stageEl = page.querySelector('.plan-stage'), cur = 0, figs = [];
+    VILLAS.forEach(function(V, i){                                   /* segmented picker: villa and its land */
+      var b = el('button', 'plan-villa'); b.type = 'button'; b.dataset.i = i; b.setAttribute('role', 'tab');
+      b.appendChild(el('span', 'id', V.id));
+      b.appendChild(el('span', 'sz', V.land + ' sqm' + (V.reserved ? ' · Reserved' : '')));
+      b.setAttribute('aria-label', 'Villa ' + V.id + ', land ' + V.land + ' square metres' + (V.reserved ? ', reserved' : ''));
+      picker.appendChild(b);
     });
+    PLAN_FLOORS.forEach(function(F, k){                              /* level chips: jump to a level, follow the scroll */
+      var b = el('button', 'plan-lv'); b.type = 'button'; b.dataset.k = k;
+      b.appendChild(el('span', 'no', F.no)); b.appendChild(document.createTextNode(F.name.split(' ')[0]));
+      levels.appendChild(b);
+    });
+    function markLevel(){
+      var top = scroller.scrollTop + 40, k = 0;
+      figs.forEach(function(f, i){ if (f.offsetTop <= top) k = i; });
+      if (scroller.scrollTop > 10 && scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4) k = figs.length - 1;
+      Array.prototype.forEach.call(levels.children, function(b){ b.classList.toggle('on', +b.dataset.k === k); });
+      stageEl.classList.toggle('end', scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4);
+    }
     function show(i, source){
       cur = +i; var V = VILLAS[cur];
-      Array.prototype.forEach.call(tabs.children, function(t){ t.setAttribute('aria-selected', +t.dataset.i === cur ? 'true' : 'false'); });
-      lineEl.textContent = 'Villa ' + V.id + ' · Land ' + V.land + ' sqm · Dimensions in mm';
-      if (V.reserved) lineEl.appendChild(el('span', 'res', 'Reserved'));
-      scroller.innerHTML = '';
+      Array.prototype.forEach.call(picker.children, function(t){ t.setAttribute('aria-selected', +t.dataset.i === cur ? 'true' : 'false'); });
+      scroller.innerHTML = ''; figs = [];
       PLAN_FLOORS.forEach(function(F, k){
         var fig = el('figure', 'plan-floor'), cap = el('figcaption');
         cap.appendChild(el('span', 'no', F.no)); cap.appendChild(el('span', 'nm', F.name));
-        var sheet = el('div', 'plan-sheet'), im = el('img');
+        var im = el('img');
         im.src = 'img/plans/villa-' + V.id.toLowerCase() + '-' + F.slug + '.webp';
         im.width = V.w[k]; im.height = 1800; im.decoding = 'async'; if (k) im.loading = 'lazy';
-        im.alt = 'Villa ' + V.id + ', ' + F.name.toLowerCase() + ' plan with room names, areas and dimensions';
-        sheet.appendChild(im); fig.appendChild(cap); fig.appendChild(sheet); scroller.appendChild(fig);
+        im.alt = 'Villa ' + V.id + ', ' + F.name.toLowerCase() + ' plan with room names, areas and dimensions in millimetres';
+        im.addEventListener('load', markLevel);                      /* positions settle as the plans load */
+        fig.appendChild(cap); fig.appendChild(im); scroller.appendChild(fig); figs.push(fig);
       });
-      scroller.scrollTop = 0; stageEl.classList.remove('scrolled', 'end');
+      scroller.style.scrollBehavior = 'auto'; scroller.scrollTop = 0; scroller.style.scrollBehavior = '';
+      markLevel();
       if (source) track('villa_plan', { villa:V.id, source:source });
     }
-    scroller.addEventListener('scroll', function(){
-      stageEl.classList.toggle('scrolled', scroller.scrollTop > 20);
-      stageEl.classList.toggle('end', scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4);
-    }, {passive:true});
-    tabs.addEventListener('click', function(e){ var t = e.target.closest('.plan-tab'); if (t) show(t.dataset.i, 'tab'); });
-    tabs.addEventListener('keydown', function(e){
+    scroller.addEventListener('scroll', markLevel, {passive:true});
+    levels.addEventListener('click', function(e){
+      var b = e.target.closest('.plan-lv'); if (!b) return;
+      scroller.scrollTop = figs[+b.dataset.k].offsetTop;
+      track('villa_plan_level', { villa:VILLAS[cur].id, level:PLAN_FLOORS[+b.dataset.k].name });
+    });
+    picker.addEventListener('click', function(e){ var t = e.target.closest('.plan-villa'); if (t) show(t.dataset.i, 'tab'); });
+    picker.addEventListener('keydown', function(e){
       if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
       e.preventDefault(); e.stopPropagation();
       var n = (cur + (e.key === 'ArrowRight' ? 1 : VILLAS.length - 1)) % VILLAS.length;
-      show(n, 'keyboard'); tabs.children[n].focus();
+      show(n, 'keyboard'); picker.children[n].focus();
     });
     scroller.addEventListener('keydown', function(e){ if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') return; e.stopPropagation(); });
     page.querySelector('.plan-pdf').addEventListener('click', function(){ track('plans_pdf', { villa:VILLAS[cur].id }); });
