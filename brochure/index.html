@@ -50,27 +50,22 @@
     margin:0; background:var(--surround); color:var(--ink);
     font-family:var(--sans); overflow:hidden; -webkit-font-smoothing:antialiased;
   }
-  .viewer{ height:100%; height:100dvh; display:flex; flex-direction:column; padding:0 max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); box-sizing:border-box; background:var(--surround); }
+  .viewer{ height:100%; height:100dvh; display:flex; flex-direction:column; padding:max(20px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); box-sizing:border-box; background:var(--surround); }
 
-  .bar{ flex:none; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 4px 16px; }
-  .wordmark{ text-decoration:none; font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.38em; text-transform:uppercase; color:var(--ink); }
-  .wordmark{ display:inline-flex; align-items:center; gap:12px; }
-  .wordmark img{ width:30px; height:auto; display:block; }
-  .bar-label{ font-size:11px; font-weight:500; letter-spacing:.26em; text-transform:uppercase; color:var(--faint); }
 
   /* the white card the book sits on */
   .desk{ flex:1; min-height:0; display:flex; flex-direction:column; background:var(--surround); border-radius:18px; padding:22px 14px 16px; box-sizing:border-box; }
   .stage{ flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; }
 
   /* the book: one portrait page, turning on its left edge */
-  .sheet-box{ position:relative; transition:transform 1s cubic-bezier(.45,.05,.25,1); }
+  .sheet-box{ position:relative; transition:transform var(--turn, 1s) cubic-bezier(.45,.05,.25,1); }
   .sheet-box::before{ content:""; position:absolute; inset:0; background:#f3efe4;
     box-shadow: 2px 1px 0 #ebe6da, 3px 2px 0 #d9d3c5, 5px 3px 0 #ebe6da, 6px 4px 0 #d3cdbe, 0 18px 36px -16px rgba(40,30,15,.45); }
   .leaves{ position:absolute; inset:0; perspective:2800px; }
   .layer{
     position:absolute; inset:0; display:flex;
-    transform-origin:left center; transform-style:preserve-3d;
-    transition:transform 1s cubic-bezier(.45,.05,.25,1), opacity .25s linear;
+    transform-origin:left center; transform-style:preserve-3d; will-change:transform;
+    transition:transform var(--turn, 1s) cubic-bezier(.45,.05,.25,1), opacity .25s linear;
   }
   /* the blank reverse of the sheet, shown by the script once the page has turned past upright */
   .layer > .leaf-back{ position:absolute; inset:0; display:none;
@@ -81,8 +76,8 @@
   .layer::before{ content:""; position:absolute; inset:0; z-index:8; pointer-events:none;
     background:linear-gradient(90deg, rgba(20,14,6,.16), rgba(20,14,6,0) 5%); }
   .layer::after{ content:""; position:absolute; inset:0; z-index:9; pointer-events:none; opacity:0;
-    background:linear-gradient(90deg, rgba(20,14,6,.30), rgba(20,14,6,.04) 70%); transition:opacity 1s ease; }
-  .layer.turned{ transform:rotateY(-180deg); opacity:0; transition-delay:0s,.75s; }
+    background:linear-gradient(90deg, rgba(20,14,6,.30), rgba(20,14,6,.04) 70%); transition:opacity var(--turn, 1s) ease; }
+  .layer.turned{ transform:rotateY(-180deg); opacity:0; transition-delay:0s,calc(var(--turn, 1s) * .75); }
   .layer.turned::after{ opacity:1; }
   .layer.no-anim, .layer.no-anim::after{ transition:none; }
   @media (prefers-reduced-motion:reduce){ .layer, .layer::after{ transition:none; } }
@@ -92,7 +87,7 @@
   body.spread .sheet-box[data-pos="start"]{ transform:translateX(-25%); }   /* closed: cover centred */
   body.spread .sheet-box[data-pos="end"]{ transform:translateX(25%); }      /* closed on the back cover */
   .leaf{ position:absolute; left:50%; top:0; width:50%; height:100%; transform-origin:left center;
-    transition:transform 1s cubic-bezier(.45,.05,.25,1); }
+    transition:transform var(--turn, 1s) cubic-bezier(.45,.05,.25,1); }
   .leaf.turned{ transform:rotateY(-180deg); }
   .leaf.far{ display:none; }
   .leaf.no-anim, .no-anim{ transition:none !important; }
@@ -130,24 +125,29 @@
   #soundTool[aria-pressed="false"] .off{ display:inline; }
   .counter{ display:flex; align-items:center; padding:0 14px; min-width:44px; justify-content:center; background:#f3efe5;
     font-size:13px; letter-spacing:.06em; color:#5d564a; font-variant-numeric:tabular-nums; }
-  .nav-arrow:focus-visible,.tool:focus-visible,.toc-item:focus-visible,.wordmark:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
+  .nav-arrow:focus-visible,.tool:focus-visible,.toc-item:focus-visible{ outline:2px solid #8a7a4f; outline-offset:2px; }
 
   /* short screens (phones held sideways, small laptops): give the book the height */
   @media (max-height:560px){
-    .bar{ padding:8px 4px 8px; }
-    .wordmark{ font-size:13px; }
     .desk{ padding:10px 10px 8px; border-radius:12px; }
     .tools{ padding-top:8px; }
     .tool{ height:32px; }
   }
+  /* phones held sideways: too short for a whole portrait page at a readable size, so one page is shown
+     at a readable width and scrolls down inside the stage (swipe sideways still turns pages) */
+  @media (orientation:landscape) and (max-height:500px) and (pointer:coarse){
+    .viewer{ padding:0 max(8px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
+    .desk{ padding:6px 0 0; border-radius:0; }
+    .stage{ align-items:flex-start; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+    .sheet-box{ margin:0 auto 10px; }
+    .nav-arrow{ display:none; }
+    .tools{ padding-top:6px; }
+    .tool{ height:34px; }
+  }
   /* upright tablets: drop the side arrows (swipe or use the toolbar) so both pages get the full width */
   @media (max-width:1100px) and (orientation:portrait){ .nav-arrow{ display:none; } }
   @media (max-width:700px){
-    .viewer{ padding:0 8px max(10px, env(safe-area-inset-bottom)); }
-    .bar{ padding:10px 6px 6px; }
-    .wordmark{ font-size:14px; gap:10px; }
-    .wordmark img{ width:26px; }
-    .bar-label{ font-size:10px; }
+    .viewer{ padding:max(10px, env(safe-area-inset-top)) 8px max(10px, env(safe-area-inset-bottom)); }
     .desk{ padding:6px 0 4px; border-radius:0; }
     .nav-arrow{ display:none; }
     .tools{ padding-top:8px; }
@@ -188,6 +188,11 @@
 
   /* cover */
   .cover .page-inner{ align-items:center; text-align:center; justify-content:center; gap:1.6em; }
+  /* cover: a soft, even darkening so the photo reads moodier and the cream type stands out;
+     a little deeper at the foot, which also hides the clip's compression at the bottom edge */
+  .cover .shade-grad{ background:
+      radial-gradient(120% 85% at 50% 42%, rgba(15,12,8,0) 45%, rgba(15,12,8,.22) 100%),
+      linear-gradient(180deg, rgba(15,12,8,.36), rgba(15,12,8,.22) 40%, rgba(15,12,8,.30) 70%, rgba(15,12,8,.62)); }
   .monogram{ display:block; width:6.2em; height:auto; filter:drop-shadow(0 2px 14px rgba(0,0,0,.4)); }
   .cover-title{ font-size:5.2em; }
   .cover .caps-para{ max-width:44em; text-shadow:0 1px 12px rgba(0,0,0,.5); }
@@ -217,6 +222,11 @@
   .hl-list{ list-style:none; margin:0; padding:0; }
   .hl-list li{ font-size:.8em; font-weight:400; letter-spacing:.08em; text-transform:uppercase; padding:.62em 0; border-bottom:1.5px solid #16130e; }
   .hl-list b{ font-weight:600; }
+  /* the zoning line: "pink tourism zone" in pink (4.5:1 on the cream page), with a note underneath */
+  .zone-pink{ color:#b03a6e; font-weight:600; }
+  .zone-pink::before{ content:""; display:inline-block; width:.62em; height:.62em; border-radius:50%; background:#e58bb1;
+    box-shadow:inset 0 0 0 1px rgba(176,58,110,.45); margin-right:.45em; vertical-align:.02em; }
+  .zone-note{ display:block; margin-top:.35em; font-size:.84em; letter-spacing:.02em; text-transform:none; color:#5d564a; line-height:1.45; }
 
   /* location */
   .loc .page-inner{ flex-direction:row; gap:2.5em; padding:2.8em 3em; }
@@ -225,11 +235,10 @@
   .loc-text .body-para{ margin-top:1.2em; color:#ded7c3; }
   .loc-hl{ font-size:.85em; line-height:1.6; color:#ded7c3; padding-left:1.1em; margin:.4em 0 0; }
   .loc-hl li{ margin-bottom:.4em; }
-  .loc-link{ margin-top:auto; color:var(--bone); font-size:.85em; letter-spacing:.06em; }
   .mapwrap{ flex:1; position:relative; min-width:0; container-type:size; }
   /* the picture and its pins share one box with the picture's own shape (1500 x 1171), fitted inside the column,
      so a pin's left/top % is a true point on the map at any screen size */
-  .mapbox{ position:absolute; inset:0; margin:auto; width:min(100%, calc(100cqh * 1500 / 1171)); height:auto; aspect-ratio:1500 / 1171; max-height:100%; }
+  .mapbox{ position:absolute; inset:0; margin:auto 0 auto auto; width:min(100%, calc(100cqh * 1500 / 1171)); height:auto; aspect-ratio:1500 / 1171; max-height:100%; }
   .mapbox img{ position:absolute; inset:0; width:100%; height:100%; display:block; mix-blend-mode:screen; opacity:.96; }
   .poi{ position:absolute; width:0; height:0; z-index:2; }
   .poi .d{ position:absolute; left:0; top:0; transform:translate(-50%,-50%); width:.7em; height:.7em; border-radius:50%; background:#5d564a; border:.14em solid #f4f1ea; box-shadow:0 0 0 1px rgba(0,0,0,.25); box-sizing:border-box; }
@@ -237,12 +246,14 @@
   /* where the label sits relative to its dot */
   .poi.lb-below .t{ top:.75em; left:0; transform:translateX(-50%); }
   .poi.lb-above .t{ bottom:.75em; left:0; transform:translateX(-50%); }
-  .poi.lb-right .t{ left:.95em; top:0; transform:translateY(-50%); text-align:left; }
-  .poi.lb-above-l .t{ bottom:.6em; right:.35em; text-align:right; }
-  .poi.lb-above-r .t{ bottom:.6em; left:.35em; text-align:left; }
-  .poi.lb-below-r .t{ top:.6em; left:.35em; text-align:left; }
-  .poi.lb-left .t{ right:.95em; top:0; transform:translateY(-50%); text-align:right; }
-  .poi.lb-left-up .t{ right:.95em; bottom:-.45em; text-align:right; }   /* left of the dot, sitting a little higher */
+  .poi.lb-right .t{ left:1.25em; top:0; transform:translateY(-50%); text-align:left; }
+  .poi.lb-above-l .t{ bottom:.95em; right:.5em; text-align:right; }
+  .poi.lb-above-r .t{ bottom:.95em; left:.5em; text-align:left; }
+  .poi.lb-right-up .t{ left:1.25em; bottom:-.1em; text-align:left; }   /* right of the dot, raised so a second line stays above the coast */
+  .poi.lb-below-r .t{ top:.95em; left:.5em; text-align:left; }
+  .poi.lb-left .t{ right:1.25em; top:0; transform:translateY(-50%); text-align:right; }
+  .poi.lb-left-up .t{ right:1.25em; bottom:-.45em; text-align:right; }   /* left of the dot, sitting a little higher */
+  .poi.lb-left-mid .t{ right:1.25em; bottom:-.62em; text-align:right; }   /* left of the dot, between lb-left and lb-left-up: above the coastline, clear of the Auraya pin */
   .poi .t small{ display:block; font-weight:400; }
   .poi-auraya .d{ width:1.05em; height:1.05em; background:var(--ink); box-shadow:0 0 0 .3em rgba(22,19,14,.18); }
   .poi-auraya.lb-above .t{ bottom:1em; }
@@ -254,14 +265,20 @@
   button.poi:hover .d, button.poi.on .d{ background:var(--ink); transform:translate(-50%,-50%) scale(1.35); }
   button.poi:focus-visible{ outline:none; }
   button.poi:focus-visible .d{ outline:2px solid var(--ink); outline-offset:2px; }
-  .poi .t .min{ display:none; align-items:center; gap:.3em; margin-top:.25em; font-weight:600;
-    background:var(--ink); color:var(--bone); border-radius:1em; padding:.1em .55em .15em; animation:minIn .2s ease both; }
-  button.poi.on .t .min{ display:inline-flex; }
-  .poi .t .min svg{ width:1.15em; height:1.15em; }
+  .map-read{ position:absolute; left:2%; top:3%; max-width:44%; z-index:3; display:flex; flex-direction:column; gap:.2em;
+    background:var(--bone); color:var(--ink); border-radius:.5em; padding:.55em .8em .6em; font-size:.66em; line-height:1.3;
+    box-shadow:0 .4em 1.2em rgba(0,0,0,.35); animation:minIn .2s ease both; }
+  .map-read[hidden]{ display:none; }
+  /* phones held sideways scroll the page inside the stage: the readout then follows the visible part of the
+     map on its right side (no pins there), so it is never scrolled out of view */
+  .map-read.float{ left:auto; right:2%; animation:none; transition:top .15s ease-out; }
+  .map-read b{ font-weight:600; letter-spacing:.04em; }
+  .map-read .min{ display:inline-flex; align-items:center; gap:.35em; font-weight:600; font-size:1.15em; }
+  .map-read .min small{ font-weight:400; font-size:.78em; color:#5d564a; }
+  .map-read svg{ width:1.2em; height:1.2em; flex:none; }
   @keyframes minIn{ from{ opacity:0; transform:translateY(-.2em); } }
-  @media (prefers-reduced-motion:reduce){ .poi .t .min{ animation:none; } }
+  @media (prefers-reduced-motion:reduce){ .map-read{ animation:none; } }
   .loc-tip{ font-size:.75em; color:#b3ab96; margin:auto 0 .6em; font-style:italic; }
-  .loc-tip + .loc-link{ margin-top:0; }
 
   /* lifestyle: category tabs, a scrolling grid of places, and a detail panel per place */
   .life .page-inner{ align-items:center; text-align:center; padding:2.6em 3em 2.2em; }
@@ -290,6 +307,8 @@
   /* AI-animated clips are labelled as such, on the card and when opened */
   .clip-note{ position:absolute; right:.55em; bottom:.55em; z-index:1; font:500 .5em var(--sans); letter-spacing:.14em; text-transform:uppercase;
     color:rgba(255,255,255,.92); background:rgba(20,16,10,.45); padding:.45em .8em; border-radius:2em; pointer-events:none; }
+  .spot-credit{ position:absolute; left:.7em; bottom:.6em; z-index:2; max-width:80%; font-size:.5em; letter-spacing:.04em; color:#fff;
+    background:rgba(20,16,10,.5); padding:.3em .7em; border-radius:2em; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .spot-note{ font-size:.62em; letter-spacing:.06em; color:#857f6e; margin:0 0 1.1em; font-style:italic; }
   .place .nm{ font-size:.8em; font-weight:600; padding:.75em .9em .1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .rt{ font-size:.66em; padding:0 1.1em .3em; color:#5f5a4e; white-space:nowrap; }
@@ -408,7 +427,7 @@
   .sec-band[data-level="0"]::after{ display:none; }
   /* each band carries its own label: number, level name and rooms, over the open left side of the drawing */
   .sec-tag{ position:absolute; left:0; top:50%; transform:translateY(-50%); z-index:1; display:grid; grid-template-columns:auto 1fr;
-    align-items:center; gap:0 .7em; width:42%; padding:1.1em 2.4em 1.1em 2.6em; text-align:left;
+    align-items:center; gap:0 .7em; width:34%; padding:1.1em 1em 1.1em 2.6em; text-align:left;   /* text wraps before the house, which starts at about 37% */
     background:radial-gradient(farthest-side at 30% 50%, rgba(244,242,236,.95) 0, rgba(244,242,236,.85) 55%, rgba(244,242,236,0) 100%);
     text-shadow:0 0 .4em #f4f2ec, 0 0 .9em #f4f2ec; }
   .sec-no{ grid-row:span 2; font-family:var(--serif); font-size:2.1em; line-height:1; letter-spacing:.04em; color:rgba(22,19,14,.34); transition:color .3s; }
@@ -556,7 +575,7 @@
   .mat-copy{ margin:auto 0; font-size:1.0em; line-height:1.7; text-align:center; font-weight:500; }
   .mat-copy em{ display:block; margin-top:1.2em; font-weight:600; }
 
-  /* add-ons: three roof options and a rough solar savings calculator */
+  /* add-ons: three roof options and rough solar returns */
   .addons .page-inner{ padding:2.4em 2.6em 2em; color:#2b2218; }
   .ao-kicker{ color:#6d675a; }
   .ao-title{ font-size:2.5em; margin-top:.3em; }
@@ -571,17 +590,11 @@
   .ao-sim-head{ display:flex; justify-content:space-between; align-items:baseline; gap:1em; flex-wrap:wrap; }
   .ao-sim-head h3{ margin:0; font-family:var(--serif); font-weight:500; font-size:.95em; letter-spacing:.06em; }
   .ao-sim-head span{ font-size:.62em; color:#6d675a; }
-  .ao-sim-body{ display:grid; grid-template-columns:1.1fr 1fr; gap:1.4em; margin-top:.5em; align-items:center; }
-  .ao-field{ display:block; margin-top:.25em; }
-  .ao-field .lb{ display:flex; justify-content:space-between; gap:.6em; font-size:.64em; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#5d564a; }
-  .ao-field output{ font-size:1.15em; letter-spacing:.02em; text-transform:none; color:#2b2218; font-variant-numeric:tabular-nums; }
-  .ao-field input{ width:100%; margin:.2em 0 0; accent-color:#4a4238; height:1.4em; }
-  .ao-outs{ display:grid; grid-template-columns:repeat(3,1fr); gap:.6em; text-align:center; }
+  .ao-outs{ display:grid; grid-template-columns:repeat(4,1fr); gap:.6em; margin-top:.8em; text-align:center; }
+  body.narrow .ao-outs{ grid-template-columns:repeat(2,1fr); gap:.9em .6em; }
   .ao-outs b{ display:block; font-family:var(--serif); font-weight:500; font-size:1.25em; font-variant-numeric:tabular-nums; }
   .ao-outs span{ display:block; margin-top:.3em; font-size:.58em; letter-spacing:.1em; text-transform:uppercase; color:#6d675a; line-height:1.4; }
   .ao-note{ margin:.7em 0 0; font-size:.6em; line-height:1.5; color:#6d675a; }
-  .ao-more{ margin-top:auto; align-self:flex-start; padding-top:1em; font-size:.64em; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#3b362c; text-decoration:none; }
-  .ao-more:hover{ color:var(--ink); }
 
   /* payment */
   .price-t{ margin-top:2.4em; }
@@ -600,7 +613,9 @@ body.narrow .price-t th:nth-child(3), body.narrow .price-t td:nth-child(3){ disp
 body.narrow .price-t td{ font-size:.8em; }
 .pay .page-inner{ align-items:center; justify-content:center; padding:2.6em 3em; }
   .pay-title{ font-size:3.4em; }
-  .timeline{ width:100%; margin-top:2.6em; position:relative; }
+  .pay-status{ display:inline-flex; align-items:center; gap:.7em; margin:1.2em 0 0; font-size:.72em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; text-shadow:0 1px 8px rgba(0,0,0,.6); }
+  .pay-status .dot{ width:.6em; height:.6em; border-radius:50%; background:var(--olive); box-shadow:0 0 0 .3em rgba(182,194,106,.25); }
+  .timeline{ width:100%; margin-top:2.2em; position:relative; }
   .tl-line{ position:absolute; left:0; right:0; top:50%; height:2px; background:rgba(239,233,217,.9); }
   .tl-row{ display:flex; }
   .tl-step{ flex:1; display:flex; flex-direction:column; align-items:center; gap:.9em; position:relative; }
@@ -628,6 +643,9 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .loc .page-inner{ gap:1.2em; }
   body.narrow .loc-text{ flex:0 0 auto; }
   body.narrow .mapwrap{ flex:1; min-height:8em; }
+  /* the map picture's right side is a straight cut (the land carries on): run it to the page's right edge, no gap */
+  .loc .mapwrap{ margin-right:-3em; }
+  body.narrow .loc .mapwrap{ margin-right:-1.6em; }
   body.narrow .split > .half-photo{ min-height:9em; }
   body.narrow .plan-row{ gap:.8em; }
   body.narrow .room-grid{ flex-wrap:wrap; }
@@ -662,7 +680,6 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .plan-col .lb{ flex:0 0 6.5em; margin-top:0; line-height:1.5; }
   body.narrow .addons .page-inner{ padding:2em 1.6em 1.6em; }
   body.narrow .ao-cards{ gap:.8em; margin-top:1em; }
-  body.narrow .ao-sim-body{ grid-template-columns:1fr; gap:.7em; }
   body.narrow .pay-title{ font-size:2.3em; text-align:center; }
   body.narrow .timeline{ width:auto; margin-top:2.2em; }
   body.narrow .tl-line{ left:.99em; right:auto; top:.9em; bottom:.9em; width:2px; height:auto; }
@@ -692,7 +709,7 @@ body.narrow .price-t td{ font-size:.8em; }
   body.tall .ao-price{ font-size:.95em; }
   body.tall .ao-free, body.tall .ao-desc{ font-size:.72em; }
   body.tall .ao-sim{ margin-top:1.8em; padding:1.2em 1.2em 1.1em; }
-  body.tall .ao-sim-head span, body.tall .ao-field .lb{ font-size:.7em; }
+  body.tall .ao-sim-head span{ font-size:.7em; }
   body.tall .ao-outs span{ font-size:.64em; }
   body.tall .ao-note{ font-size:.68em; }
   body.tall .price-t td{ padding:1.1em .2em; }
@@ -703,10 +720,6 @@ body.narrow .price-t td{ font-size:.8em; }
 </head>
 <body>
 <div class="viewer" id="viewer">
-  <div class="bar">
-    <a class="wordmark" href="/" aria-label="Auraya Villas home"><img src="img/logo-ink.webp" alt="" width="96" height="95">Auraya</a>
-    <span class="bar-label">Brochure</span>
-  </div>
   <div class="desk">
     <div class="stage" id="stage">
       <button class="nav-arrow nav-prev" id="prevBtn" type="button" aria-label="Previous page"><svg viewBox="0 0 22 40"><path d="M17 3 4 20l13 17"/></svg></button>
@@ -783,7 +796,7 @@ body.narrow .price-t td{ font-size:.8em; }
           <li><b>Land size:</b> 110 – 147 sqm</li>
           <li><b>Building size:</b> 145 sqm</li>
           <li><b>Ownership:</b> leasehold 30+20 or freehold‑equivalent HGB</li>
-          <li><b>Zoning:</b> pink tourism zone</li>
+          <li><b>Zoning:</b> <span class="zone-pink">pink tourism zone</span><span class="zone-note">Bali's tourism zone: the zoning designated for holiday villas and short‑term rentals.</span></li>
         </ul>
       </div>
       <div class="half-photo" data-video="vid/rooftop.mp4?v=3" style="background-image:url(img/04.webp)"></div>
@@ -804,7 +817,6 @@ body.narrow .price-t td{ font-size:.8em; }
           <li>Beach clubs within 10 minutes; Uluwatu's other beaches and the temple within about 15 to 25 minutes</li>
         </ul>
         <p class="loc-tip">Tap a place on the map for the scooter time from the villa.</p>
-        <a class="loc-link" href="https://maps.google.com/?q=Pecatu,+Uluwatu,+Bali" target="_blank" rel="noopener">Open in Google Maps →</a>
       </div>
       <!-- Scooter times: road distance from the villa (data-villa, lat,lon) to each place,
            measured on OpenStreetMap (OSRM), turned into minutes at the pace Google Maps gave
@@ -822,10 +834,10 @@ body.narrow .price-t td{ font-size:.8em; }
           <button type="button" class="poi lb-right" style="left:19.97%; top:48.42%;" data-min="18" data-km="6.3" data-ll="-8.8112154,115.1036370"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></button>
           <button type="button" class="poi lb-below-r" style="left:4.8%; top:53.56%;" data-min="25" data-km="8.6" data-ll="-8.8151548,115.0885661"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></button>
           <button type="button" class="poi lb-right" style="left:0.55%; top:72.11%;" data-min="21" data-km="7.2" data-ll="-8.8293693,115.0843428"><span class="d"></span><span class="t">Pura Luhur Uluwatu<small>Hindu Temple</small></span></button>
-          <button type="button" class="poi lb-above" style="left:10.6%; top:85.66%;" data-min="18" data-km="6.0" data-ll="-8.8397509,115.0943268"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></button>
-          <button type="button" class="poi lb-above" style="left:24.27%; top:91.57%;" data-min="14" data-km="4.6" data-ll="-8.8442782,115.1079083"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></button>
+          <button type="button" class="poi lb-above-r" style="left:10.6%; top:85.66%;" data-min="18" data-km="6.0" data-ll="-8.8397509,115.0943268"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></button>
+          <button type="button" class="poi lb-right-up" style="left:24.27%; top:91.57%;" data-min="14" data-km="4.6" data-ll="-8.8442782,115.1079083"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></button>
           <div class="poi poi-auraya lb-above" style="left:53.5%; top:86.67%;"><span class="d"></span><span class="t">AURAYA<br>VILLAS</span></div>
-          <button type="button" class="poi lb-left-up" style="left:57.24%; top:94.35%;" data-min="4" data-km="1.4" data-ll="-8.8464133,115.1406518"><span class="d"></span><span class="t">Savaya<small>Beach Club</small></span></button>
+          <button type="button" class="poi lb-left-mid" style="left:57.24%; top:94.35%;" data-min="4" data-km="1.4" data-ll="-8.8464133,115.1406518"><span class="d"></span><span class="t">Savaya<small>Beach Club</small></span></button>
           <button type="button" class="poi lb-above" style="left:68.18%; top:95.72%;" data-min="9" data-km="3.1" data-ll="-8.8474651,115.1515232"><span class="d"></span><span class="t">Sundays<small>Beach Club</small></span></button>
           <button type="button" class="poi lb-above-r" style="left:74.27%; top:96.8%;" data-min="12" data-km="4.2" data-ll="-8.8482915,115.1575716"><span class="d"></span><span class="t">Melasti<small>Beach</small></span></button>
         </div>
@@ -1004,7 +1016,11 @@ body.narrow .price-t td{ font-size:.8em; }
     <span class="pnum" style="color:#3b362c;">15</span>
   </section>
 
-  <!-- 16 · ADD-ONS: three roof options, with a rough solar savings calculator (script: ADD-ONS) -->
+  <!-- 16 · ADD-ONS: three roof options, with rough solar returns as fixed ranges.
+       The ranges assume solar covers 40–60% of a Rp 4 M monthly bill at PLN's R-3 tariff of Rp 1.699,53/kWh (2026):
+       saving Rp 19,2–28,8 M a year; payback 200 M / saving = 6,9–10,4 yrs; IRR over 25 years with 0,5%/yr
+       panel wear, flat tariff, no battery replacement = 7,8–13,3%; CO2 = kWh saved (11.300–16.900 a year)
+       x 0,753 kg/kWh (Indonesian power sector, 2023, Climate Analytics) = 8,5–12,8 t a year. -->
   <section class="page tex-cream addons" data-title="Add-ons" data-slug="addons">
     <div class="page-inner">
       <div class="kicker ao-kicker">Make the roof yours</div>
@@ -1036,22 +1052,16 @@ body.narrow .price-t td{ font-size:.8em; }
           </div>
         </article>
       </div>
-      <div class="ao-sim" data-noswipe>
-        <div class="ao-sim-head"><h3>Solar savings, roughly</h3><span>On an electricity bill of Rp 4 M a month</span></div>
-        <div class="ao-sim-body">
-          <div class="ao-inputs">
-            <label class="ao-field"><span class="lb">Share covered by solar <output id="aoShareOut"></output></span>
-              <input type="range" id="aoShare" min="20" max="60" step="5" value="50"></label>
-          </div>
-          <div class="ao-outs">
-            <div><b id="aoMonth"></b><span>saved a month</span></div>
-            <div><b id="aoYear"></b><span>saved a year</span></div>
-            <div><b id="aoPay"></b><span>to earn back Rp 200 M</span></div>
-          </div>
+      <div class="ao-sim">
+        <div class="ao-sim-head"><h3>What solar gives back, roughly</h3><span>Solar covering 40–60% of a Rp 4 M monthly bill</span></div>
+        <div class="ao-outs">
+          <div><b>Rp 19–29 M</b><span>saved a year</span></div>
+          <div><b>≈ 7–10 yrs</b><span>to earn back Rp 200 M</span></div>
+          <div><b>≈ 8–13%</b><span>return a year (IRR)</span></div>
+          <div><b>≈ 8–13 t</b><span>CO₂ avoided a year</span></div>
         </div>
-        <p class="ao-note">A rough guide at today's tariffs, before any price rises; actual savings depend on use and sunshine.</p>
+        <p class="ao-note">A rough guide at today's PLN tariff (Rp 1.699 per kWh), before any price rises. Return over 25 years of panel life, allowing 0.5% a year for panel wear and not counting a battery replacement. CO₂ at Indonesia's grid average of about 0.75 kg per kWh. Actual results depend on use and sunshine.</p>
       </div>
-      <a class="ao-more" href="/plan/?add=jacuzzi,solar,pergola">Add them to your payment plan <span aria-hidden="true">&rarr;</span></a>
     </div>
     <span class="pnum" style="color:#3b362c;">16</span>
   </section>
@@ -1084,16 +1094,16 @@ body.narrow .price-t td{ font-size:.8em; }
     <div class="shade"></div>
     <div class="page-inner">
       <h2 class="serif-title pay-title">Payment Timeline</h2>
+      <p class="pay-status"><span class="dot" aria-hidden="true"></span>Construction has started</p>
       <div class="timeline">
         <div class="tl-line"></div>
         <div class="tl-row">
           <div class="tl-step"><span class="pct">10%</span><span class="node">1</span><span class="lb">Reservation <br>Fee</span></div>
           <div class="tl-step"><span class="pct">30%</span><span class="node">2</span><span class="lb">Notarial <br>Signing</span></div>
-          <div class="tl-step"><span class="pct"></span><span class="node">3</span><span class="lb">Start <br>Construction</span></div>
-          <div class="tl-step"><span class="pct">10%</span><span class="node">4</span><span class="lb">Progress <br>25%</span></div>
-          <div class="tl-step"><span class="pct">20%</span><span class="node">5</span><span class="lb">Progress <br>55%</span></div>
-          <div class="tl-step"><span class="pct">20%</span><span class="node">6</span><span class="lb">Progress <br>85%</span></div>
-          <div class="tl-step"><span class="pct">10%</span><span class="node">7</span><span class="lb">Project <br>Finished</span></div>
+          <div class="tl-step"><span class="pct">10%</span><span class="node">3</span><span class="lb">Progress <br>25%</span></div>
+          <div class="tl-step"><span class="pct">20%</span><span class="node">4</span><span class="lb">Progress <br>55%</span></div>
+          <div class="tl-step"><span class="pct">20%</span><span class="node">5</span><span class="lb">Progress <br>85%</span></div>
+          <div class="tl-step"><span class="pct">10%</span><span class="node">6</span><span class="lb">Project <br>Finished</span></div>
         </div>
       </div>
       <p class="pay-note">Payments follow construction milestones · handover 1 March 2028</p>
@@ -1166,6 +1176,8 @@ body.narrow .price-t td{ font-size:.8em; }
                plays only when the place is opened
        illustrative  self-hosted clips are labelled "Illustrative" (they are
                animated from the photo); set illustrative:false for real footage
+       credit  optional: for a freely licensed photo, { by:"Photographer", lic:"CC BY-SA 4.0", url:"source page" };
+               shown as a small "Photo: …" line on the photo when the place is opened
        blurb   optional: a line or two shown when the place is opened
        map     optional: Google Maps link
        quotes  optional: reviews shown when the place is opened, copied word
@@ -1350,6 +1362,11 @@ body.narrow .price-t td{ font-size:.8em; }
       var x = el('button', 'spot-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Close');
       x.addEventListener('click', close);
       media.appendChild(x);
+      if (p.credit){
+        var cr = el('a', 'spot-credit', 'Photo: ' + p.credit.by + ' \u00b7 ' + p.credit.lic);
+        cr.href = p.credit.url; cr.target = '_blank'; cr.rel = 'noopener';
+        media.appendChild(cr);
+      }
       var body = el('div', 'spot-body');
       if (p.video && !isEmbed(p.video) && p.illustrative !== false)
         body.appendChild(el('p', 'spot-note', 'Illustrative: animated from a photo of the venue.'));
@@ -1395,30 +1412,55 @@ body.narrow .price-t td{ font-size:.8em; }
   })();
 
   /* ================= LOCATION MAP =================
-     Tapping a place on the map shows its scooter time from the villa under its
-     name; tapping it again, or another place, swaps it. The minutes live on the
-     pins in the HTML (data-min).                                             */
+     Tapping a place on the map highlights it and shows its scooter time in a
+     readout at the top-left of the map (open sea, so it never covers a label);
+     tapping it again, or the map, clears it. The minutes live on the pins in
+     the HTML (data-min).                                                     */
   (function locationMap(){
     var wrap = document.querySelector('#pageStore .mapwrap');
     if (!wrap) return;
     var SCOOTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
       '<circle cx="5.5" cy="17" r="2.5"/><circle cx="18.5" cy="17" r="2.5"/><path d="M8 17h7.5l2-6.5H20"/><path d="M15 7h2.5l.5 3.5"/><path d="M3 13.5h6.5L11 17"/></svg>';
     var pins = Array.prototype.slice.call(wrap.querySelectorAll('button.poi'));
+    var read = document.createElement('div');
+    read.className = 'map-read'; read.hidden = true; read.setAttribute('aria-live', 'polite');
+    wrap.querySelector('.mapbox').appendChild(read);
     pins.forEach(function(b){
-      var t = b.querySelector('.t'), m = document.createElement('span');
-      m.className = 'min'; m.innerHTML = SCOOTER + b.dataset.min + ' min';
-      t.appendChild(m);
+      var t = b.querySelector('.t');
       var name = t.firstChild.textContent.trim();
+      var kind = t.querySelector('small') ? t.querySelector('small').textContent.trim() : '';
+      b.dataset.name = name + (kind ? ' ' + kind : '');
       b.setAttribute('aria-label', name + ': ' + b.dataset.min + ' minutes by scooter from the villa');
       b.setAttribute('aria-pressed', 'false');
       b.addEventListener('click', function(e){
         e.stopPropagation();
         var was = b.classList.contains('on');
         close();
-        if (!was){ b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); }
+        if (!was){
+          b.classList.add('on'); b.setAttribute('aria-pressed', 'true');
+          read.innerHTML = '<b></b><span class="min">' + SCOOTER + b.dataset.min + ' min <small>by scooter</small></span>';
+          read.querySelector('b').textContent = b.dataset.name;
+          read.hidden = false;
+          placeRead();
+        }
       });
     });
-    function close(){ pins.forEach(function(p){ p.classList.remove('on'); p.setAttribute('aria-pressed', 'false'); }); }
+    function close(){ pins.forEach(function(p){ p.classList.remove('on'); p.setAttribute('aria-pressed', 'false'); }); read.hidden = true; }
+    /* sideways phones: keep the readout inside the visible part of the map */
+    var stageEl = document.getElementById('stage'), mapbox = wrap.querySelector('.mapbox');
+    var sidewaysQ = window.matchMedia('(orientation:landscape) and (max-height:500px) and (pointer:coarse)');
+    function placeRead(){
+      if (read.hidden) return;
+      if (!sidewaysQ.matches){ read.classList.remove('float'); read.style.top = ''; return; }
+      read.classList.add('float');
+      var st = stageEl.getBoundingClientRect(), mb = mapbox.getBoundingClientRect();
+      var top = Math.max(0, st.top - mb.top) + 8;                       /* top edge of what is on screen */
+      var seen = Math.min(mb.bottom, st.bottom) - mb.top - read.offsetHeight - 8;   /* bottom edge of what is on screen */
+      var max = mb.height * 0.78 - read.offsetHeight;                   /* stay above the southern labels */
+      read.style.top = Math.max(8, Math.min(top, max, seen)) + 'px';
+    }
+    if (stageEl) stageEl.addEventListener('scroll', placeRead, { passive:true });
+    window.addEventListener('resize', placeRead);
     wrap.addEventListener('click', close);
     wrap.closest('.page').closeMap = close;
   })();
@@ -1452,29 +1494,6 @@ body.narrow .price-t td{ font-size:.8em; }
                       { slug:'rooftop', no:'02', name:'Roof terrace' } ];
   /* ================================================ */
 
-  /* ================= ADD-ONS: rough solar savings =================
-     Saving = monthly electricity bill x share covered by solar (bill fixed at Rp 4 M a month, share 50% to start); payback = package price / yearly saving.
-     No tariff rises and no battery value: a rough guide, as the page says. */
-  (function solarSavings(){
-    var page = document.querySelector('#pageStore .addons'); if (!page) return;
-    var PRICE = 200000000;
-    var BILL = 4000000, share = page.querySelector('#aoShare');   /* electricity bill a month, IDR */
-    function m(v){ return 'Rp ' + (v/1e6).toFixed(v < 1e7 ? 1 : 0).replace('.', ',') + ' M'; }
-    function upd(){
-      var month = BILL * +share.value / 100, year = month * 12;
-      page.querySelector('#aoShareOut').textContent = share.value + '%';
-      page.querySelector('#aoMonth').textContent = m(month);
-      page.querySelector('#aoYear').textContent = m(year);
-      page.querySelector('#aoPay').textContent = '≈ ' + Math.round(PRICE / year) + ' yrs';
-    }
-    var sent = false;
-    [share].forEach(function(el){
-      el.addEventListener('input', upd);
-      el.addEventListener('change', function(){ if (!sent){ sent = true; track('solar_savings_used', {}); } });
-    });
-    upd();
-  })();
-
   (function villaSection(){
     var secPage = document.querySelector('#pageStore .sectionpg'); if (!secPage) return;
     function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
@@ -1482,7 +1501,8 @@ body.narrow .price-t td{ font-size:.8em; }
     LEVELS.forEach(function(L){                                    /* label each band of the section drawing */
       var band = secPage.querySelector('.sec-band[data-level="' + L.id + '"]'); if (!band) return;
       var tag = el('span', 'sec-tag');
-      tag.appendChild(el('span', 'sec-no', L.no)); tag.appendChild(el('span', 'nm', L.name)); tag.appendChild(el('span', 'rm', L.rooms));
+      tag.appendChild(el('span', 'sec-no', L.no)); tag.appendChild(el('span', 'nm', L.name));
+      tag.appendChild(el('span', 'rm', L.rooms.replace(/ \u00b7 /g, '\u00a0\u00b7 ')));   /* keep each dot with the word before it, so no line starts with one */
       band.appendChild(tag);
     });
     var secList = secPage.querySelector('.sec-list');                /* the same levels as a list, for phones (top floor first) */
@@ -1728,7 +1748,8 @@ body.narrow .price-t td{ font-size:.8em; }
   var counter = document.getElementById('counter');
   var prevBtn = document.getElementById('prevBtn'), nextBtn = document.getElementById('nextBtn');
   var prevTool= document.getElementById('prevTool'), nextTool= document.getElementById('nextTool');
-  var TURN_MS = 1000;
+  /* page-turn length: the open book on wide screens, and a single page (phones), which turns a little quicker */
+  var TURN_MS = 750, TURN_SPREAD = 750, TURN_SINGLE = 450;   /* milliseconds */
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ----- page-turn sound -----
@@ -1738,9 +1759,9 @@ body.narrow .price-t td{ font-size:.8em; }
      ("auraya_sound"). Browsers only allow sound after the reader clicks, taps or presses
      a key, which is always the case here: the sound only ever follows a page turn.
      To use a recorded sound instead, set SOUND_URL to a short file, e.g. "vid/page-turn.mp3". */
-  var SOUND_URL = "", SOUND_VOLUME = 0.35;   /* 0 to 1; 0.5 was the first setting */
+  var SOUND_URL = "", SOUND_VOLUME = 0.22;   /* 0 to 1; was 0.35, and 0.5 at first */
   var pageSound = (function(){
-    var on = !still, ctx = null, noise = null, clip = null, last = 0;
+    var on = !still, ctx = null, noise = null, clip = null, last = 0, out = null;
     try { var saved = localStorage.getItem('auraya_sound'); if (saved) on = saved === 'on'; } catch(e){}
     var btn = document.getElementById('soundTool');
     function show(){ btn.setAttribute('aria-pressed', on ? 'true' : 'false'); btn.title = 'Page-turn sound: ' + (on ? 'on' : 'off'); }
@@ -1755,6 +1776,9 @@ body.narrow .price-t td{ font-size:.8em; }
       if (ctx) return true;
       var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
       ctx = new AC();
+      /* everything passes through a gentle low-pass, which takes the hiss off the top: soft paper, not a rustle */
+      out = ctx.createBiquadFilter(); out.type = 'lowpass'; out.frequency.value = 2400; out.Q.value = 0.5;
+      out.connect(ctx.destination);
       noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
       var d = noise.getChannelData(0), b = 0;
       for (var i = 0; i < d.length; i++){ b = 0.6*b + 0.4*(Math.random()*2 - 1); d[i] = b; }   /* softened noise: paper, not hiss */
@@ -1771,7 +1795,7 @@ body.narrow .price-t td{ font-size:.8em; }
       g.gain.setValueAtTime(0.0001, t);
       g.gain.exponentialRampToValueAtTime(peak, t + attack);
       g.gain.exponentialRampToValueAtTime(0.0001, t + len);
-      src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+      src.connect(bp); bp.connect(g); g.connect(out);
       src.start(t, Math.random()*0.4, len + 0.05);
     }
     function play(level){
@@ -1785,13 +1809,13 @@ body.narrow .price-t td{ font-size:.8em; }
       if (clip){
         var src = ctx.createBufferSource(), g = ctx.createGain();
         src.buffer = clip; src.playbackRate.value = rnd(0.92, 1.08); g.gain.value = v;
-        src.connect(g); g.connect(ctx.destination); src.start(t);
+        src.connect(g); g.connect(out); src.start(t);
         return;
       }
       var len = rnd(0.42, 0.55);
-      burst(t, len, rnd(2600, 3400), rnd(900, 1200), 0.36*v, 0.07);          /* the sheet sweeping over */
-      burst(t + len*0.55, 0.12, rnd(1400, 1800), 700, 0.24*v, 0.01);      /* edge catching the air */
-      burst(t + len*0.92, 0.09, rnd(500, 650), 300, 0.32*v, 0.006);       /* landing on the page */
+      burst(t, len, rnd(1700, 2200), rnd(700, 900), 0.36*v, 0.1);            /* the sheet sweeping over */
+      burst(t + len*0.55, 0.14, rnd(1000, 1300), 600, 0.14*v, 0.035);     /* edge catching the air, barely */
+      burst(t + len*0.92, 0.11, rnd(380, 480), 240, 0.24*v, 0.025);       /* landing on the page, softly */
     }
     return play;
   })();
@@ -1803,18 +1827,25 @@ body.narrow .price-t td{ font-size:.8em; }
   /* Every page is one portrait sheet, like a printed booklet, on any screen size */
   document.body.classList.add('narrow');
 
+  var sideways = window.matchMedia('(orientation:landscape) and (max-height:500px) and (pointer:coarse)');
+  if (sideways.addEventListener) sideways.addEventListener('change', function(){ fit(); });
   /* Size the book to the screen. Wide screens get an open two-page spread, narrow ones a single page. */
   function fit(){
     var ar = 3/4.1;
     var arrows = getComputedStyle(prevBtn).display !== 'none';
     var w = stage.clientWidth - (arrows ? 150 : 14), h = stage.clientHeight - (arrows ? 14 : 8);
     var one = Math.min(w, h*ar), two = Math.min(w/2, h*ar);
-    /* two pages whenever they fit well, and always on tablet-width screens and up */
-    var wantSpread = two >= one*0.62 || stage.clientWidth >= 600;
+    /* two pages only when each comes out nearly as big as a single page would (landscape tablets,
+       the unfolded Find N3, laptops); upright tablets get one large page instead of a small spread */
+    var wantSpread = two >= one*0.75;
     var pw = Math.max(wantSpread ? two : one, 120), ph = pw/ar, fs = pw * 0.026;
     /* Phones held upright: a printed page shape would leave half the screen empty, so the page takes
        the full width and grows taller (down to 1:2), and the type is set larger to match. */
-    var tall = !wantSpread && w < h*ar*0.97;
+    var tall = !wantSpread && w < h*ar*0.97 && w < 600;     /* phones only; tablets keep the printed shape */
+    if (sideways.matches){                                   /* phone on its side: one readable page that scrolls */
+      wantSpread = false; tall = false;
+      pw = Math.min(w, Math.max(h*1.5, 420), 600); ph = pw/ar; fs = pw * 0.026;
+    }
     if (tall){ pw = Math.max(w, 120); ph = Math.min(h, pw*2); fs = Math.min(pw * 0.034, ph * 0.0195); }
     document.body.classList.toggle('tall', tall);
     sheetBox.style.width  = (wantSpread ? 2*pw : pw) + 'px';
@@ -1829,6 +1860,8 @@ body.narrow .price-t td{ font-size:.8em; }
   }
   function rebuild(){
     clearBook();
+    TURN_MS = spread ? TURN_SPREAD : TURN_SINGLE;
+    sheetBox.style.setProperty('--turn', TURN_MS + 'ms');
     document.body.classList.toggle('spread', spread);
     sheetBox.classList.add('no-anim');
     if (spread){
@@ -1861,9 +1894,22 @@ body.narrow .price-t td{ font-size:.8em; }
     });
     sheetBox.setAttribute('data-pos', state === 0 ? 'start' : (state === leafEls.length ? 'end' : 'mid'));
   }
+  /* ends the spread's turn in progress at once: every sheet jumps to where it was going */
+  var spreadTimer = 0;
+  function finishSpreadTurn(){
+    clearTimeout(spreadTimer);
+    leafEls.forEach(function(el){ el.classList.add('no-anim'); });
+    sheetBox.classList.add('no-anim');
+    settle(); void leaves.offsetWidth;
+    leafEls.forEach(function(el){ el.classList.remove('no-anim'); });
+    sheetBox.classList.remove('no-anim');
+    busy = false;
+    settleMedia();
+  }
   function turnTo(target){
     target = Math.max(0, Math.min(MAXSTATE, target));
-    if (busy || target === state) return;
+    if (target === state) return;
+    if (busy) finishSpreadTurn();      /* clicked or pressed again mid-turn: finish this one now and turn on */
     var from = state, fwd = target > from;
     pageSound();
     state = target;
@@ -1878,20 +1924,20 @@ body.narrow .price-t td{ font-size:.8em; }
       leafEls.forEach(function(l, k){ l.classList.toggle('far', !near(k, Math.min(from, target), Math.max(from, target))); });
       el.style.zIndex = 100;
       sheetBox.setAttribute('data-pos', state === 0 ? 'start' : (state === leafEls.length ? 'end' : 'mid'));
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.toggle('turned', fwd); watchFlip(el); }); });
-      setTimeout(function(){ settle(); busy = false; }, TURN_MS + 40);
+      var turnState = state;
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (state === turnState && busy){ el.classList.toggle('turned', fwd); watchFlip(el); } }); });
+      spreadTimer = setTimeout(function(){ settle(); busy = false; }, TURN_MS + 40);
     }
     afterMove();
   }
 
   /* While a sheet turns, show whichever side is facing the reader */
+  /* The sheet is edge-on at 38% of the turn (where the easing curve reaches half of its 180 degrees),
+     so switch sides then, rather than reading the sheet's angle on every frame, which slows phones. */
   function watchFlip(el){
-    var t0 = Date.now();
-    (function tick(){
-      var m = getComputedStyle(el).transform.match(/matrix3d\(([-\d.e]+)/);
-      if (m) el.classList.toggle('flipped', parseFloat(m[1]) < 0);
-      if (Date.now() - t0 < TURN_MS && el.parentNode) requestAnimationFrame(tick);
-    })();
+    var to = el.classList.contains('turned');
+    clearTimeout(el._flipTimer);      /* a turn cut short must not flip the sheet later */
+    el._flipTimer = setTimeout(function(){ if (el.classList.contains('turned') === to) el.classList.toggle('flipped', to); }, TURN_MS * 0.38);
   }
 
   /* ----- single-page mode ----- */
@@ -1907,23 +1953,36 @@ body.narrow .price-t td{ font-size:.8em; }
     Array.prototype.slice.call(el.querySelectorAll('.page')).forEach(function(p){ store.appendChild(p); });
     el.remove();
   }
+  var finishTurn = null;     /* ends the turn in progress at once (a quick second swipe skips ahead) */
   function render(i, dir){
     cur = i;
     var old = layer, fresh = buildLayer(i);
     layer = fresh;
     if (!old || !dir || still){
       leaves.appendChild(fresh); stash(old); busy = false;
-    } else if (dir === 'next'){
-      /* new page lies underneath; the current page lifts and turns away over the spine */
-      leaves.insertBefore(fresh, old);
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ old.classList.add('turned'); watchFlip(old); }); });
-      setTimeout(function(){ if (layer === fresh){ stash(old); busy = false; } }, TURN_MS + 40);
     } else {
-      /* previous page turns back in from the spine and lands on top */
-      fresh.classList.add('no-anim','turned','flipped');
-      leaves.appendChild(fresh);
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ fresh.classList.remove('no-anim','turned'); watchFlip(fresh); }); });
-      setTimeout(function(){ if (layer === fresh){ stash(old); busy = false; } }, TURN_MS + 40);
+      if (dir === 'next'){
+        /* new page lies underneath; the current page lifts and turns away over the spine */
+        leaves.insertBefore(fresh, old);
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (layer === fresh && old.parentNode){ old.classList.add('turned'); watchFlip(old); } }); });
+      } else {
+        /* previous page turns back in from the spine and lands on top */
+        fresh.classList.add('no-anim','turned','flipped');
+        leaves.appendChild(fresh);
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (layer === fresh){ fresh.classList.remove('no-anim','turned'); watchFlip(fresh); } }); });
+      }
+      var timer = setTimeout(done, TURN_MS + 40);
+      function done(){
+        clearTimeout(timer);
+        if (finishTurn !== done) return;
+        finishTurn = null;
+        stash(old);
+        fresh.classList.add('no-anim'); fresh.classList.remove('turned','flipped');
+        void fresh.offsetWidth; fresh.classList.remove('no-anim');
+        busy = false;
+        settleMedia();
+      }
+      finishTurn = done;
     }
     afterMove();
   }
@@ -1961,10 +2020,17 @@ body.narrow .price-t td{ font-size:.8em; }
     var mp = document.querySelector('.loc');
     if (mp && mp.closeMap) mp.closeMap();
     try{ history.replaceState(null, '', '#p' + (cur+1)); }catch(e){}
-    if (mediaOK){ preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4); }
     updateChrome();
-    syncClips();
     reportPages();
+    /* starting videos and decoding photos mid-turn makes phones stutter, so they wait for the turn to end */
+    if (busy){ clearTimeout(mediaTimer); mediaTimer = setTimeout(settleMedia, TURN_MS + 80); }
+    else settleMedia();
+  }
+  var mediaTimer = 0;
+  function settleMedia(){
+    clearTimeout(mediaTimer);
+    if (mediaOK){ preload(cur+1); preload(cur+2); preload(cur+3); preload(cur+4); }
+    syncClips();
   }
 
   /* ----- analytics: which pages are read, for how long, and how the reader got there ----- */
@@ -2003,8 +2069,10 @@ body.narrow .price-t td{ font-size:.8em; }
   function go(i, dir){
     if (i < 0 || i >= N) return;
     if (spread){ turnTo(Math.floor((i+1)/2)); return; }
-    if (busy || i === cur) return;
+    if (i === cur) return;
+    if (busy){ if (!finishTurn) return; finishTurn(); }   /* swiped again mid-turn: finish this one now and turn on */
     busy = true;
+    if (sideways.matches) stage.scrollTop = 0;                 /* each page starts at its top */
     pageSound();
     render(i, dir || (i > cur ? 'next' : 'prev'));
   }

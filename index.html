@@ -173,11 +173,19 @@
   .loc-link:hover{background:rgba(240,235,210,.1);border-color:var(--cream)}
   .map{position:relative;aspect-ratio:1500/1171;font-size:clamp(10px,1vw,13px)}
   .map img{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:.96}
-  .poi{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:.3em;z-index:2}
-  .poi .d{width:.6em;height:.6em;border-radius:50%;background:#5d564a}
-  .poi .t{font-size:.9em;font-weight:500;letter-spacing:.05em;color:#3f3930;text-align:center;line-height:1.2;white-space:nowrap}
+  /* pins: each left/top % is the dot's true position on the map (same coordinates as the brochure's location page);
+     the label sits beside the dot on the side given by its lb-* class */
+  .poi{position:absolute;width:0;height:0;z-index:2}
+  .poi .d{position:absolute;left:0;top:0;transform:translate(-50%,-50%);width:.75em;height:.75em;border-radius:50%;background:#5d564a;border:.15em solid #f4f1ea;box-shadow:0 0 0 1px rgba(0,0,0,.25);box-sizing:border-box}
+  .poi .t{position:absolute;font-size:.9em;font-weight:500;letter-spacing:.05em;color:#3f3930;text-align:center;line-height:1.2;white-space:nowrap}
   .poi .t small{display:block;font-size:.88em;font-weight:300}
-  .poi-auraya .d{width:1.15em;height:1.15em;background:var(--brown);box-shadow:0 0 0 .35em rgba(62,45,30,.2)}
+  .poi.lb-above .t{bottom:.8em;left:0;transform:translateX(-50%)}
+  .poi.lb-right .t{left:1em;top:0;transform:translateY(-50%);text-align:left}
+  .poi.lb-above-r .t{bottom:.6em;left:.35em;text-align:left}
+  .poi.lb-below-r .t{top:.6em;left:.35em;text-align:left}
+  .poi.lb-left-up .t{right:1em;bottom:-.45em;text-align:right}
+  .poi-auraya .d{width:1.15em;height:1.15em;background:var(--brown);box-shadow:0 0 0 .35em rgba(62,45,30,.2);border:0}
+  .poi-auraya.lb-above .t{bottom:1.1em}
   .poi-auraya .t{font-family:var(--font-head);font-size:1.1em;font-weight:600;letter-spacing:.14em;color:var(--brown)}
   @media(max-width:900px){
     .loc-grid{grid-template-columns:1fr;gap:40px}
@@ -239,6 +247,14 @@
     .foot-grid{grid-template-columns:1fr;gap:30px}
     .gal-grid{grid-template-columns:1fr}
     section{padding:74px 0}
+  }
+  /* tablets: a soft dark wash behind the left of the hero photo, where the text sits, so the paragraph
+     reads against the bright wall; and a wider intro photo when it stacks above the text */
+  @media(min-width:601px) and (max-width:1180px){
+    .hero-photo::after{background:linear-gradient(90deg,rgba(40,29,19,.62),rgba(40,29,19,.3) 55%,rgba(40,29,19,0) 85%),linear-gradient(180deg,rgba(62,45,30,.12) 25%,rgba(62,45,30,.78))}
+  }
+  @media(min-width:601px) and (max-width:900px){
+    .intro-photo{aspect-ratio:3/2}
   }
   @media(max-width:600px){
     nav .nav-cta{display:none}
@@ -446,20 +462,20 @@
         <li>Melasti Beach is about 12 minutes away by scooter</li>
         <li>Beach clubs within 10 minutes; Uluwatu's other beaches and the temple within about 15 to 25 minutes</li>
       </ul>
-      <a class="loc-link" href="https://maps.google.com/?q=Belimbing+Sari+Street+Pecatu+Bali" target="_blank" rel="noopener">Open in Google Maps →</a>
+      <a class="loc-link" id="exactLoc" href="#offer">Get the exact location →</a>
     </div>
     <div class="map" role="img" aria-label="Map of the Bukit peninsula showing Auraya Villas near Savaya, Sundays Beach Club and Melasti Beach, with Dreamland, Padang Padang, Uluwatu, Nyang Nyang and Nunggalan beaches and Uluwatu Temple to the west">
       <img src="assets/location-map.webp" alt="" width="1500" height="1171" loading="lazy" decoding="async">
-      <div class="poi" style="left:56%;top:22%"><span class="d"></span><span class="t">Dreamland<small>Beach</small></span></div>
-      <div class="poi" style="left:44%;top:46%"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></div>
-      <div class="poi" style="left:29.5%;top:54%"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></div>
-      <div class="poi" style="left:26.5%;top:70%"><span class="d"></span><span class="t">Uluwatu Temple<small>Pura Luhur</small></span></div>
-      <div class="poi" style="left:38%;top:80%"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></div>
-      <div class="poi" style="left:50%;top:86%"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></div>
-      <div class="poi" style="left:61%;top:88%"><span class="d"></span><span class="t">Savaya<small>Beach club</small></span></div>
-      <div class="poi poi-auraya" style="left:70.5%;top:78%"><span class="d"></span><span class="t">Auraya</span></div>
-      <div class="poi" style="left:80%;top:88%"><span class="d"></span><span class="t">Sundays<small>Beach club</small></span></div>
-      <div class="poi" style="left:89%;top:90%"><span class="d"></span><span class="t">Melasti<small>Beach</small></span></div>
+      <div class="poi lb-right" style="left:34.07%;top:33.21%"><span class="d"></span><span class="t">Dreamland<small>Beach</small></span></div>
+      <div class="poi lb-right" style="left:19.97%;top:48.42%"><span class="d"></span><span class="t">Padang Padang<small>Beach</small></span></div>
+      <div class="poi lb-below-r" style="left:4.8%;top:53.56%"><span class="d"></span><span class="t">Uluwatu<small>Beach</small></span></div>
+      <div class="poi lb-right" style="left:0.55%;top:72.11%"><span class="d"></span><span class="t">Uluwatu Temple<small>Pura Luhur</small></span></div>
+      <div class="poi lb-above-r" style="left:10.6%;top:85.66%"><span class="d"></span><span class="t">Nyang Nyang<small>Beach</small></span></div>
+      <div class="poi lb-above" style="left:24.27%;top:91.57%"><span class="d"></span><span class="t">Nunggalan<small>Beach</small></span></div>
+      <div class="poi poi-auraya lb-above" style="left:53.5%;top:86.67%"><span class="d"></span><span class="t">Auraya</span></div>
+      <div class="poi lb-left-up" style="left:57.24%;top:94.35%"><span class="d"></span><span class="t">Savaya<small>Beach club</small></span></div>
+      <div class="poi lb-above" style="left:68.18%;top:95.72%"><span class="d"></span><span class="t">Sundays<small>Beach club</small></span></div>
+      <div class="poi lb-above-r" style="left:74.27%;top:96.8%"><span class="d"></span><span class="t">Melasti<small>Beach</small></span></div>
     </div>
   </div>
 </section>
@@ -502,6 +518,7 @@
       <ul class="gives">
         <li><span class="tick">✓</span><span>Complete <strong>price list</strong> for all 4 villas, leasehold and freehold, plus payment schedule</span></li>
         <li><span class="tick">✓</span><span><strong>Floor plans &amp; renders</strong> for each villa</span></li>
+        <li><span class="tick">✓</span><span>The <strong>exact location</strong>, with a map pin and directions</span></li>
         <li><span class="tick">✓</span><span><strong>Leasehold &amp; freehold structures</strong> explained for foreign buyers</span></li>
         <li><span class="tick">✓</span><span><strong>Rental yield projection</strong> with assumptions</span></li>
       </ul>
@@ -595,7 +612,7 @@
   /* ======= CLICK TRACKING ======= */
   document.getElementById('openBrochure').addEventListener('click',()=>track('view_item','ViewContent',{content_name:'brochure'}));
   /* ======= PAYMENT SIMULATOR: only after the investor-pack form =======
-     Without a lead ID for this visit (see /assets/ref.js), the simulator button opens the form
+     Without a lead ID for this visit and not on an agent link (see /assets/ref.js), the simulator button opens the form
      instead, and the simulator opens once the form is sent. /plan/ itself sends visitors without
      a lead ID here with ?next=plan (keeping ?add=... for add-ons picked in the brochure). */
   let wantsPlan=false;
@@ -615,8 +632,17 @@
     track('plan_gate',null,{from});
   }
   document.getElementById('planLink').addEventListener('click',e=>{
-    if(window.AurayaRef&&AurayaRef.lid){track('plan_open',null,{from:'landing'});return;}
+    if(window.AurayaRef&&AurayaRef.canPlan){track('plan_open',null,{from:'landing'});return;}
     e.preventDefault(); gatePlan('landing');
+  });
+  /* arriving from the brochure's "Get the exact location" (/#leadForm): put the cursor in the form */
+  if(location.hash==='#leadForm') setTimeout(()=>{document.querySelector('#offer .card-form').scrollIntoView({block:'center'});document.getElementById('name').focus({preventScroll:true});},400);
+  /* "Get the exact location": scroll to the investor-pack form and put the cursor in the first field */
+  document.getElementById('exactLoc').addEventListener('click',e=>{
+    e.preventDefault();
+    track('exact_location_request',null,{});
+    document.querySelector('#offer .card-form').scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>document.getElementById('name').focus({preventScroll:true}),700);
   });
   /* WhatsApp and email clicks are tracked by assets/analytics.js on every page */
   /* which sections people scroll to: one section_view per section per visit */

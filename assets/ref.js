@@ -10,9 +10,10 @@
      brochure's last page shows the agent first (Auraya as a small developer
      line), and leads and activity sent to the CRM are tagged agent=putu.
      The link keeps working as the reader moves between brochure, ROI model
-     and simulator. The simulator (/plan/) opens only for a known lead: a
-     /plan/ link without ?lid= first shows the investor-pack form on the
-     landing page, then opens the simulator once it is sent. An agent ID that is not in the list below is still tagged
+     and simulator. Agent links open the simulator (/plan/) directly; for
+     everyone else it opens only for a known lead: a /plan/ link without
+     ?lid= or ?agent= first shows the investor-pack form on the landing
+     page, then opens the simulator once it is sent. An agent ID that is not in the list below is still tagged
      in the CRM, but the contact buttons stay Auraya's.
 
    KNOWN LEADS
@@ -40,6 +41,7 @@
   if (agentId && /^[a-z0-9-]{1,40}$/i.test(agentId)) store.agent = agentId.toLowerCase();
   if (lid && /^[\w-]{6,64}$/.test(lid)) store.lid = lid;
   if (!store.sid) store.sid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  if (/^\/brochure(\/|$)/.test(location.pathname)) store.brochure = 1;   /* has read the brochure this visit */
   function persist(){ try { sessionStorage.setItem(KEY, JSON.stringify(store)); } catch(e){} }
   persist();
 
@@ -54,6 +56,9 @@
     get agent(){ return agent(); },
     /* the person to contact: the agent on an agent link, otherwise Auraya */
     get contact(){ return agent() || DEVELOPER; },
+    /* the payment simulator opens for a known lead or anyone on an agent link; others fill in the form first */
+    /* the payment simulator opens for leads, agent links and anyone who came through the brochure */
+    get canPlan(){ return !!(store.lid || store.agent || store.brochure); },
     setLead: function(id){ if (id){ store.lid = id; persist(); } },
     /* ?agent=..&lid=.. for links to other Auraya pages */
     params: function(){
