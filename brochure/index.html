@@ -1777,9 +1777,22 @@ body.narrow .price-t td{ font-size:.8em; }
     });
     sheetBox.setAttribute('data-pos', state === 0 ? 'start' : (state === leafEls.length ? 'end' : 'mid'));
   }
+  /* ends the spread's turn in progress at once: every sheet jumps to where it was going */
+  var spreadTimer = 0;
+  function finishSpreadTurn(){
+    clearTimeout(spreadTimer);
+    leafEls.forEach(function(el){ el.classList.add('no-anim'); });
+    sheetBox.classList.add('no-anim');
+    settle(); void leaves.offsetWidth;
+    leafEls.forEach(function(el){ el.classList.remove('no-anim'); });
+    sheetBox.classList.remove('no-anim');
+    busy = false;
+    settleMedia();
+  }
   function turnTo(target){
     target = Math.max(0, Math.min(MAXSTATE, target));
-    if (busy || target === state) return;
+    if (target === state) return;
+    if (busy) finishSpreadTurn();      /* clicked or pressed again mid-turn: finish this one now and turn on */
     var from = state, fwd = target > from;
     pageSound();
     state = target;
@@ -1794,8 +1807,9 @@ body.narrow .price-t td{ font-size:.8em; }
       leafEls.forEach(function(l, k){ l.classList.toggle('far', !near(k, Math.min(from, target), Math.max(from, target))); });
       el.style.zIndex = 100;
       sheetBox.setAttribute('data-pos', state === 0 ? 'start' : (state === leafEls.length ? 'end' : 'mid'));
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.toggle('turned', fwd); watchFlip(el); }); });
-      setTimeout(function(){ settle(); busy = false; }, TURN_MS + 40);
+      var turnState = state;
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (state === turnState && busy){ el.classList.toggle('turned', fwd); watchFlip(el); } }); });
+      spreadTimer = setTimeout(function(){ settle(); busy = false; }, TURN_MS + 40);
     }
     afterMove();
   }
@@ -1805,7 +1819,8 @@ body.narrow .price-t td{ font-size:.8em; }
      so switch sides then, rather than reading the sheet's angle on every frame, which slows phones. */
   function watchFlip(el){
     var to = el.classList.contains('turned');
-    setTimeout(function(){ el.classList.toggle('flipped', to); }, TURN_MS * 0.38);
+    clearTimeout(el._flipTimer);      /* a turn cut short must not flip the sheet later */
+    el._flipTimer = setTimeout(function(){ if (el.classList.contains('turned') === to) el.classList.toggle('flipped', to); }, TURN_MS * 0.38);
   }
 
   /* ----- single-page mode ----- */
