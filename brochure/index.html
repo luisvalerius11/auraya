@@ -473,9 +473,6 @@
   .plan-lv:hover{ color:var(--ink); }
   .plan-lv.on{ color:var(--ink); border-bottom-color:var(--ink); }
   .plan-lv:focus-visible{ outline:2px solid #8a7a4f; outline-offset:3px; }
-  .plan-pdf{ flex:none; font-size:.62em; font-weight:600; letter-spacing:.2em; color:#3b362c; text-decoration:none;
-    padding:.35em .8em; border:1px solid rgba(22,19,14,.25); border-radius:2em; transition:background .2s, color .2s; }
-  .plan-pdf:hover{ background:var(--ink); color:#faf7ec; }
   .plan-stage{ flex:1; min-height:0; position:relative; margin-top:.6em; border-top:1px solid rgba(22,19,14,.14); }
   .plan-scroll{ position:absolute; inset:0; overflow-y:auto; overscroll-behavior:contain; scroll-behavior:smooth;
     scrollbar-width:thin; scrollbar-color:rgba(22,19,14,.25) transparent;
@@ -493,7 +490,6 @@
   body.tall .plan-villa .id{ font-size:1.3em; }
   body.tall .plan-villa .sz{ font-size:.62em; }
   body.tall .plan-lv{ font-size:.72em; }
-  body.tall .plan-pdf{ font-size:.68em; }
 
   /* room pages (exterior / interiors) */
   .room .page-inner{ padding:2.4em 3em; }
@@ -914,7 +910,6 @@ body.narrow .price-t td{ font-size:.8em; }
       <div class="plan-villas" role="tablist" aria-label="Villa"></div>
       <div class="plan-bar">
         <div class="plan-levels" aria-label="Go to level"></div>
-        <a class="plan-pdf" href="../assets/floorplans/auraya-floor-plans.pdf" download>PDF <span aria-hidden="true">&darr;</span></a>
       </div>
       <div class="plan-stage">
         <div class="plan-scroll" tabindex="0" aria-label="Floor plans of the chosen villa, every level"></div>
@@ -1520,7 +1515,6 @@ body.narrow .price-t td{ font-size:.8em; }
       show(n, 'keyboard'); picker.children[n].focus();
     });
     scroller.addEventListener('keydown', function(e){ if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') return; e.stopPropagation(); });
-    page.querySelector('.plan-pdf').addEventListener('click', function(){ track('plans_pdf', { villa:VILLAS[cur].id }); });
     show(0, null);
   })();
 
