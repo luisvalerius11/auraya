@@ -164,6 +164,10 @@ For each place, fill in:
 | 17 | **Svaha Spa Bingin** (Wellness) | Balinese massage spa near Bingin Beach (Wonderspace group) |
 | 18 | **Six Senses Spa Uluwatu** (Wellness) | The spa at Six Senses Uluwatu, Pecatu: spa, gym, yoga pavilion. Use the spa's own listing if it has one |
 | 19 | **Karma Spa at Karma Kandara** (Wellness) | Karma Kandara resort, Ungasan: infrared sauna, ice bath, soaking pool. Please confirm day guests can book |
+| 20 | **Bambu Fitness** (Wellness) | Open-air gym, Jl. Pantai Bingin (some listings say Jl. Raya Uluwatu, Ungasan: please confirm on Google Maps) |
+| 21 | **Raw Gym Uluwatu** (Wellness) | Semi-open gym: CrossFit, Muay Thai, boxing |
+| 22 | **Muscle Beach Club** (Wellness) | Ungasan. Air-conditioned gym, outdoor CrossFit area, pool |
+| 23 | **Uluwatu Collective** (Wellness) | Open gym + functional, HIIT and sculpt classes, personal training |
 
 Single Fin, Padang Padang Beach and Uluwatu Temple (above) are also switched off the same way.
 
