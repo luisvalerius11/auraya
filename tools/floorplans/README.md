@@ -37,3 +37,11 @@ and assigned per room in `plans.py`.
 
 Sheets carry no built-area figures (the drawing totals differ from the 145 m² used in marketing);
 room sizes come from the drawing. The rooftop jacuzzi is labelled as an optional add-on.
+
+## Photoreal version (Higgsfield)
+
+`assets/floorplans/photoreal/` holds AI-rendered versions. Process: render the plan without labels or
+dimensions, pad to 9:16, run it through Higgsfield GPT Image 2.6 (high quality, 2k) with
+`photoreal_prompt.txt`, crop back to the plan grid, restore the paper margin, then overlay the room
+labels, dimension chains and title block from `render.py` so all text and measurements stay exact.
+Check each render against the drawing: the model can occasionally move or invent details.
