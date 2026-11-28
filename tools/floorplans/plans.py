@@ -23,9 +23,6 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 FONTS = os.path.join(ROOT, "assets", "fonts")
 
 CLIPS = {1: (55, 100, 372, 508), 2: (362, 100, 586, 508), 3: (575, 100, 799, 508), 4: (790, 172, 1068, 595)}
-# Brochure versions of the upper and roof plans start just above the building: the open plot
-# above it (pool and garden below) is left out so the page scrolls less. Ground floors stay whole.
-BROCHURE_TOP = {1: 210, 2: 210, 3: 210, 4: 280}
 # Site-layer lines that are not the plot boundary (setback line ending at Villa 4's boundary)
 SITE_EXCLUDE = {(4, 1): [(978, 462, 1050, 472)], (4, 2): [(978, 462, 1050, 472)]}
 FLOORS = [("ground", "Ground Floor", 0), ("second", "Second Floor", 1), ("rooftop", "Rooftop", 2)]
@@ -236,11 +233,6 @@ def build(pdf, out, only=None):
             img, legend = plan.render(zones, labels, F, decor)
             os.makedirs(os.path.join(out, "brochure"), exist_ok=True)
             plan_only = img.copy()  # plan + dimensions + labels, no title block: for the brochure page
-            if page > 0:
-                c = list(CLIPS[n]); c[1] = BROCHURE_TOP[n]
-                tight = Plan(doc[page], c)
-                tight.site_exclude = SITE_EXCLUDE.get((n, page), ())
-                plan_only, _ = tight.render(zones, labels, F, decor)
             plan_only.save(os.path.join(out, "brochure", f"villa-a{n}-{slug}-zoom.webp"), quality=82, method=6)  # full res, viewer
             plan_only.thumbnail((1800, 1800), Image.LANCZOS)
             plan_only.save(os.path.join(out, "brochure", f"villa-a{n}-{slug}.webp"), quality=88, method=6)
