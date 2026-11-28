@@ -188,6 +188,11 @@
 
   /* cover */
   .cover .page-inner{ align-items:center; text-align:center; justify-content:center; gap:1.6em; }
+  /* cover: a soft, even darkening so the photo reads moodier and the cream type stands out;
+     a little deeper at the foot, which also hides the clip's compression at the bottom edge */
+  .cover .shade-grad{ background:
+      radial-gradient(120% 85% at 50% 42%, rgba(15,12,8,0) 45%, rgba(15,12,8,.22) 100%),
+      linear-gradient(180deg, rgba(15,12,8,.36), rgba(15,12,8,.22) 40%, rgba(15,12,8,.30) 70%, rgba(15,12,8,.62)); }
   .monogram{ display:block; width:6.2em; height:auto; filter:drop-shadow(0 2px 14px rgba(0,0,0,.4)); }
   .cover-title{ font-size:5.2em; }
   .cover .caps-para{ max-width:44em; text-shadow:0 1px 12px rgba(0,0,0,.5); }
