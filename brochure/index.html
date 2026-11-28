@@ -134,7 +134,8 @@
     .tool{ height:32px; }
   }
   /* phones held sideways: too short for a whole portrait page at a readable size, so one page is shown
-     at a readable width and scrolls down inside the stage (swipe sideways still turns pages) */
+     at a readable width, grows to the height of its content (see fitSideways) and scrolls down inside the
+     stage (swipe sideways still turns pages) */
   @media (orientation:landscape) and (max-height:500px) and (pointer:coarse){
     .viewer{ padding:0 max(8px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
     .desk{ padding:6px 0 0; border-radius:0; }
@@ -177,7 +178,7 @@
   .shade{ position:absolute; inset:0; background:rgba(20,16,10,.34); }
   .shade-grad{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(15,12,8,.28), rgba(15,12,8,.10) 40%, rgba(15,12,8,.45)); }
   .page-inner{ position:relative; flex:1; display:flex; flex-direction:column; padding:3.2em 3.6em; min-height:0; }
-  body.minfit .page-inner{ overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }   /* see minText() */
+  body.minfit .page-inner, body.minfit .split{ overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }   /* see minText() */
   /* phones held upright, with the type floor on: */
   body.minfit.tall .pnum{ display:none; }                         /* the toolbar already shows the page number, and the page scrolls under it */
   body.minfit.tall .life-tabs{ flex-wrap:nowrap; justify-content:flex-start; overflow-x:auto; width:100%; padding-bottom:2px;
@@ -1912,7 +1913,7 @@ body.narrow .price-t td{ font-size:.8em; }
     if (tall){ pw = Math.max(w, 120); ph = Math.min(h, pw*2); fs = Math.min(pw * 0.034, ph * 0.0195); }
     document.body.classList.toggle('tall', tall);
     sheetBox.style.width  = (wantSpread ? 2*pw : pw) + 'px';
-    sheetBox.style.height = ph + 'px';
+    sheetBox.style.height = ph + 'px'; baseH = ph;
     sheetBox.style.fontSize = fs + 'px';
     if (wantSpread !== spread){ spread = wantSpread; rebuild(); }
     minText();
@@ -1963,7 +1964,23 @@ body.narrow .price-t td{ font-size:.8em; }
       document.body.classList.remove('mapnums');
       document.body.classList.toggle('mapnums', document.body.classList.contains('tall') || pinsCollide(mb));
     }
+    fitSideways();
   }
+  /* phones held sideways: the stage already scrolls, so the page grows to the height of its content
+     instead of scrolling (or clipping) inside itself -- one scroll, nothing out of reach */
+  var baseH = 0;
+  function fitSideways(){
+    if (!sideways.matches || spread || !baseH) return;
+    var pg = pages[cur]; if (!pg || !leaves.contains(pg)) return;
+    var keep = stage.scrollTop;
+    sheetBox.style.height = baseH + 'px';
+    var inner = pg.querySelector('.page-inner') || pg.querySelector('.split'), need = pg.scrollHeight;
+    if (inner) need = Math.max(need, pg.clientHeight - inner.clientHeight + inner.scrollHeight);
+    if (need > baseH + 1) sheetBox.style.height = Math.ceil(need) + 'px';
+    stage.scrollTop = keep;
+  }
+  /* opening a note or switching a tab can change the height without adding nodes */
+  leaves.addEventListener('click', function(){ requestAnimationFrame(fitSideways); setTimeout(fitSideways, 450); });
   function pinsCollide(mb){
     var box = mb.getBoundingClientRect(), hit = function(a, b){ return a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1; };
     var poi = Array.prototype.slice.call(mb.querySelectorAll('.poi'));
