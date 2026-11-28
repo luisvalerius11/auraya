@@ -46,6 +46,9 @@ def classify(d):
     if lay == "ASIT":
         return "site"
     if lay == "APAT":
+        r = d["rect"]
+        if max(r.width, r.height) < 2:
+            return "garden"            # the architect's planting hatch: tiny dots and arrow marks
         it = d["items"][0]
         if it[0] == "l":
             dx, dy = it[2].x - it[1].x, it[2].y - it[1].y
@@ -73,7 +76,7 @@ class Plan:
         self.W, self.H = int(self.clip.width * S), int(self.clip.height * S)
         c = self.clip
         hit = lambda r: r.x1 >= c.x0 and r.x0 <= c.x1 and r.y1 >= c.y0 and r.y0 <= c.y1
-        self.layers = {k: [] for k in ("struct", "site", "poche", "slat", "fine", "column", "above", "furnline")}
+        self.layers = {k: [] for k in ("struct", "site", "poche", "slat", "fine", "column", "above", "furnline", "garden")}
         for d in page.get_drawings():
             if hit(d["rect"]):
                 k = classify(d)
@@ -478,6 +481,17 @@ class Plan:
             floor |= msk
         is_furn = np.array([bool(a) and a.startswith("furn") for a in assign])
         furn = ndi.binary_dilation(np.isin(lab, idx[is_furn]), iterations=2) & ~walls
+        # gardens: wherever the drawing carries the planting hatch, plant it (beats any zone guess)
+        if self.layers["garden"]:
+            gm = self.raster("garden", 1.0, 3)
+            gm = ndi.binary_closing(gm, structure=np.ones((3, 3)), iterations=14)
+            gm = ndi.binary_opening(gm, structure=np.ones((3, 3)), iterations=4)
+            water = np.isin(lab, idx[assign == "water"])
+            gm &= ~walls & ~furn & ~ndi.binary_dilation(water | m_struct | m_fine, iterations=2)
+            if "planting" not in cache:
+                cache["planting"] = self.material("planting")
+            canvas[gm] = cache["planting"][gm]
+            floor |= gm
         # paint zones: recolour floor inside a wall-bounded rectangle (rooms joined by open doorways)
         for z in zones:
             if len(z) > 5 and z[5] == "paint":
