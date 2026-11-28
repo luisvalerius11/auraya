@@ -58,7 +58,7 @@
   .stage{ flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; }
 
   /* the book: one portrait page, turning on its left edge */
-  .sheet-box{ position:relative; transition:transform 1s cubic-bezier(.45,.05,.25,1); }
+  .sheet-box{ position:relative; transition:transform var(--turn, 1s) cubic-bezier(.45,.05,.25,1); }
   .sheet-box::before{ content:""; position:absolute; inset:0; background:#f3efe4;
     box-shadow: 2px 1px 0 #ebe6da, 3px 2px 0 #d9d3c5, 5px 3px 0 #ebe6da, 6px 4px 0 #d3cdbe, 0 18px 36px -16px rgba(40,30,15,.45); }
   .leaves{ position:absolute; inset:0; perspective:2800px; }
@@ -87,7 +87,7 @@
   body.spread .sheet-box[data-pos="start"]{ transform:translateX(-25%); }   /* closed: cover centred */
   body.spread .sheet-box[data-pos="end"]{ transform:translateX(25%); }      /* closed on the back cover */
   .leaf{ position:absolute; left:50%; top:0; width:50%; height:100%; transform-origin:left center;
-    transition:transform 1s cubic-bezier(.45,.05,.25,1); }
+    transition:transform var(--turn, 1s) cubic-bezier(.45,.05,.25,1); }
   .leaf.turned{ transform:rotateY(-180deg); }
   .leaf.far{ display:none; }
   .leaf.no-anim, .no-anim{ transition:none !important; }
@@ -1601,8 +1601,8 @@ body.narrow .price-t td{ font-size:.8em; }
   var counter = document.getElementById('counter');
   var prevBtn = document.getElementById('prevBtn'), nextBtn = document.getElementById('nextBtn');
   var prevTool= document.getElementById('prevTool'), nextTool= document.getElementById('nextTool');
-  /* page-turn length: the open book on wide screens turns slowly; a single page (phones) turns quicker */
-  var TURN_MS = 1000, TURN_SPREAD = 1000, TURN_SINGLE = 600;
+  /* page-turn length: the open book on wide screens, and a single page (phones), which turns a little quicker */
+  var TURN_MS = 750, TURN_SPREAD = 750, TURN_SINGLE = 450;   /* milliseconds */
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ----- page-turn sound -----
@@ -1744,9 +1744,22 @@ body.narrow .price-t td{ font-size:.8em; }
     });
     sheetBox.setAttribute('data-pos', state === 0 ? 'start' : (state === leafEls.length ? 'end' : 'mid'));
   }
+  /* ends the spread's turn in progress at once: every sheet jumps to where it was going */
+  var spreadTimer = 0;
+  function finishSpreadTurn(){
+    clearTimeout(spreadTimer);
+    leafEls.forEach(function(el){ el.classList.add('no-anim'); });
+    sheetBox.classList.add('no-anim');
+    settle(); void leaves.offsetWidth;
+    leafEls.forEach(function(el){ el.classList.remove('no-anim'); });
+    sheetBox.classList.remove('no-anim');
+    busy = false;
+    settleMedia();
+  }
   function turnTo(target){
     target = Math.max(0, Math.min(MAXSTATE, target));
-    if (busy || target === state) return;
+    if (target === state) return;
+    if (busy) finishSpreadTurn();      /* clicked or pressed again mid-turn: finish this one now and turn on */
     var from = state, fwd = target > from;
     pageSound();
     state = target;
@@ -1761,8 +1774,9 @@ body.narrow .price-t td{ font-size:.8em; }
       leafEls.forEach(function(l, k){ l.classList.toggle('far', !near(k, Math.min(from, target), Math.max(from, target))); });
       el.style.zIndex = 100;
       sheetBox.setAttribute('data-pos', state === 0 ? 'start' : (state === leafEls.length ? 'end' : 'mid'));
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.toggle('turned', fwd); watchFlip(el); }); });
-      setTimeout(function(){ settle(); busy = false; }, TURN_MS + 40);
+      var turnState = state;
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ if (state === turnState && busy){ el.classList.toggle('turned', fwd); watchFlip(el); } }); });
+      spreadTimer = setTimeout(function(){ settle(); busy = false; }, TURN_MS + 40);
     }
     afterMove();
   }
@@ -1772,7 +1786,8 @@ body.narrow .price-t td{ font-size:.8em; }
      so switch sides then, rather than reading the sheet's angle on every frame, which slows phones. */
   function watchFlip(el){
     var to = el.classList.contains('turned');
-    setTimeout(function(){ el.classList.toggle('flipped', to); }, TURN_MS * 0.38);
+    clearTimeout(el._flipTimer);      /* a turn cut short must not flip the sheet later */
+    el._flipTimer = setTimeout(function(){ if (el.classList.contains('turned') === to) el.classList.toggle('flipped', to); }, TURN_MS * 0.38);
   }
 
   /* ----- single-page mode ----- */
