@@ -45,7 +45,7 @@
     /* Auraya palette */
     --brown:#3E2D1E;        /* Dark Brown   */
     --brown-gray:#4B4335;   /* Dark Gray Brown */
-    --stone:#8d8270;        /* Gray Orange  */
+    --stone:#6f6658;        /* Gray Orange, deep enough for 4.5:1 text contrast */
     --cream:#f0ebd2;        /* Light Yellow */
 
     --ink:var(--brown);
@@ -53,7 +53,7 @@
     --paper:#faf7ec;        /* lifted cream for backgrounds */
     --paper-2:#f0ebd2;
     --stone-soft:#cfc7b3;
-    --gold:#a78b5f;
+    --gold:#796545;         /* bronze: 4.5:1 or better on the cream backgrounds */
     --line:rgba(62,45,30,.16);
     --shadow:0 24px 60px -28px rgba(62,45,30,.45);
     --maxw:1180px;
@@ -72,16 +72,17 @@
 
   nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:rgba(250,247,236,.85);backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .3s,box-shadow .3s}
   nav.scrolled{border-color:var(--line);box-shadow:0 8px 30px -20px rgba(62,45,30,.4)}
-  .brand{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.18em;font-weight:600;display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;line-height:1.2}
+  .brand{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.18em;font-weight:600;display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;line-height:1.2;min-height:44px}
   .brand img{width:42px;height:auto;display:block;flex:none}
-  .brand small{display:block;font-family:var(--font-body);font-size:.56rem;letter-spacing:.36em;text-transform:uppercase;color:var(--ink-soft);margin-top:3px;font-weight:400}
+  .brand small{display:block;font-family:var(--font-body);font-size:.7rem;letter-spacing:.36em;text-transform:uppercase;color:var(--ink-soft);margin-top:3px;font-weight:400}
   .nav-cta{font-family:var(--font-body);font-size:.8rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;background:var(--brown);color:var(--cream);padding:12px 24px;border-radius:2px;text-decoration:none;transition:transform .25s,background .25s}
   .nav-cta:hover{background:var(--brown-gray);transform:translateY(-2px)}
 
   header.hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;padding:140px 0 64px;overflow:hidden}
   .hero-photo{position:absolute;inset:0;background-image:url('assets/hero.webp');background-size:cover;background-position:center;animation:heroIn 2.4s var(--ease) both}
   @media (max-aspect-ratio:3/5){.hero-photo{background-image:url('assets/hero-portrait.webp')}}
-  .hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(62,45,30,.12) 25%,rgba(62,45,30,.78))}
+  /* a dark wash on the left, where the text sits, so the headline and paragraph reach WCAG contrast over the bright wall */
+  .hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(40,29,19,.76) 0%,rgba(40,29,19,.66) 45%,rgba(40,29,19,.4) 68%,rgba(40,29,19,0) 92%),linear-gradient(180deg,rgba(62,45,30,.12) 25%,rgba(62,45,30,.78))}
   .hero-inner{position:relative;z-index:2;color:var(--cream)}
   .hero-flag{display:inline-flex;align-items:center;gap:10px;background:rgba(240,235,210,.12);border:1px solid rgba(240,235,210,.32);backdrop-filter:blur(6px);padding:9px 18px;border-radius:2px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;margin-bottom:28px;animation:rise 1s var(--ease) .15s both}
   .hero-flag .dot{width:7px;height:7px;border-radius:50%;background:var(--stone);box-shadow:0 0 0 4px rgba(141,130,112,.3)}
@@ -251,7 +252,7 @@
   /* tablets: a soft dark wash behind the left of the hero photo, where the text sits, so the paragraph
      reads against the bright wall; and a wider intro photo when it stacks above the text */
   @media(min-width:601px) and (max-width:1180px){
-    .hero-photo::after{background:linear-gradient(90deg,rgba(40,29,19,.62),rgba(40,29,19,.3) 55%,rgba(40,29,19,0) 85%),linear-gradient(180deg,rgba(62,45,30,.12) 25%,rgba(62,45,30,.78))}
+    .hero-photo::after{background:linear-gradient(90deg,rgba(40,29,19,.76) 0%,rgba(40,29,19,.66) 45%,rgba(40,29,19,.4) 68%,rgba(40,29,19,0) 92%),linear-gradient(180deg,rgba(62,45,30,.12) 25%,rgba(62,45,30,.78))}
   }
   @media(min-width:601px) and (max-width:900px){
     .intro-photo{aspect-ratio:3/2}

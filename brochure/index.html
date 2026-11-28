@@ -159,7 +159,8 @@
     .viewer{ padding:0 10px max(12px, env(safe-area-inset-bottom)); }
     .desk{ padding:10px 4px 8px; }
   }
-  @media (max-width:360px){ .tool{ width:42px; } .counter{ padding:0 10px; } }
+  @media (max-width:360px){ .tool{ width:44px; } .counter{ padding:0 8px; } }
+  .tool{ min-width:44px; min-height:44px; }   /* Apple's 44pt minimum, also on short screens */
 
   /* ============ pages ============ */
   .page{ flex:1; min-width:0; position:relative; box-sizing:border-box; overflow:hidden;
@@ -176,6 +177,19 @@
   .shade{ position:absolute; inset:0; background:rgba(20,16,10,.34); }
   .shade-grad{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(15,12,8,.28), rgba(15,12,8,.10) 40%, rgba(15,12,8,.45)); }
   .page-inner{ position:relative; flex:1; display:flex; flex-direction:column; padding:3.2em 3.6em; min-height:0; }
+  body.minfit .page-inner{ overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }   /* see minText() */
+  /* phones held upright, with the type floor on: */
+  body.minfit.tall .pnum{ display:none; }                         /* the toolbar already shows the page number, and the page scrolls under it */
+  body.minfit.tall .life-tabs{ flex-wrap:nowrap; justify-content:flex-start; overflow-x:auto; width:100%; padding-bottom:2px;
+    scrollbar-width:none; -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent); mask-image:linear-gradient(90deg,#000 88%,transparent); }
+  body.minfit.tall .life-tabs::-webkit-scrollbar{ display:none; }
+  body.minfit.tall .life-tab{ flex:none; white-space:nowrap; }    /* one row of tabs that scrolls sideways */
+  body.minfit.tall .place .nm, body.minfit.tall .place .rt{ white-space:normal; }   /* names and review counts wrap instead of being cut off */
+  body.minfit.tall .roi-t th, body.minfit.tall .roi-t td{ padding-left:.15em; padding-right:.15em; letter-spacing:0; }
+  body.minfit .roi-t th{ hyphens:manual; }
+  body.minfit.tall .price-t th:nth-child(5), body.minfit.tall .price-t td:nth-child(5){ display:none; }   /* USD moves under IDR */
+  .price-t .usd-sub{ display:none; }
+  body.minfit.tall .price-t .usd-sub{ display:block; margin-top:.2em; font-weight:400; opacity:.75; }
   .photo-page .page-inner{ z-index:1; }
 
   .fat-title{ font-family:var(--fat); font-weight:400; line-height:.98; letter-spacing:.005em; margin:0; text-wrap:balance; }
@@ -255,9 +269,33 @@
   .poi.lb-left-up .t{ right:1.25em; bottom:-.45em; text-align:right; }   /* left of the dot, sitting a little higher */
   .poi.lb-left-mid .t{ right:1.25em; bottom:-.62em; text-align:right; }   /* left of the dot, between lb-left and lb-left-up: above the coastline, clear of the Auraya pin */
   .poi .t small{ display:block; font-weight:400; }
+  .poi .t{ font-size:max(.62em, 11px); }   /* pin names never below Apple's 11pt minimum, on any screen */
+  .poi .t small{ font-size:max(.85em, 11px); }
+  body.pinfloor .poi .t small{ display:none; }   /* raised to the floor: one line per pin (the readout names the kind of place) */
+  .legal-link{ display:inline-block; padding:14px 0; margin:-14px 0; }   /* 44pt tap height without moving the text */
+  /* numbered pins with a list of places under the map (names at full size, 44pt rows), used on phones and on any
+     screen where the labels would collide at Apple's 11pt minimum (set by minText); the AURAYA label stays on the map */
+  .loc-list{ display:none; }
+  body.mapnums .loc button.poi .t{ display:none; }
+  body.mapnums .loc .poi-auraya .t{ font-size:12px; }
+  body.mapnums .loc button.poi .d{ width:18px; height:18px; display:flex; align-items:center; justify-content:center;
+    background:#4a4238; color:#f4f1ea; border-width:1.5px; font:600 11px/1 var(--sans); }
+  body.mapnums .loc button.poi .d::after{ content:attr(data-n); }
+  body.mapnums .loc button.poi.on .d{ background:var(--ink); }
+  body.mapnums .loc-list{ display:block; list-style:none; margin:.8em 0 2.4em; padding:0; border-top:1px solid rgba(239,233,217,.18); }
+  .loc-list button{ all:unset; box-sizing:border-box; display:flex; align-items:center; gap:12px; width:100%; min-height:44px; padding:6px 2px;
+    border-bottom:1px solid rgba(239,233,217,.18); cursor:pointer; color:#ded7c3; font:400 13px/1.3 var(--sans); }
+  .loc-list .n{ flex:none; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:#efe9d9; color:#2b2218; font:600 11px/1 var(--sans); }
+  .loc-list .nm{ flex:1; min-width:0; }
+  .loc-list .nm small{ display:block; font-size:11px; color:#b9b19c; }
+  .loc-list .mn{ flex:none; font-weight:600; color:#efe9d9; font-variant-numeric:tabular-nums; }
+  .loc-list button[aria-pressed="true"]{ background:rgba(239,233,217,.08); }
+  .loc-list button[aria-pressed="true"] .n{ background:var(--olive); }
+  .loc-list button:focus-visible{ outline:2px solid #efe9d9; outline-offset:-2px; }
   .poi-auraya .d{ width:1.05em; height:1.05em; background:var(--ink); box-shadow:0 0 0 .3em rgba(22,19,14,.18); }
   .poi-auraya.lb-above .t{ bottom:1em; }
-  .poi-auraya .t{ font-family:var(--serif); font-size:.78em; letter-spacing:.14em; }
+  .poi-auraya .t{ font-family:var(--serif); font-size:max(.78em, 12px); letter-spacing:.14em; }
   /* tappable places with scooter times */
   button.poi{ background:none; border:0; padding:0; margin:0; font:inherit; color:inherit; cursor:pointer; }
   button.poi::before{ content:""; position:absolute; left:-.9em; top:-.9em; width:1.8em; height:1.8em; }   /* tap target around the dot */
@@ -312,9 +350,9 @@
   .spot-note{ font-size:.62em; letter-spacing:.06em; color:#857f6e; margin:0 0 1.1em; font-style:italic; }
   .place .nm{ font-size:.8em; font-weight:600; padding:.75em .9em .1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .rt{ font-size:.66em; padding:0 1.1em .3em; color:#5f5a4e; white-space:nowrap; }
-  .rt .stars{ color:#e8a12d; letter-spacing:.08em; }
+  .rt .stars{ color:#c08525; letter-spacing:.08em; }
   .place .rt:empty::before{ content:"\00a0"; }   /* keeps cards the same height while a rating is still to come */
-  .place .tp{ font-size:.62em; padding:0 1.15em 1em; color:#8a8474; }
+  .place .tp{ font-size:.62em; padding:0 1.15em 1em; color:#6f6658; }
   .life-hint{ margin-top:.4em; font-size:.62em; letter-spacing:.16em; text-transform:uppercase; color:#857f6e; }
 
   /* one place, opened over the page */
@@ -337,7 +375,7 @@
   .spot-media.nophoto{ aspect-ratio:4/1.6; }
   .spot-quotes{ margin-top:1.6em; display:grid; gap:.8em; }
   .quote{ margin:0; background:#fdfcf9; border-radius:.5em; padding:1em 1.2em; box-shadow:0 4px 14px rgba(0,0,0,.07); }
-  .quote .stars{ color:#e8a12d; font-size:.7em; letter-spacing:.1em; }
+  .quote .stars{ color:#c08525; font-size:.7em; letter-spacing:.1em; }
   .quote blockquote{ margin:.4em 0 .5em; font-size:.82em; line-height:1.6; color:#2c2820; }
   .quote figcaption{ font-size:.62em; letter-spacing:.12em; text-transform:uppercase; color:#857f6e; }
   .spot-map{ display:inline-block; margin-top:1.2em; font-size:.75em; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
@@ -430,7 +468,7 @@
     align-items:center; gap:0 .7em; width:34%; padding:1.1em 1em 1.1em 2.6em; text-align:left;   /* text wraps before the house, which starts at about 37% */
     background:radial-gradient(farthest-side at 30% 50%, rgba(244,242,236,.95) 0, rgba(244,242,236,.85) 55%, rgba(244,242,236,0) 100%);
     text-shadow:0 0 .4em #f4f2ec, 0 0 .9em #f4f2ec; }
-  .sec-no{ grid-row:span 2; font-family:var(--serif); font-size:2.1em; line-height:1; letter-spacing:.04em; color:rgba(22,19,14,.34); transition:color .3s; }
+  .sec-no{ grid-row:span 2; font-family:var(--serif); font-size:2.1em; line-height:1; letter-spacing:.04em; color:rgba(22,19,14,.62); transition:color .3s; }
   .sec-tag .nm{ font-size:.8em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--ink); }
   .sec-tag .rm{ font-size:.72em; line-height:1.45; color:#3b362c; margin-top:.25em; text-wrap:pretty; }
   .sec-band:hover .sec-no, .sec-band.on .sec-no{ color:var(--ink); }
@@ -491,7 +529,13 @@
   .plan-lv{ border:0; background:none; padding:.35em 0; cursor:pointer; font:inherit; font-size:.64em; font-weight:600; letter-spacing:.2em;
     text-transform:uppercase; color:#6a6152; border-bottom:1.5px solid transparent; transition:color .2s, border-color .2s;
     display:inline-flex; align-items:center; }
-  @media (pointer:coarse){ .plan-lv{ min-height:44px; } .plan-villa{ min-height:44px; } }   /* Apple's minimum touch target */
+  @media (pointer:coarse){ .plan-lv{ min-height:44px; min-width:44px; } .plan-villa{ min-height:44px; } }   /* Apple's minimum touch target */
+  /* every other control in the book gets the same 44pt minimum on touch screens */
+  @media (pointer:coarse){
+    .toc-item, .life-tab{ min-height:44px; }
+    .roi-btn{ min-height:44px; box-sizing:border-box; }
+    .plan-floor figcaption .zoom{ min-height:44px; min-width:44px; justify-content:center; }
+  }
   .plan-status{ font-size:.6em; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:#8a3c26;
     display:inline-flex; align-items:center; gap:.5em; }
   .plan-status:empty{ display:none; }
@@ -643,6 +687,9 @@ body.narrow .price-t td{ font-size:.8em; }
   body.narrow .loc .page-inner{ gap:1.2em; }
   body.narrow .loc-text{ flex:0 0 auto; }
   body.narrow .mapwrap{ flex:1; min-height:8em; }
+  /* when the type floor makes the text taller (phones), the map keeps its full width and own shape and the page scrolls to it,
+     instead of the map shrinking into the space left over */
+  body.mapnums .loc .mapwrap{ flex:none; aspect-ratio:1500 / 1171; min-height:0; }
   /* the map picture's right side is a straight cut (the land carries on): run it to the page's right edge, no gap */
   .loc .mapwrap{ margin-right:-3em; }
   body.narrow .loc .mapwrap{ margin-right:-1.6em; }
@@ -816,7 +863,7 @@ body.narrow .price-t td{ font-size:.8em; }
           <li>The stunning Melasti Beach is about 12 minutes away by scooter</li>
           <li>Beach clubs within 10 minutes; Uluwatu's other beaches and the temple within about 15 to 25 minutes</li>
         </ul>
-        <p class="loc-tip">Tap a place on the map for the scooter time from the villa.</p>
+        <p class="loc-tip">Tap a place for its scooter time from the villa.</p>
       </div>
       <!-- Scooter times: road distance from the villa (data-villa, lat,lon) to each place,
            measured on OpenStreetMap (OSRM), turned into minutes at the pace Google Maps gave
@@ -851,7 +898,7 @@ body.narrow .price-t td{ font-size:.8em; }
     <div class="page-inner">
       <h2 class="fat-title life-title">Island Lifestyle</h2>
       <p class="life-sub">Designed for those who live in sync with the island's rhythm, Auraya Villas puts you at the heart of Uluwatu's vibrant lifestyle.</p>
-      <div class="life-tabs" role="tablist" aria-label="Places by category"></div>
+      <div class="life-tabs" role="tablist" aria-label="Places by category" data-noswipe></div>
       <div class="life-grid" role="tabpanel"></div>
       <p class="life-hint">Tap a place to see more</p>
     </div>
@@ -883,7 +930,7 @@ body.narrow .price-t td{ font-size:.8em; }
         </div>
       </div>
       <table class="roi-t roi-explain-t" id="roiTable">
-        <tr><th></th><th>Conservative</th><th>Expected</th><th>Accelerated</th></tr>
+        <tr><th></th><th>Conser&shy;vative</th><th>Expected</th><th>Accel&shy;erated</th></tr>
         <tr data-k="rate" tabindex="0"><td>Average Day Rate</td><td>$160</td><td>$175</td><td>$190</td></tr>
         <tr data-k="occ" tabindex="0" class="line"><td>Average Occupancy Rate</td><td>75%</td><td>80%</td><td>85%</td></tr>
         <tr data-k="gross" tabindex="0" class="strong"><td>Gross Rental Income</td><td>$43,800</td><td>$51,100</td><td>$58,948</td></tr>
@@ -1141,7 +1188,7 @@ body.narrow .price-t td{ font-size:.8em; }
       }
     })();
     </script>
-    <p class="legal">Illustrative material, not an offer capable of acceptance. Tenure is either a 30+20 year leasehold with the option to convert to freehold, or freehold‑equivalent HGB title held through the buyer's own PT PMA; terms per the notarial deed and building contract prepared for each buyer.<span data-cookie-settings> · <a href="#" style="color:inherit">Cookie settings</a></span></p>
+    <p class="legal">Illustrative material, not an offer capable of acceptance. Tenure is either a 30+20 year leasehold with the option to convert to freehold, or freehold‑equivalent HGB title held through the buyer's own PT PMA; terms per the notarial deed and building contract prepared for each buyer.<span data-cookie-settings> · <a class="legal-link" href="#" style="color:inherit">Cookie settings</a></span></p>
   </section>
 
 </div>
@@ -1276,7 +1323,7 @@ body.narrow .price-t td{ font-size:.8em; }
       var d = el('div', 'rt');
       if (p.rating){
         d.appendChild(document.createTextNode(p.rating.toFixed(1) + ' '));
-        d.appendChild(el('span', 'stars', stars(p.rating)));
+        var st = el('span', 'stars', stars(p.rating)); st.setAttribute('aria-hidden', 'true'); d.appendChild(st);
         if (p.reviews) d.appendChild(document.createTextNode(' (' + p.reviews.toLocaleString('en-US') + ')'));
       }
       return d;
@@ -1425,11 +1472,26 @@ body.narrow .price-t td{ font-size:.8em; }
     var read = document.createElement('div');
     read.className = 'map-read'; read.hidden = true; read.setAttribute('aria-live', 'polite');
     wrap.querySelector('.mapbox').appendChild(read);
-    pins.forEach(function(b){
+    var list = document.createElement('ol');           /* phones: the same places as a list (see .loc-list) */
+    list.className = 'loc-list'; list.setAttribute('aria-label', 'Places and scooter times from the villa');
+    wrap.parentNode.insertBefore(list, wrap.nextSibling);
+    pins.forEach(function(b, i){
       var t = b.querySelector('.t');
       var name = t.firstChild.textContent.trim();
       var kind = t.querySelector('small') ? t.querySelector('small').textContent.trim() : '';
       b.dataset.name = name + (kind ? ' ' + kind : '');
+      b.querySelector('.d').setAttribute('data-n', i + 1);
+      var li = document.createElement('li'), row = document.createElement('button');
+      row.type = 'button'; row.setAttribute('aria-pressed', 'false');
+      row.innerHTML = '<span class="n" aria-hidden="true"></span><span class="nm"></span><span class="mn"></span>';
+      row.querySelector('.n').textContent = i + 1;
+      row.querySelector('.nm').textContent = name;
+      if (kind){ var sm = document.createElement('small'); sm.textContent = kind; row.querySelector('.nm').appendChild(sm); }
+      row.querySelector('.mn').textContent = b.dataset.min + ' min';
+      row.setAttribute('aria-label', name + (kind ? ' ' + kind : '') + ': ' + b.dataset.min + ' minutes by scooter from the villa');
+      row.addEventListener('click', function(e){ e.stopPropagation(); b.click(); });
+      b._row = row;
+      li.appendChild(row); list.appendChild(li);
       b.setAttribute('aria-label', name + ': ' + b.dataset.min + ' minutes by scooter from the villa');
       b.setAttribute('aria-pressed', 'false');
       b.addEventListener('click', function(e){
@@ -1437,7 +1499,7 @@ body.narrow .price-t td{ font-size:.8em; }
         var was = b.classList.contains('on');
         close();
         if (!was){
-          b.classList.add('on'); b.setAttribute('aria-pressed', 'true');
+          b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); b._row.setAttribute('aria-pressed', 'true');
           read.innerHTML = '<b></b><span class="min">' + SCOOTER + b.dataset.min + ' min <small>by scooter</small></span>';
           read.querySelector('b').textContent = b.dataset.name;
           read.hidden = false;
@@ -1445,7 +1507,7 @@ body.narrow .price-t td{ font-size:.8em; }
         }
       });
     });
-    function close(){ pins.forEach(function(p){ p.classList.remove('on'); p.setAttribute('aria-pressed', 'false'); }); read.hidden = true; }
+    function close(){ pins.forEach(function(p){ p.classList.remove('on'); p.setAttribute('aria-pressed', 'false'); p._row.setAttribute('aria-pressed', 'false'); }); read.hidden = true; }
     /* sideways phones: keep the readout inside the visible part of the map */
     var stageEl = document.getElementById('stage'), mapbox = wrap.querySelector('.mapbox');
     var sidewaysQ = window.matchMedia('(orientation:landscape) and (max-height:500px) and (pointer:coarse)');
@@ -1500,6 +1562,7 @@ body.narrow .price-t td{ font-size:.8em; }
     var level = 0, picked = false, lineEl = secPage.querySelector('.sec-line');
     LEVELS.forEach(function(L){                                    /* label each band of the section drawing */
       var band = secPage.querySelector('.sec-band[data-level="' + L.id + '"]'); if (!band) return;
+      band.setAttribute('aria-label', L.name + ': ' + L.rooms);
       var tag = el('span', 'sec-tag');
       tag.appendChild(el('span', 'sec-no', L.no)); tag.appendChild(el('span', 'nm', L.name));
       tag.appendChild(el('span', 'rm', L.rooms.replace(/ \u00b7 /g, '\u00a0\u00b7 ')));   /* keep each dot with the word before it, so no line starts with one */
@@ -1852,6 +1915,68 @@ body.narrow .price-t td{ font-size:.8em; }
     sheetBox.style.height = ph + 'px';
     sheetBox.style.fontSize = fs + 'px';
     if (wantSpread !== spread){ spread = wantSpread; rebuild(); }
+    minText();
+  }
+
+  /* price list on phones: the USD price shown under the IDR price (see .usd-sub) */
+  Array.prototype.forEach.call(store.querySelectorAll('.price-t tr'), function(tr){
+    var c = tr.cells; if (c.length < 5 || c[0].tagName === 'TH') return;
+    var sub = document.createElement('span'); sub.className = 'usd-sub'; sub.textContent = '≈ ' + c[4].textContent.trim();
+    c[3].appendChild(sub);
+  });
+
+  /* ----- readable type on small screens -----
+     The book scales its type with the page, so on phones some text would fall below Apple's 11pt
+     minimum. After each layout, any text that would render under MIN_TEXT px is set to MIN_TEXT,
+     and its descendants get explicit sizes so nothing compounds. Pages whose content then grows
+     taller than the screen scroll inside their frame (see .minfit). Map pin names are left as they
+     are, to keep the map uncluttered; tapping a pin shows its time in a readable readout.
+     On tablets and desktops every size is already above the floor, so nothing changes. */
+  var MIN_TEXT = 11;
+  function minText(){
+    var base = parseFloat(sheetBox.style.fontSize) || 16, changed = false;
+    var marked = Array.prototype.slice.call(document.querySelectorAll('[data-minfs]'));
+    marked.forEach(function(e){ e.style.fontSize = ''; e.removeAttribute('data-minfs'); });
+    var plan = [];
+    pages.forEach(function(pg){
+      var rootFs = parseFloat(getComputedStyle(pg).fontSize) || 16;
+      var els = pg.querySelectorAll('*');
+      for (var i = 0; i < els.length; i++){
+        var e = els[i];
+        if (e.closest('.poi') || e.tagName === 'svg' || e.closest('svg')) continue;
+        var ratio = parseFloat(getComputedStyle(e).fontSize) / rootFs;
+        var own = false;
+        for (var n = e.firstChild; n; n = n.nextSibling){ if (n.nodeType === 3 && n.textContent.trim()){ own = true; break; } }
+        plan.push([e, ratio * base, own]);
+      }
+    });
+    plan.forEach(function(p){
+      var e = p[0], natural = p[1], up = p[2] && natural < MIN_TEXT;
+      var inherited = e.parentElement && e.parentElement.hasAttribute('data-minfs');
+      if (up || inherited){ e.style.fontSize = (up ? MIN_TEXT : natural) + 'px'; e.setAttribute('data-minfs', ''); changed = true; }
+    });
+    document.body.classList.toggle('minfit', changed);
+    document.body.classList.toggle('pinfloor', base * 0.62 < MIN_TEXT);   /* map pin names would be under the floor: see .poi .t */
+    /* location map: labelled pins where they fit, numbered pins + list where they would collide (always on phones) */
+    var mb = leaves.querySelector('.loc .mapbox');
+    if (mb){
+      document.body.classList.remove('mapnums');
+      document.body.classList.toggle('mapnums', document.body.classList.contains('tall') || pinsCollide(mb));
+    }
+  }
+  function pinsCollide(mb){
+    var box = mb.getBoundingClientRect(), hit = function(a, b){ return a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1; };
+    var poi = Array.prototype.slice.call(mb.querySelectorAll('.poi'));
+    var labels = poi.map(function(p){ return p.querySelector('.t').getBoundingClientRect(); });
+    var dots = poi.map(function(p){ return p.querySelector('.d').getBoundingClientRect(); });
+    for (var i = 0; i < labels.length; i++){
+      if (labels[i].left < box.left - 1 || labels[i].right > box.right + 1) return true;
+      for (var j = 0; j < labels.length; j++){
+        if (j > i && hit(labels[i], labels[j])) return true;
+        if (j !== i && hit(labels[i], dots[j])) return true;
+      }
+    }
+    return false;
   }
 
   function clearBook(){
@@ -2227,6 +2352,12 @@ body.narrow .price-t td{ font-size:.8em; }
   }
   fit();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  /* content drawn later (Island Lifestyle tabs, a place opened, ROI notes, page turns) gets the same type floor */
+  (function(){
+    var queued = false;
+    var mo = new MutationObserver(function(){ if (queued) return; queued = true; requestAnimationFrame(function(){ queued = false; minText(); }); });
+    [store, leaves].forEach(function(n){ if (n) mo.observe(n, { childList:true, subtree:true }); });
+  })();
 
   function startMedia(){
     if (mediaOK) return;
