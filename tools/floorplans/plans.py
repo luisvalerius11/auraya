@@ -56,7 +56,7 @@ V2_GF_HOUSE = [
 ]
 V2_GF_HOUSE_LABELS = [
     L("Shower", 391, 243), L("Terrace", 500, 246),
-    L("Living", 548, 330, "25 m²"), L("Dining + Kitchen", 440, 407, "15 m²"),
+    L("Living", 548, 330, "25 m²"), L("Dining + Kitchen", 432, 409, "15 m²"),
     L("Powder", 398, 447, "3 m²"), L("Bike Parking", 474, 488),
 ]
 V2_2F = [
@@ -94,7 +94,7 @@ V2_GF_DECOR = [  # inside the 7.5 m module (same in every villa, Villa 4 shifted
     ("tall_units", 421, 416, 445, 433, 1), ("tall_units", 492, 416, 514, 433, 1),
     ("counter", 445, 416, 492, 433, 180, [("sink", 0.3), ("hob", 0.72)]),
     ("pot_plant", 576, 236, 8), ("pot_plant", 577, 350, 9),
-    ("scooter", 425, 486, 90), ("scooter", 520, 486, 90),
+    ("scooter", 397, 486, 90), ("scooter", 551, 486, 90),
 ]
 STRIP = [("shrub", 373, 128, 9, 0), ("palm", 372, 160, 20), ("shrub", 373, 192, 9, 2), ("shrub", 373, 214, 9, 1)]
 GF_OUTSIDE = {  # loungers on the sunbed deck and garden planting, per villa
@@ -158,16 +158,16 @@ def villa_123(n):
             ("polished_concrete", 300, 100, 372, 222), ("polished_concrete", 108, 100, 302, 214),
             ("planting", 120, 300), ("planting", 130, 215),
         ] + gf[6:]
-        gfl = [L("Pool", 206, 163, "15 m²", light=True), L("Sunbed", 336, 172, "8 m²"),
+        gfl = [L("Pool", 206, 163, "15 m²", light=True), L("Sunbed", 330, 214, "8 m²"),
                L("Shower", 178, 240), L("Terrace", 290, 246)] + gfl[2:]
     elif n == 2:
         gf = [("water", 448, 175), ("polished_concrete", 512, 100, 586, 226), ("planting", 362, 100, 382, 226),
               ("polished_concrete", 380, 100, 515, 226)] + gf
-        gfl = [L("Pool", 448, 178, "11 m²", light=True), L("Sunbed", 550, 175, "7 m²")] + gfl
+        gfl = [L("Pool", 448, 178, "11 m²", light=True), L("Sunbed", 550, 216, "7 m²")] + gfl
     else:
         gf = [("water", 660, 182), ("polished_concrete", 728, 100, 799, 226), ("planting", 575, 100, 594, 226),
               ("polished_concrete", 592, 100, 731, 226)] + gf
-        gfl = [L("Pool", 662, 180, "7 m²", light=True), L("Sunbed", 763, 190, "5 m²")] + gfl
+        gfl = [L("Pool", 662, 180, "7 m²", light=True), L("Sunbed", 762, 184, "5 m²")] + gfl
     f2, f2l = shift(V2_2F, V2_2F_LABELS, dx)
     rt, rtl = shift(V2_RT, V2_RT_LABELS, dx)
     strip = shift_decor(STRIP[1:], dx) if n == 3 else []
@@ -187,7 +187,7 @@ def villa_4():
         ("marble", 797, 333, 1003, 532), ("pavers", 797, 532, 1003, 568, "edge"), ("pavers", 797, 531, 1001, 567, "paint"),
         ("planting", 790, 568, 1068, 595, "edge"),
     ]
-    gfl = [L("Pool", 860, 256, "6 m²", light=True), L("Sunbed", 965, 268, "6 m²"),
+    gfl = [L("Pool", 860, 256, "6 m²", light=True), L("Sunbed", 968, 258, "6 m²"),
            L("Shower", 815, 312), L("Terrace", 925, 314),
            L("Living", 968, 378, "25 m²"), L("Dining + Kitchen", 972, 442, "15 m²"),
            L("Powder", 834, 518, "3 m²"), L("Bike Parking", 900, 550)]
@@ -214,6 +214,7 @@ def fonts():
         "title": ImageFont.truetype(head, 64), "subtitle": ImageFont.truetype(body, 36),
         "num": ImageFont.truetype(body, 26), "numsmall": ImageFont.truetype(body, 20),
         "legend": ImageFont.truetype(body, 26),
+        "dim": ImageFont.truetype(body, 24),
     }
 
 

@@ -68,6 +68,7 @@ FRENCH_PATTERN = [(0, 0, 0), (0, 1, 0), (0, 2, 0), (0, 0, 1), (0, 1, 1), (0, 2, 
 
 class Plan:
     def __init__(self, page, clip):
+        self.page = page
         self.clip = fitz.Rect(*clip)
         self.W, self.H = int(self.clip.width * S), int(self.clip.height * S)
         c = self.clip
@@ -170,6 +171,114 @@ class Plan:
         for p, q in links:
             dr.line([self.px(*p), self.px(*q)], fill=255, width=lw)
         return np.array(img) > 0
+
+    # ---------- dimensions ----------
+    def dimension_rows(self):
+        """Dimension chains from the CAD ADIM layer that belong to this villa, as
+        {side: [row, ...]} with rows nearest the plan first; row = [(a, b, mm), ...] in pt."""
+        c = self.clip
+        lines, ticks = [], []
+        for d in self.page.get_drawings():
+            if (d.get("layer") or "").split("$")[-1] != "ADIM":
+                continue
+            for it in d["items"]:
+                if it[0] != "l":
+                    continue
+                a, b = it[1], it[2]
+                dx, dy = b.x - a.x, b.y - a.y
+                if abs(abs(dx) - abs(dy)) < 0.3 and 4 < math.hypot(dx, dy) < 12:
+                    ticks.append(((a.x + b.x) / 2, (a.y + b.y) / 2))  # 45-degree tick mark
+                else:
+                    lines.append((a.x, a.y, b.x, b.y))
+        hz, vt = {}, {}
+        for x0, y0, x1, y1 in lines:
+            if abs(y0 - y1) < 0.05 and abs(x0 - x1) > 1:
+                hz.setdefault(round(y0, 1), []).append((min(x0, x1), max(x0, x1)))
+            elif abs(x0 - x1) < 0.05 and abs(y0 - y1) > 1:
+                vt.setdefault(round(x0, 1), []).append((min(y0, y1), max(y0, y1)))
+
+        def chain(spans, pos):
+            """consecutive ticks on a dimension line, kept where the line runs between them"""
+            pos = sorted(set(round(p, 2) for p in pos))
+            out = []
+            for a, b in zip(pos, pos[1:]):
+                mid = (a + b) / 2
+                if any(s0 - 0.05 <= mid <= s1 + 0.05 for s0, s1 in spans):
+                    out.append((a, b))
+            return out
+
+        hz = {y: chain(sp, [tx for tx, ty in ticks if abs(ty - y) < 0.4]) for y, sp in hz.items()}
+        vt = {x: chain(sp, [ty for tx, ty in ticks if abs(tx - x) < 0.4]) for x, sp in vt.items()}
+        def mm(L):  # 1:100; snap PDF rounding noise (4649 -> 4650) but keep real values (746)
+            v = int(round(L * 25.4 / 72 * 100))
+            r = int(round(v / 10.0)) * 10
+            return r if abs(v - r) <= 1 else v
+        out = {"top": [], "bottom": [], "left": [], "right": []}
+        for y, segs in hz.items():
+            if c.y0 - 2 <= y <= c.y1 + 2:
+                continue  # extension lines inside the plan, not a dimension chain
+            row = sorted((a, b, mm(b - a)) for a, b in segs if a >= c.x0 - 2 and b <= c.x1 + 2)
+            if row:
+                out["top" if y < c.y0 else "bottom"].append((abs(y - (c.y0 if y < c.y0 else c.y1)), row))
+        for x, segs in vt.items():
+            row = sorted((a, b, mm(b - a)) for a, b in segs if a >= c.y0 - 2 and b <= c.y1 + 2)
+            if not row:
+                continue
+            if x < c.x0 + 25 and c.x0 - x < 550:
+                out["left"].append((abs(x - c.x0), row))
+            elif x > c.x1 - 25 and x - c.x1 < 100:
+                out["right"].append((abs(x - c.x1), row))
+        return {k: [r for _, r in sorted(v)] for k, v in out.items()}
+
+    def with_dimensions(self, img, fonts):
+        rows = self.dimension_rows()
+        gap, base = 66, 46
+        m = {k: (base + gap * len(v) if v else 24) for k, v in rows.items()}
+        W, H = img.width + m["left"] + m["right"], img.height + m["top"] + m["bottom"]
+        out = Image.new("RGB", (W, H), tuple(int(v) for v in rgb(PAL["paper"])))
+        out.paste(img, (m["left"], m["top"]))
+        dr = ImageDraw.Draw(out)
+        ink, f = (28, 26, 24), fonts["dim"]
+
+        def tick(x, y):
+            dr.line([(x - 8, y + 8), (x + 8, y - 8)], fill=ink, width=3)
+
+        for side, rs in rows.items():
+            for k, row in enumerate(rs):
+                for a, b, val in row:
+                    t = str(val)
+                    tw = dr.textlength(t, font=f)
+                    if side in ("top", "bottom"):
+                        y = m["top"] - base - k * gap + 20 if side == "top" else m["top"] + img.height + base + k * gap - 20
+                        xa, xb = self.px(a, 0)[0] + m["left"], self.px(b, 0)[0] + m["left"]
+                        dr.line([(xa - 10, y), (xb + 10, y)], fill=ink, width=2)
+                        edge = m["top"] - 8 if side == "top" else m["top"] + img.height + 8
+                        for xx in (xa, xb):
+                            dr.line([(xx, y - 10 if side == "bottom" else y + 10), (xx, edge)] if side == "top"
+                                    else [(xx, edge), (xx, y + 10)], fill=(150, 145, 136), width=1)
+                            tick(xx, y)
+                        if tw + 6 < xb - xa:
+                            dr.text(((xa + xb - tw) / 2, y - 34), t, font=f, fill=ink)
+                        else:  # narrow segment: value set just outside, past its left tick
+                            dr.text((xa - tw - 14, y - 34), t, font=f, fill=ink)
+                    else:
+                        x = m["left"] - base - k * gap + 20 if side == "left" else m["left"] + img.width + base + k * gap - 20
+                        ya, yb = self.px(0, a)[1] + m["top"], self.px(0, b)[1] + m["top"]
+                        dr.line([(x, ya - 10), (x, yb + 10)], fill=ink, width=2)
+                        edge = m["left"] - 8 if side == "left" else m["left"] + img.width + 8
+                        for yy in (ya, yb):
+                            dr.line([(x + 10, yy), (edge, yy)] if side == "left" else [(edge, yy), (x - 10, yy)],
+                                    fill=(150, 145, 136), width=1)
+                            tick(x, yy)
+                        if tw + 6 >= yb - ya:  # narrow: set the value upright beside the chain
+                            tx = x - tw - 16 if side == "left" else x + 16
+                            dr.text((tx, (ya + yb) / 2 - 14), t, font=f, fill=ink)
+                        else:
+                            tmp = Image.new("RGBA", (int(tw) + 4, 34), (0, 0, 0, 0))
+                            ImageDraw.Draw(tmp).text((2, 0), t, font=f, fill=ink + (255,))
+                            tmp = tmp.rotate(90, expand=True)
+                            out.paste(tmp, (int(x - 34), int((ya + yb - tmp.height) / 2)), tmp)
+        return out
 
     # ---------- materials ----------
     def noise(self, scale, amp):
@@ -417,17 +526,18 @@ class Plan:
         img = Image.fromarray(np.clip(canvas, 0, 255).astype(np.uint8))
         dr = ImageDraw.Draw(img)
         if decor:
-            legend = []
-            for n, lb in enumerate(labels, 1):
+            for lb in labels:
                 x, y = self.px(lb["at"][0], lb["at"][1])
-                r = 19
-                dr.ellipse([x - r - 3, y - r - 3, x + r + 3, y + r + 3], fill=(250, 247, 236))
-                dr.ellipse([x - r, y - r, x + r, y + r], fill=(62, 45, 30))
-                t = str(n)
-                tw = dr.textlength(t, font=fonts["num"])
-                dr.text((x - tw / 2, y - 15), t, font=fonts["num"], fill=(250, 247, 236))
-                legend.append((n, lb["name"], lb.get("sub", "")))
-            return img, legend
+                t1, t2 = lb["name"].upper(), lb.get("sub", "")
+                w = max(dr.textlength(t1, font=fonts["label"]), dr.textlength(t2, font=fonts["sub"]) if t2 else 0)
+                h0, h1 = (y - 36, y + 38) if t2 else (y - 20, y + 20)
+                pill = Image.new("RGBA", img.size, (0, 0, 0, 0))
+                ImageDraw.Draw(pill).rounded_rectangle([x - w / 2 - 16, h0, x + w / 2 + 16, h1], radius=14,
+                                                       fill=(250, 247, 236, 205))
+                img = Image.alpha_composite(img.convert("RGBA"), pill).convert("RGB")
+                dr = ImageDraw.Draw(img)
+                self._text(dr, x, y, lb, fonts, (28, 26, 24), (95, 82, 62))
+            return self.with_dimensions(img, fonts), []
         for lb in labels:
             x, y = self.px(lb["at"][0], lb["at"][1])
             light = lb.get("light", False)

@@ -19,7 +19,10 @@ Output per villa (A1–A4, as in the brochure and price list): `villa-aN-{ground
   sanitaryware, loungers, palms and shrubs) as textured top-view sprites with soft shadows,
   placed at the positions of the CAD furniture.
 - `plans.py` holds the crop and the room/material/label/furniture definitions for each villa and floor.
-  Rooms are numbered on the plan and listed in the legend under the title.
+  Rooms carry their name and area (m², from the drawing) on the plan.
+- Dimension chains (mm) come from the CAD dimension layer: the tick marks give the exact measuring
+  points, so every value matches the architect's drawing; detail and overall chains are drawn on
+  each side of the villa where the drawing has them.
   When the architect issues a new PDF with the same sheet layout, rerun the command; if rooms
   move, adjust the coordinates (PDF points on the A3 sheet) in `plans.py`.
 
