@@ -575,7 +575,9 @@ body.narrow .price-t th:nth-child(3), body.narrow .price-t td:nth-child(3){ disp
 body.narrow .price-t td{ font-size:.8em; }
 .pay .page-inner{ align-items:center; justify-content:center; padding:2.6em 3em; }
   .pay-title{ font-size:3.4em; }
-  .timeline{ width:100%; margin-top:2.6em; position:relative; }
+  .pay-status{ display:inline-flex; align-items:center; gap:.7em; margin:1.2em 0 0; font-size:.72em; font-weight:600; letter-spacing:.2em; text-transform:uppercase; text-shadow:0 1px 8px rgba(0,0,0,.6); }
+  .pay-status .dot{ width:.6em; height:.6em; border-radius:50%; background:var(--olive); box-shadow:0 0 0 .3em rgba(182,194,106,.25); }
+  .timeline{ width:100%; margin-top:2.2em; position:relative; }
   .tl-line{ position:absolute; left:0; right:0; top:50%; height:2px; background:rgba(239,233,217,.9); }
   .tl-row{ display:flex; }
   .tl-step{ flex:1; display:flex; flex-direction:column; align-items:center; gap:.9em; position:relative; }
@@ -1050,16 +1052,16 @@ body.narrow .price-t td{ font-size:.8em; }
     <div class="shade"></div>
     <div class="page-inner">
       <h2 class="serif-title pay-title">Payment Timeline</h2>
+      <p class="pay-status"><span class="dot" aria-hidden="true"></span>Construction has started</p>
       <div class="timeline">
         <div class="tl-line"></div>
         <div class="tl-row">
           <div class="tl-step"><span class="pct">10%</span><span class="node">1</span><span class="lb">Reservation <br>Fee</span></div>
           <div class="tl-step"><span class="pct">30%</span><span class="node">2</span><span class="lb">Notarial <br>Signing</span></div>
-          <div class="tl-step"><span class="pct"></span><span class="node">3</span><span class="lb">Start <br>Construction</span></div>
-          <div class="tl-step"><span class="pct">10%</span><span class="node">4</span><span class="lb">Progress <br>25%</span></div>
-          <div class="tl-step"><span class="pct">20%</span><span class="node">5</span><span class="lb">Progress <br>55%</span></div>
-          <div class="tl-step"><span class="pct">20%</span><span class="node">6</span><span class="lb">Progress <br>85%</span></div>
-          <div class="tl-step"><span class="pct">10%</span><span class="node">7</span><span class="lb">Project <br>Finished</span></div>
+          <div class="tl-step"><span class="pct">10%</span><span class="node">3</span><span class="lb">Progress <br>25%</span></div>
+          <div class="tl-step"><span class="pct">20%</span><span class="node">4</span><span class="lb">Progress <br>55%</span></div>
+          <div class="tl-step"><span class="pct">20%</span><span class="node">5</span><span class="lb">Progress <br>85%</span></div>
+          <div class="tl-step"><span class="pct">10%</span><span class="node">6</span><span class="lb">Project <br>Finished</span></div>
         </div>
       </div>
       <p class="pay-note">Payments follow construction milestones · handover 1 March 2028</p>
