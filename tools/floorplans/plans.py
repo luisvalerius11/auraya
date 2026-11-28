@@ -227,10 +227,13 @@ def build(pdf, out, only=None):
             continue
         defs = villa_123(n) if n < 4 else villa_4()
         sheets = []
+        # the ground floor without labels or dimensions, shown faded under the upper floor and roof
+        g = Plan(doc[0], CLIPS[n]); g.site_exclude = SITE_EXCLUDE.get((n, 0), ())
+        ground_raw, _ = g.render(defs[0][0], [], F, defs[0][2], raw=True)
         for (slug, fname, page), (zones, labels, decor) in zip(FLOORS, defs):
             plan = Plan(doc[page], CLIPS[n])
             plan.site_exclude = SITE_EXCLUDE.get((n, page), ())
-            img, legend = plan.render(zones, labels, F, decor)
+            img, legend = plan.render(zones, labels, F, decor, underlay=ground_raw if page else None)
             os.makedirs(os.path.join(out, "brochure"), exist_ok=True)
             plan_only = img.copy()  # plan + dimensions + labels, no title block: for the brochure page
             plan_only.save(os.path.join(out, "brochure", f"villa-a{n}-{slug}-zoom.webp"), quality=82, method=6)  # full res, viewer
