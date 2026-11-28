@@ -35,6 +35,8 @@ Output per villa (A1–A4, as in the brochure and price list): `villa-aN-{ground
 - `plans.py` holds the crop and the room/material/label/furniture definitions for each villa and floor.
   Rooms carry their name and area (m², from the drawing) on the plan. On the upper floor and roof the
   ground floor's outdoor areas (pool, decks, garden, parking) are shown faded in the open parts of the plot.
+  Gardens come from the drawing's planting hatch; the overflow (infinity) edge on the ocean side of each
+  pool is `OVERFLOW` in `plans.py`, taken from the ground floor's pool-edge lines.
 - Dimension chains (mm) come from the CAD dimension layer: the tick marks give the exact measuring
   points, so every value matches the architect's drawing; detail and overall chains are drawn on
   each side of the villa where the drawing has them.
